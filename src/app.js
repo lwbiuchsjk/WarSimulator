@@ -288,37 +288,27 @@ var HelloWorldLayer = cc.Layer.extend({
         var pstUntToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(
                 res.POSITION_UNIT, res.POSITION_UNIT_ON
-            ),
-            this.pstBtnCallback.bind(this, null),
-            this
+            )
         );
         var facePositionToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(
                 res.POSITION_FACE, res.POSITION_FACE_ON
-            ),
-            this.pstBtnCallback.bind(this, armyTemplate.position.FACE),
-            this
+            )
         );
         var leftPositionToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(
                 res.POSITION_SIDE, res.POSITION_SIDE_ON
-            ),
-            this.pstBtnCallback.bind(this, armyTemplate.position.SIDE),
-            this
+            )
         );
         var rightPositionToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(
                 res.POSITION_SIDE, res.POSITION_SIDE_ON
-            ),
-            this.pstBtnCallback.bind(this, armyTemplate.position.SIDE),
-            this
+            )
         );
         var backPositionToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(
                 res.POSITION_BACK, res.POSITION_BACK_ON
-            ),
-            this.pstBtnCallback.bind(this, armyTemplate.position.BACK),
-            this
+            )
         );
         facePositionToggleBtn.setScale(2.5, 2.5);
         rightPositionToggleBtn.setScale(2.5, 2.5);
@@ -354,7 +344,7 @@ var HelloWorldLayer = cc.Layer.extend({
             this
         );
         var bar = 300;
-        var fontSize = 100;
+        var fontSize = 50;
 
         loopToggleBtn.x = size.width - bar / 2;
         loopToggleBtn.y = bar / 2;
@@ -637,6 +627,17 @@ var HelloWorldLayer = cc.Layer.extend({
                 if (cc.rectContainsPoint(rect, pos)) {
                     console.log(event.getCurrentTarget().getName());
                     layer.currentUnit.status = armyTemplate.status.ATTACK_CHARGE;
+                } else {
+                    var targetName = event.getCurrentTarget().getName();
+                    if ((targetName === armyTemplate.position.FACE && pos.y - 2 * size.height > 0) ||
+                        (targetName === armyTemplate.position.BACK && pos.y + size.height < 0) ||
+                        (targetName === "RIGHT_" + armyTemplate.position.SIDE && pos.x - 2 * size.width > 0) ||
+                        (targetName === "LEFT_" + armyTemplate.position.SIDE && pos.x + size.width < 0)) {
+                        layer.currentUnit.status = armyTemplate.status.ATTACK + "_remote";
+                        console.log(layer.currentUnit.status);
+                    }
+                    else
+                        return false;
                 }
 
                 if (layer.currentUnit.status != null) {
@@ -646,6 +647,7 @@ var HelloWorldLayer = cc.Layer.extend({
                     cc.eventManager.pauseTarget(layer.positionMenu.getChildByName("RIGHT_" + armyTemplate.position.SIDE), true);
                     cc.eventManager.pauseTarget(layer.positionMenu.getChildByName("LEFT_" + armyTemplate.position.SIDE), true);
                     layer.currentUnit.loadUnit();
+                    layer.pstBtnCallback();
                 }
                 return true;
             }
