@@ -150,20 +150,21 @@ DamageCalculator.prototype = {
         var battle = this.getDefenceBasis(defenceUnit) + this.getBonus(defenceUnit.status, defenceUnit, attackUnit, armyTemplate.status.DEFENCE);
         return eval(battle);
     },
-    calDamage : function(sufferUnit, morale, attackBattle, defenceBattle) {
+    calDamage : function(sufferUnit, attackBattle, defenceBattle) {
         /*
-         * 结算damage的函数。damage与life/morale的换算，在临界点上下情况不同。在没有超过morale.flee的时候，所有换算时向上取证。
-         * 在满足morale.flee与大于flee小于destroy的时候，换算需向下取证。
-         *
-         * 返回值为伤害结算之后当前的morale数。
+         * 结算damage的函数。
+         * 如果attack>defence，那么damage = attack- defence。
+         * 如果attack<defence，那么有(defence + 1 - attack) / defence概率造成1damage。
          */
-        console.log("attack battle: " + attackBattle);
-        console.log("defence battle: " + defenceBattle);
-        var damageTmp = attackBattle / defenceBattle;
-        if (damageTmp + morale < sufferUnit.moraleFlee - 1)
-            return Math.round(damageTmp + morale);
-        else if (damageTmp + morale >= sufferUnit.moraleFlee - 1)
-            return Math.floor(damageTmp + morale);
+        if (attackBattle > defenceBattle)
+            return attackBattle - defenceBattle;
+        else {
+            var tmp = Math.random() * (defenceBattle + 1);
+            if (tmp > defenceBattle + 1 - attackBattle)
+                return 1;
+            else
+                return 0;
+        }
     },
     getDamage : function(attackList, defenceUnit) {
         /*
@@ -171,6 +172,7 @@ DamageCalculator.prototype = {
          * 返回结果是一个damageSequence队列。队列中元素是DamagePair.
          * 队列最末尾的是防守方收到的伤害。
          * 通常情况下，damageSequence长度为2。因为只有防守方正面可以造成伤害，并且正面只能与一个单位交锋。
+         * 在这里缺乏对engage状态的处理。原则上应该通过engage属性来判断双方是否陷入交战，进而是否考虑处理反击状况。
          */
         function loadDefenceTrigger(attackUnit, defenceUnit) {
             /*
@@ -181,27 +183,26 @@ DamageCalculator.prototype = {
         }
 
         var damageSequence = [];
-        var attackBattle = 0;
-        var defenceBattle = this.getDefenceBasis(defenceUnit);
+        var attackDamage = 0;
+        var counterDamage = 0;
 
         for (var num in attackList) {
             // 累计进攻方伤害
             var attackUnit = attackList[num];
-            console.log(attackUnit);
             loadDefenceTrigger(attackUnit, defenceUnit);
-            attackBattle += this.getAttack(attackUnit, defenceUnit);
-            if (attackUnit.position === armyTemplate.position.FACE) {
-                // 处理防守方的反击情况
-                defenceBattle = this.getDefence(attackUnit, defenceUnit);
-                var counterAtcBattle = this.getAttack(defenceUnit, attackUnit);
-                var sufferBattle = this.getDefence(defenceUnit, attackUnit);
-                var counterAtcDamage = this.calDamage(attackUnit, attackUnit.morale, counterAtcBattle, sufferBattle);
-                damageSequence.push(new DamagePair(attackUnit, counterAtcDamage));
+            console.log("attack: " + attackUnit.unit + " battle: " + eval(this.getAttack(attackUnit, defenceUnit)) + "\n" +
+                "defence: " + defenceUnit.unit + " battle: " + eval(this.getDefence(attackUnit, defenceUnit)));
+            attackDamage += this.calDamage(attackUnit, this.getAttack(attackUnit, defenceUnit), this.getDefence(attackUnit, defenceUnit));
+            if (attackUnit.position === armyTemplate.position.FACE && attackUnit.status !== armyTemplate.status.ATTACK_REMOTE) {
+                // 处理防守方的反击情况。只有处于正面，并且不是远程攻击的单位，才会遭到反击。
+                console.log("counter: " + defenceUnit.unit + " battle: " + eval(this.getAttack(defenceUnit, attackUnit)) + "\n" +
+                    "suffer: " + attackUnit.unit + " battle: " + eval(this.getDefence(defenceUnit, attackUnit)));
+                counterDamage = this.calDamage(attackUnit, this.getAttack(defenceUnit, attackUnit), this.getDefence(defenceUnit, attackUnit));
+                damageSequence.push(new DamagePair(attackUnit, counterDamage));
             }
         }
         if (damageSequence.length === 0)
             damageSequence.push(new DamagePair(attackList[0], 0));
-        var attackDamage = this.calDamage(defenceUnit, defenceUnit.morale, attackBattle, defenceBattle);
         damageSequence.push(new DamagePair(defenceUnit, attackDamage));
 
         return damageSequence;

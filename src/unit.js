@@ -14,12 +14,16 @@ var armyTemplate = {
         LIGHT_CAVALVY : "lightInfantry"
     },
     status : {
-        DEFENCE : "defence",                  //处于防御姿态
-        DEFENCE_CHARGE_FACE : "defence_charge_face",      //处于防御姿态，进攻方正在正面冲锋
-        ATTACK : "attack",                   //处于通常进攻姿态
-        ATTACK_CHARGE : "attack_charge",            //处于进攻_冲锋姿态
-        ATTACK_CHARGE_ADVANTAGE : "attack_charge_advantage",  //处于进攻_冲锋_优势位置姿态
-        ATTACK_ENGAGE : "attack_engage"             //处于进攻_目标正在交火状态
+        ////////////////////////////////////
+        // 所有新增的单位状态都需要在这里备案
+        DEFENCE : "defence",                                  //近距离防御姿态
+        DEFENCE_CHARGE_FACE : "defence_charge_face",          //近距离防御姿态，进攻方正在正面冲锋
+        ATTACK : "attack",                                    //近距离进攻姿态
+        ATTACK_CHARGE : "attack_charge",                      //近距离进攻_冲锋姿态
+        ATTACK_CHARGE_ADVANTAGE : "attack_charge_advantage",  //近距离进攻_冲锋_优势位置姿态
+        ATTACK_ENGAGE : "attack_engage",                      //进攻_目标正在交火状态
+        ATTACK_REMOTE : "attack_remote",                      //远程攻击姿态
+        DEFENCE_REMOTE: "defence_remote"                      //远程防御姿态
     },
     position : {
         FACE : "face",
@@ -412,11 +416,11 @@ Unit.prototype = {
     },
 
     loadUnit : function() {
-        // 缺少对status与position的检测
-        if (this.unit in armyTemplate && this._inArray(armyTemplate.status, this.status)) {
-            var squad = armyTemplate[this.unit].troop;
+        if (this._unit in armyTemplate && this._inArray(armyTemplate.status, this._status)) {
+            // 在这里检测是否存在单位模板，以及单位姿态是否存在。如果单位姿态没有在template.status中列出，那么将无法进入下一步骤。
+            var squad = armyTemplate[this._unit].troop;
             for (var team in squad) {
-                if (squad[team].rank === this.rank) {
+                if (squad[team].rank === this._rank) {
                     this.attackWeapon = squad[team].attackWeapon;
                     this.attackFormation = squad[team].attackFormation;
                     this.defenceWeapon = squad[team].defenceWeapon;
@@ -427,9 +431,9 @@ Unit.prototype = {
                     break;
                 }
             }
-            if (this.position === undefined || !this._inArray(armyTemplate.position, this.position))
-                this.position = armyTemplate.position.FACE;
-            this.sequence = armyTemplate[this.unit].sequence;
+            if (this._position === undefined || !this._inArray(armyTemplate.position, this._position))
+                this._position = armyTemplate.position.FACE;
+            this.sequence = armyTemplate[this._unit].sequence;
             this._engage = 0;
         }
     }

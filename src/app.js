@@ -633,13 +633,10 @@ var HelloWorldLayer = cc.Layer.extend({
                         (targetName === armyTemplate.position.BACK && pos.y + size.height < 0) ||
                         (targetName === "RIGHT_" + armyTemplate.position.SIDE && pos.x - 2 * size.width > 0) ||
                         (targetName === "LEFT_" + armyTemplate.position.SIDE && pos.x + size.width < 0)) {
-                        layer.currentUnit.status = armyTemplate.status.ATTACK + "_remote";
+                        layer.currentUnit.status = armyTemplate.status.ATTACK_REMOTE;
                         console.log(layer.currentUnit.status);
                     }
-                    else
-                        return false;
                 }
-
                 if (layer.currentUnit.status != null) {
                     console.log("pause");
                     cc.eventManager.pauseTarget(layer.positionMenu.getChildByName(armyTemplate.position.FACE), true);
