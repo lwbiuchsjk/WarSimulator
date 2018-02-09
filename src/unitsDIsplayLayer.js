@@ -1,7 +1,10 @@
-
-var HelloWorldLayer = cc.Layer.extend({
+var UnitsDisplayLayer = cc.Layer.extend({
     sprite : null,
     seqMenu : null,
+    //heavyCavalvyMenu : null,
+    //lightCavalvyMenu : null,
+    //heavyInfantryMenu : null,
+    //lightInfantryMenu : null,
     rankMenu : null,
     lifeMenu : null,
     runMenu : null,
@@ -9,7 +12,9 @@ var HelloWorldLayer = cc.Layer.extend({
     loopMenu : null,
     posListener : null,
 
-    unitList : [],
+
+    myUnitsList : [],
+    enemyUnitsList : [],
     currentUnit: null,          // 取到当前正在处理的unit
 
     ctor:function () {
@@ -22,6 +27,7 @@ var HelloWorldLayer = cc.Layer.extend({
         //    you may modify it.
         // ask the window size
         var size = cc.director.getWinSize();
+        var globalScale = size.width / 1920;
 
         ////////////////////////////////////
         // 背景
@@ -31,9 +37,25 @@ var HelloWorldLayer = cc.Layer.extend({
         bg.setPosition(0, 0);
         this.addChild(bg);
 
+        this.addSeqMenu(globalScale);
+        this.addHeavyInfantryMenu(globalScale);
+        this.addLightInfantryMenu(globalScale);
+        this.addHeavyCavalvyMenu(globalScale);
+        this.addLightCavalvyMenu(globalScale);
+        this.addRankMenu(globalScale);
+        this.addLifeMenu(globalScale);
+        this.addPositionMenu(globalScale);
+        this.showOutput(globalScale);
+
+        return true;
+    },
+
+    addSeqMenu : function(scale) {
         //////////////////////////////
         // seq菜单创建
         // 以下建立四个兵种的菜单。只有他们需要this[]来索引。其他Menu项可以直接通过this.来索引。
+        var size = cc.director.getWinSize();
+
         this[armyTemplate.sequences.HEAVY_CAVALVY + "Menu"] = null;
         this[armyTemplate.sequences.HEAVY_INFANTRY + "Menu"] = null;
         this[armyTemplate.sequences.LIGHT_CAVALVY + "Menu"] = null;
@@ -49,7 +71,7 @@ var HelloWorldLayer = cc.Layer.extend({
         var lghtInfToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(
                 res.SEQ_LIGHT_INFANTRY, res.SEQ_LIGHT_INFANTRY_ON
-             ),
+            ),
             this.seqBtnCallback.bind(this, armyTemplate.sequences.LIGHT_INFANTRY),
             this
         );
@@ -93,9 +115,14 @@ var HelloWorldLayer = cc.Layer.extend({
         seqMenu.y = 0;
         this.seqMenu = seqMenu;
         this.addChild(seqMenu);
+    },
 
+    addHeavyInfantryMenu : function(scale) {
         //////////////////////////////
         // 以下是heavy infantry的菜单
+        var btnInterval = 60;
+        var btnWidth = 250;
+        var size = cc.director.getWinSize();
         var shldmnToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(
                 res.UNIT_SHIELDMAN, res.UNIT_SHIELDMAN_ON
@@ -129,7 +156,6 @@ var HelloWorldLayer = cc.Layer.extend({
         bwmnToggleBtn.setScale(0.5, 0.5);
         pkmnToggleBtn.setScale(0.5, 0.5);
         axmnToggleBtn.setScale(0.5, 0.5);
-
         pkmnToggleBtn.x = size.width / 2 - btnInterval / 2 - btnWidth / 2;
         shldmnToggleBtn.x = pkmnToggleBtn.x - btnInterval - btnWidth;
         axmnToggleBtn.x = size.width / 2 + btnInterval / 2 + btnWidth / 2;
@@ -141,12 +167,17 @@ var HelloWorldLayer = cc.Layer.extend({
         hvyInfMenu.setVisible(false);
         this[armyTemplate.sequences.HEAVY_INFANTRY + "Menu"] = hvyInfMenu;
         this.addChild(hvyInfMenu);
+    },
 
+    addLightInfantryMenu : function(scale) {
         /////////////////////////////////////////
         // 以下是light infantry的菜单
+    },
 
+    addHeavyCavalvyMenu : function(scale) {
         /////////////////////////////////////////
         // 以下是heavy cavalvy的菜单
+        var size = cc.director.getWinSize();
         var impcthrsToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(
                 res.UNIT_IMPACTHORSE, res.UNIT_IMPACTHORSE_ON
@@ -163,9 +194,12 @@ var HelloWorldLayer = cc.Layer.extend({
         hvyCvyMenu.setVisible(false);
         this[armyTemplate.sequences.HEAVY_CAVALVY + "Menu"] = hvyCvyMenu;
         this.addChild(hvyCvyMenu);
+    },
 
+    addLightCavalvyMenu : function(scale) {
         //////////////////////////////////////////
         // 以下是light cavalvy的菜单
+        var size = cc.director.getWinSize();
         var hnthrsToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(
                 res.UNIT_HUNTHORSE, res.UNIT_HUNTHORSE_ON
@@ -182,9 +216,14 @@ var HelloWorldLayer = cc.Layer.extend({
         lghtCvyMenu.setVisible(false);
         this[armyTemplate.sequences.LIGHT_CAVALVY + "Menu"] = lghtCvyMenu;
         this.addChild(lghtCvyMenu);
+    },
 
+    addRankMenu : function(scale) {
         ///////////////////////////////////////////////
         // 以下是rank菜单
+        var btnInterval = 60;
+        var btnWidth = 250;
+        var size = cc.director.getWinSize();
         var rank2ToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(
                 res.RANK2, res.RANK2_ON
@@ -219,9 +258,14 @@ var HelloWorldLayer = cc.Layer.extend({
         rankMenu.setVisible(false);
         this.rankMenu = rankMenu;
         this.addChild(rankMenu);
+    },
 
+    addLifeMenu : function(scale) {
         ///////////////////////////////////////
         // 以下是LIFE菜单
+        var btnInterval = 60;
+        var btnWidth = 250;
+        var size = cc.director.getWinSize();
         var life1ToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(
                 res.LIFE1, res.LIFE1_ON
@@ -282,9 +326,12 @@ var HelloWorldLayer = cc.Layer.extend({
         lifeMenu.setVisible(false);
         this.lifeMenu = lifeMenu;
         this.addChild(lifeMenu);
+    },
 
+    addPositionMenu : function(scale) {
         ////////////////////////////////////////////////
         // 以下是position菜单
+        var size = cc.director.getWinSize();
         var pstUntToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(
                 res.POSITION_UNIT, res.POSITION_UNIT_ON
@@ -333,9 +380,13 @@ var HelloWorldLayer = cc.Layer.extend({
         positionMenu.setVisible(false);
         this.positionMenu = positionMenu;
         this.addChild(positionMenu);
+    },
 
+    showOutput : function(scale) {
         ///////////////////////////////////////////////////
         // 以下是展示/loop环节
+        var size = cc.director.getWinSize();
+
         var loopToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(
                 res.BUTTON_RUN, res.BUTTON_RUN_GO
@@ -378,8 +429,6 @@ var HelloWorldLayer = cc.Layer.extend({
         attackImage.setVisible(false);
         this.addChild(attackImage, 0, armyTemplate.status.ATTACK + "_IMAGE");
         this.addChild(attackString, 0, armyTemplate.status.ATTACK + "_STRING");
-
-        return true;
     },
 
     seqBtnCallback : function(seq) {
@@ -405,7 +454,7 @@ var HelloWorldLayer = cc.Layer.extend({
 
     lfBtnCallback : function(life) {
         this.currentUnit.morale = life;
-        if (this.unitList.length > 0) {
+        if (this.myUnitsList.length > 0) {
             // 已经处理过defenceUnit的情况下，选择attackUnit的位置
             this.lifeMenu.setVisible(false);
             this.positionMenu.setVisible(true);
@@ -425,13 +474,13 @@ var HelloWorldLayer = cc.Layer.extend({
 
     pstBtnCallback : function() {
         this.positionMenu.setVisible(false);
-        this.unitList.push(this.currentUnit);
+        this.myUnitsList.push(this.currentUnit);
         this.seqMenu.setVisible(true);
     },
 
     outputCallback : function() {
         this.seqMenu.setVisible(false);
-        var calculator = new DamageCalculator(this.unitList);
+        var calculator = new DamageCalculator(this.myUnitsList);
         console.log(calculator);
 
         var damageList = calculator.getDamage(calculator.attackList, calculator.defenceUnit);
@@ -472,7 +521,7 @@ var HelloWorldLayer = cc.Layer.extend({
     },
 
     loopBtnCallback : function() {
-        this.unitList = [];
+        this.myUnitsList = [];
 
         this.getChildByName(armyTemplate.status.DEFENCE + "_IMAGE").setVisible(false);
         this.getChildByName(armyTemplate.status.ATTACK + "_IMAGE").setVisible(false);
@@ -667,12 +716,3 @@ var HelloWorldLayer = cc.Layer.extend({
         cc.eventManager.removeAllEventListeners();
     }
 });
-
-var HelloWorldScene = cc.Scene.extend({
-    onEnter:function () {
-        this._super();
-        var layer = new HelloWorldLayer();
-        this.addChild(layer);
-    }
-});
-
