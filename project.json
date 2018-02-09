@@ -17,6 +17,7 @@
         "src/unit.js",
         "src/damageCal.js",
         "src/unitsDisplayLayer.js",
-        "src/battleScene.js"
+        "src/battleScene.js",
+        "src/unitConfigLayer.js"
     ]
 }

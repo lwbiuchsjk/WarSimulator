@@ -11,7 +11,7 @@ var armyTemplate = {
         HEAVY_INFANTRY : "heavyInfantry",
         LIGHT_INFANTRY : "lightInfantry",
         HEAVY_CAVALVY : "heavyCavalvy",
-        LIGHT_CAVALVY : "lightInfantry"
+        LIGHT_CAVALVY : "lightCavalvy"
     },
     status : {
         ////////////////////////////////////
@@ -364,7 +364,9 @@ function Unit() {
     this._status = null;
     this._position = null;
     this._engage = null;
+    this._FLAG = null;
 }
+
 Unit.prototype = {
     set unit(unit) {
         if (this._inArray(armyTemplate.units, unit))
@@ -405,6 +407,13 @@ Unit.prototype = {
     },
     get position() {
         return this._position;
+    },
+
+    set flag(FLAG) {
+        this._FLAG = FLAG;
+    },
+    get flag() {
+        return this._FLAG;
     },
 
     _inArray : function(array, ele) {

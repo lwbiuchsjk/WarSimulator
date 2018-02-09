@@ -168,7 +168,9 @@ DamageCalculator.prototype = {
     },
     getDamage : function(attackList, defenceUnit) {
         /*
-         * 最终执行函数，将所有伤害累加，然后结算防御方受到的伤害。只有正面面对防御方的进攻单位，才会收到反击伤害。
+         * 简单版本的伤害计算器。
+         *
+         * 最终执行函数，每个进攻方对防守方单独结算伤害。只有正面面对防御方的进攻单位，才会收到反击伤害。
          * 返回结果是一个damageSequence队列。队列中元素是DamagePair.
          * 队列最末尾的是防守方收到的伤害。
          * 通常情况下，damageSequence长度为2。因为只有防守方正面可以造成伤害，并且正面只能与一个单位交锋。

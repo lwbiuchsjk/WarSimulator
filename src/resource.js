@@ -1,6 +1,10 @@
 var res = {
     SET_GRAY_BACKGROUND : "res/SET_GRAY_BACKGROUND.bmp",
 
+    UNIT_ON : "res/UNIT_ON.bmp",
+    UNIT_OFF : "res/UNIT_OFF.bmp",
+    UNIT_DONE : "res/UNIT_DONE.bmp",
+
     SEQ_HEAVY_CAVALVY : "res/SEQ_HEAVY_CAVALVY_BLACK.bmp",
     SEQ_HEAVY_CAVALVY_ON : "res/SEQ_HEAVY_CAVALVY_ON.bmp",
     SEQ_HEAVY_INFANTRY : "res/SEQ_HEAVY_INFANTRY_BLACK.bmp",
