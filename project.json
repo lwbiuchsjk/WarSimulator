@@ -13,11 +13,14 @@
 
     "jsList" : [
         "src/resource.js",
-        "src/sceneController.js",
+        "src/configScene.js",
         "src/unit.js",
         "src/damageCal.js",
         "src/unitsDisplayLayer.js",
         "src/battleScene.js",
-        "src/unitConfigLayer.js"
+        "src/unitConfigLayer.js",
+        "src/showUnitsLayer.js",
+        "src/battleLayer.js",
+        "src/outputLayer.js"
     ]
 }

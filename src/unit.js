@@ -425,8 +425,10 @@ Unit.prototype = {
     },
 
     loadUnit : function() {
-        if (this._unit in armyTemplate && this._inArray(armyTemplate.status, this._status)) {
-            // 在这里检测是否存在单位模板，以及单位姿态是否存在。如果单位姿态没有在template.status中列出，那么将无法进入下一步骤。
+        /*
+         * 因为loadUnit的时机是在display阶段，导致unit没有status信息。因而判断中取消对status的判断。
+         */
+        if (this._unit in armyTemplate) {
             var squad = armyTemplate[this._unit].troop;
             for (var team in squad) {
                 if (squad[team].rank === this._rank) {

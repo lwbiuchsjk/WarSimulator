@@ -1,7 +1,8 @@
-var MainScene = cc.Scene.extend({
+var ConfigScene = cc.Scene.extend({
     moduleNameList : {
         displayLayer : "displayLayer",
-        configLayer : "configLayer"
+        configLayer : "configLayer",
+        outputLayer : "outputLayer",
     },
     onEnter:function () {
         this._super();
@@ -12,6 +13,7 @@ var MainScene = cc.Scene.extend({
         var configLayer = new UnitConfigLayer();
         configLayer.setName(this.moduleNameList.configLayer);
         configLayer.setVisible(false);
+        
         this.addChild(configLayer);
     }
 });

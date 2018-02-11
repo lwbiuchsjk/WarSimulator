@@ -6,17 +6,22 @@ var UnitsDisplayLayer = cc.Layer.extend({
         myUnitsMenu : "myUnitsMenu",
         enemyUnitsMenu : "enemyUnitsMenu",
         myTroops : "myTroops",
-        enemyTroops : "enemyTroops"
+        enemyTroops : "enemyTroops",
+        runButton : "runButton",
     },
 
     unitListener : null,
+    runButtonListener : null,
     myUnitsButtons : new Array(10),     // buttons与troops的长度应该相等
     enemyUnitsButtons : new Array(10),
 
     myTroops : new Array(10),           // FLAG = "myTroops" + "." + NUMBER
     enemyTroops : new Array(10),        // FLAG = "enemyTroops" + "." + NUMBER
 
+    unitImageScale : 0.3,  // 在新图标上线前，暂用参数。
+
     configUnit : null,
+    emptyUnitCount : 20,
 
     ctor:function () {
         //////////////////////////////
@@ -39,17 +44,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
         this.addChild(bg);
 
         this.addUnitsMenu(globalSize, globalScale);
-        /*
-        this.addSeqMenu(globalScale);
-        this.addHeavyInfantryMenu(globalScale);
-        this.addLightInfantryMenu(globalScale);
-        this.addHeavyCavalvyMenu(globalScale);
-        this.addLightCavalvyMenu(globalScale);
-        this.addRankMenu(globalScale);
-        this.addLifeMenu(globalScale);
-        this.addPositionMenu(globalScale);
-        this.showOutput(globalScale);
-        */
+        this.addRunButton(globalSize, globalScale);
         return true;
     },
 
@@ -78,11 +73,23 @@ var UnitsDisplayLayer = cc.Layer.extend({
         }
     },
 
+    addRunButton : function(size, scale) {
+        var runButton = new cc.Sprite(res.BUTTON_RUN);
+        runButton.setPosition(size.width / 2, size.height / 2);
+        runButton.setScale(2.5, 2.5);
+        runButton.setName(this.moduleNameList.runButton);
+        runButton.setVisible(false);
+        this.addChild(runButton);
+    },
+
     setUnitFromFlag : function(string, unit) {
         var point = string.indexOf(".");
         var target = string.slice(0, point);
         var number = string.slice(point + 1, string.length);
-        this[target][number] = unit;
+        if (this[target][number] == null)
+            this[target][number] = unit;
+        else
+            throw target + " team is FULL!!!";
     },
 
     getUnitButtonFromFlag : function(string) {
@@ -108,23 +115,42 @@ var UnitsDisplayLayer = cc.Layer.extend({
     },
 
     resumeLayer : function(unit) {
-        this.setUnitFromFlag(this.configUnit, unit);
-        this.getUnitButtonFromFlag(this.configUnit).setTexture(res.UNIT_DONE);
-        this.eraseUnitFlag();
-        for (var iter = 0; iter < this.myUnitsButtons.length; iter++) {
-            var myButton = this.myUnitsButtons[iter];
-            if (this.myTroops[iter] == null) {
-                myButton.setTexture(res.UNIT_ON);
-                cc.eventManager.resumeTarget(myButton);
+        var that = this;
+        function unitButtonChanger() {
+            that.setUnitFromFlag(that.configUnit, unit);
+            var button = that.getUnitButtonFromFlag(that.configUnit);
+            button.setTexture(res["UNIT_" + unit.unit]);
+            button.setScale(that.unitImageScale, that.unitImageScale);
+            that.eraseUnitFlag();
+            for (var iter = 0; iter < that.myUnitsButtons.length; iter++) {
+                var myButton = that.myUnitsButtons[iter];
+                if (that.myTroops[iter] == null) {
+                    myButton.setTexture(res.UNIT_ON);
+                    cc.eventManager.resumeTarget(myButton);
+                }
+            }
+            for (var iter = 0; iter < that.enemyUnitsButtons.length; iter++) {
+                var enemyButton = that.enemyUnitsButtons[iter];
+                if (that.enemyTroops[iter] == null){
+                    enemyButton.setTexture(res.UNIT_ON);
+                    cc.eventManager.resumeTarget(enemyButton);
+                }
             }
         }
-        for (var iter = 0; iter < this.enemyUnitsButtons.length; iter++) {
-            var enemyButton = this.enemyUnitsButtons[iter];
-            if (this.enemyTroops[iter] == null){
-                enemyButton.setTexture(res.UNIT_ON);
-                cc.eventManager.resumeTarget(enemyButton);
-            }
+
+        if (this.emptyUnitCount > 19) {
+            unitButtonChanger();
+            this.emptyUnitCount--;
+        }else {
+            unitButtonChanger();
+            console.log("ready to run");
+            this.getChildByName(this.moduleNameList.runButton).setVisible(true);
         }
+
+        console.log("my troops----------------------------");
+        console.log(this.myTroops);
+        console.log("enemy troops-------------------------");
+        console.log(this.enemyTroops);
     },
 
     onEnter : function() {
@@ -134,7 +160,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
 
         this.unitListener = cc.EventListener.create({
             event :  cc.EventListener.TOUCH_ONE_BY_ONE,
-            swallowTouches : false,
+            swallowTouches : true,
             onTouchBegan : function(touch, event) {
                 var target = event.getCurrentTarget();
                 var pos = target.convertToNodeSpace(touch.getLocation());
@@ -156,20 +182,23 @@ var UnitsDisplayLayer = cc.Layer.extend({
                         var myButton = layer.myUnitsButtons[iter];
                         if (myButton !== target && layer.myTroops[iter] == null)
                             myButton.setTexture(res.UNIT_OFF);
-                        else
+                        else if (myButton === target && layer.myTroops[iter] == null) {
                             layer.setUnitFlag(layer.moduleNameList.myTroops + "." + iter);
+                            console.log("chosen unit:" + myButton.getName());
+                        }
                     }
                     for (var iter  = 0; iter < layer.enemyUnitsButtons.length; iter++) {
                         var enemyButton = layer.enemyUnitsButtons[iter];
                         if (enemyButton !== target && layer.enemyTroops[iter] == null)
                             enemyButton.setTexture(res.UNIT_OFF);
-                        else
+                        else if (enemyButton === target && layer.enemyTroops[iter] == null) {
                             layer.setUnitFlag(layer.moduleNameList.enemyTroops + "." + iter);
+                            console.log("chosen unit:" + enemyButton.getName());
+                        }
                     }
 
                     var sceneNode = layer.getParent();
                     var configLayer = sceneNode.getChildByName(sceneNode.moduleNameList.configLayer);
-                    configLayer.setVisible(true);
                     configLayer.motiveLayer();
                     for (var iter = 0; iter < layer.myUnitsButtons.length; iter++) {
                         cc.eventManager.pauseTarget(layer.myUnitsButtons[iter]);
@@ -189,9 +218,42 @@ var UnitsDisplayLayer = cc.Layer.extend({
         for (var iter = 0; iter < this.enemyUnitsButtons.length; iter++) {
             cc.eventManager.addListener(this.unitListener.clone(), this.enemyUnitsButtons[iter]);
         }
+
+        this.runButtonListener = cc.EventListener.create({
+            event : cc.EventListener.TOUCH_ONE_BY_ONE,
+            swallowTouches : true,
+            onTouchBegan : function(touch, event) {
+                var target = event.getCurrentTarget();
+                var pos = target.convertToNodeSpace(touch.getLocation());
+                var size = target.getContentSize();
+                var rect = cc.rect(0, 0, size.width, size.height);
+                if (cc.rectContainsPoint(rect, pos)) {
+                    target.setTexture(res.BUTTON_RUN_GO);
+                    return true;
+                }
+                return false;
+            },
+            onTouchMoved : function(touch, event) {
+                return true;
+            },
+            onTouchEnded : function(touch, event) {
+                var target = event.getCurrentTarget();
+                var pos = target.convertToNodeSpace(touch.getLocation());
+                var size = target.getContentSize();
+                var rect = cc.rect(0, 0, size.width, size.height);
+                if (cc.rectContainsPoint(rect, pos)) {
+                    cc.director.pushScene(new BattleScene(layer.myTroops, layer.enemyTroops));
+                    //cc.director.replaceScene(cc.TransitionPageTurn(1, new BattleScene(layer.myTroops, layer.enemyTroops), false));
+                    return true;
+                }
+                return false;
+            }
+        });
+        cc.eventManager.addListener(this.runButtonListener, this.getChildByName(this.moduleNameList.runButton))
     },
 
     onExit : function() {
         this._super();
+        cc.eventManager.removeAllListeners();
     }
 });

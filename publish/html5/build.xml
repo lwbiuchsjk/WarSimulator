@@ -326,7 +326,7 @@
             <sources dir="${basedir}">
                 <file name="src/resource.js"/>
 
-                <file name="src/sceneController.js"/>
+                <file name="src/configScene.js"/>
 
                 <file name="src/unit.js"/>
 
