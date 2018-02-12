@@ -26,11 +26,19 @@ DamagePair.prototype = {
 };
 
 function DamageCalculator(armyList) {
-    this.defenceUnit = armyList[0];
-    this.attackList = armyList.slice(1, armyList.length);
+    if (armyList != null) {
+        this.defenceUnit = armyList[0];
+        this.attackList = armyList.slice(1, armyList.length);
+    }
 }
 
 DamageCalculator.prototype = {
+    loadDefenceUnit : function(unit) {
+        this.defenceUnit = unit;
+    },
+    loadAttackList : function(list) {
+        this.attackList = list;
+    },
     getAttackBasis : function(attackUnit) {
         /*
          * 用于计算基础的攻击值。
@@ -140,8 +148,7 @@ DamageCalculator.prototype = {
          * 返回值是String。
          */
         return this.getSpeciality(trigger, driveUnit.position, driveUnit, supportUnit, FLAG) + this.getAdvantage(driveUnit.position, supportUnit);
-    }
-    ,
+    },
     getAttack : function(attackUnit, defenceUnit) {
         var battle = this.getAttackBasis(attackUnit) + this.getBonus(attackUnit.status, attackUnit, defenceUnit, armyTemplate.status.ATTACK);
         return eval(battle);

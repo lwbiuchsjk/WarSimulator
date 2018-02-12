@@ -3,16 +3,16 @@ var UnitConfigLayer = cc.Layer.extend({
 
     moduleNameList : {
         seqMenu : "seqMenu",
-        rankMenu : "rankMenu",
-        lifeMenu : "lifeMenu",
-        runMenu : "runMenu",
-        positionMenu : "positionMenu",
-        loopMenu : "loopMenu",
-        posListener : "posListener",
         heavyCavalvyMenu : "heavyCavalvyMenu",
         lightCavalvyMenu : "lightCavalvyMenu",
         heavyInfantryMenu : "heavyInfantryMenu",
-        lightInfantryMenu : "lightInfantryMenu"
+        lightInfantryMenu : "lightInfantryMenu",
+
+        rankMenu : "rankMenu",
+        titleMenu : "titleMenu",
+        lifeMenu : "lifeMenu",
+        runMenu : "runMenu",
+        posListener : "posListener",
     },
 
     posListener : null,
@@ -30,8 +30,7 @@ var UnitConfigLayer = cc.Layer.extend({
         this.addLightCavalvyMenu(globalSize, globalScale, imageScale);
         this.addRankMenu(globalSize, globalScale, imageScale);
         this.addLifeMenu(globalSize, globalScale, imageScale);
-        //this.addPositionMenu(globalScale);
-        //this.showOutput(globalScale);
+        this.addTitleMenu(globalSize, globalScale, 1);
         return true;
 
     },
@@ -227,6 +226,32 @@ var UnitConfigLayer = cc.Layer.extend({
         this.addChild(rankMenu);
     },
 
+    addTitleMenu : function(size, gScale, iScale) {
+        var titleButtons = [];
+        var startX = 435,         // 85
+            middleInterval = 30;       // 80
+        for (var iter = 0; iter < 6; iter++) {
+            var titleButton = new cc.MenuItemToggle(
+                new cc.MenuItemImage(
+                    res["TITLE_" + (iter + 1)],
+                    res["TITLE_ON_" + (iter + 1)]
+                ),
+                this.titleBtnCallback.bind(this, iter + 1),
+                this
+            );
+            titleButton.setPosition(startX + (titleButton.width + middleInterval) * iter, size.height / 2);
+            titleButton.setAnchorPoint(0, 0);
+            titleButton.setScale(iScale, iScale);
+            titleButtons.push(titleButton);
+        }
+        var titleMenu = new cc.Menu(titleButtons);
+        titleMenu.setPosition(0, 0);
+        titleMenu.setName(this.moduleNameList.titleMenu);
+        titleMenu.setVisible(false);
+        console.log(titleMenu);
+        this.addChild(titleMenu);
+    },
+
     addLifeMenu : function(size, gScale, iScale) {
         ///////////////////////////////////////
         // 以下是LIFE菜单
@@ -313,8 +338,15 @@ var UnitConfigLayer = cc.Layer.extend({
     rnkBtnCallback : function(rank) {
         this.currentUnit.rank = rank;
         this.getChildByName(this.moduleNameList.rankMenu).setVisible(false);
-        this.getChildByName(this.moduleNameList.lifeMenu).setVisible(true);
+        this.getChildByName(this.moduleNameList.titleMenu).setVisible(true);
         console.log("rank " +  rank + " chosen!");
+    },
+
+    titleBtnCallback : function(title) {
+        this.currentUnit.title = title;
+        this.getChildByName(this.moduleNameList.titleMenu).setVisible(false);
+        this.getChildByName(this.moduleNameList.lifeMenu).setVisible(true);
+        console.log("title " + title + " chosen!");
     },
 
     lfBtnCallback : function(life) {
@@ -326,18 +358,6 @@ var UnitConfigLayer = cc.Layer.extend({
         var displayLayer = parentNode.getChildByName(parentNode.moduleNameList.displayLayer);
         displayLayer.resumeLayer(this.currentUnit);
         this.setVisible(false);
-    },
-
-    loopBtnCallback : function() {
-        this.myUnitsList = [];
-
-        this.getChildByName(armyTemplate.status.DEFENCE + "_IMAGE").setVisible(false);
-        this.getChildByName(armyTemplate.status.ATTACK + "_IMAGE").setVisible(false);
-        this.getChildByName(armyTemplate.status.DEFENCE + "_STRING").setVisible(false);
-        this.getChildByName(armyTemplate.status.ATTACK + "_STRING").setVisible(false);
-
-        this.loopMenu.setVisible(false);
-        this.seqMenu.setVisible(true);
     },
 
     motiveLayer : function() {

@@ -364,7 +364,7 @@ function Unit() {
     this._status = null;
     this._position = null;
     this._engage = null;
-    this._FLAG = null;
+    this._title = null;
 }
 
 Unit.prototype = {
@@ -409,11 +409,11 @@ Unit.prototype = {
         return this._position;
     },
 
-    set flag(FLAG) {
-        this._FLAG = FLAG;
+    set title(FLAG) {
+        this._title = FLAG;
     },
-    get flag() {
-        return this._FLAG;
+    get title() {
+        return this._title;
     },
 
     _inArray : function(array, ele) {

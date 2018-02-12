@@ -1,4 +1,8 @@
 var OutputLayer = cc.Layer.extend({
+    moduleNameList : {
+        loopMenu : "loopMenu"
+    },
+
     ctor : function() {
         this._super();
 
@@ -15,7 +19,7 @@ var OutputLayer = cc.Layer.extend({
         this.addChild(bg);
 
         this.addOutputInfo(globalSize, globalScale, unitImageScale);
-        this.addLoopButton(globalSize, globalScale, unitImageScale);
+        this.addLoopButton(globalSize, globalScale, 2.5);
 
         return true;
     },
@@ -45,17 +49,30 @@ var OutputLayer = cc.Layer.extend({
         this.addChild(attackString, 0, armyTemplate.status.ATTACK + "_STRING");
     },
 
-    addLoopButton : function() {
+    addLoopButton : function(size, gScale, iScale) {
         console.log("add loop button!");
+
+        var bar = 150;
+        var loopButton = new cc.MenuItemToggle(
+            new cc.MenuItemImage(
+                res.BUTTON_RUN,
+                res.BUTTON_RUN_GO
+            ),
+            this.loopBtnCallback,
+            this
+        );
+        loopButton.setPosition(size.width - bar, bar);
+        loopButton.setScale(iScale, iScale);
+        var loopMenu = new cc.Menu(loopButton);
+        loopMenu.setPosition(0, 0);
+        loopMenu.setName(this.moduleNameList.loopMenu);
+        this.addChild(loopMenu);
     },
 
-    onPushLayer : function() {
-        this.setVisible(true);
-    },
-
-    onPopLayer : function() {
-        this.setVisible(false);
-
+    loopBtnCallback : function() {
+        this.onPopLayer();
+        var parentNode = this.getParent();
+        parentNode.getChildByName(parentNode.moduleNameList.showUnitsLayer).onPushLayer();
     },
 
     loadOutput : function(defenceUnit, attackUnit, battleDamage, counterDamage) {
@@ -86,6 +103,14 @@ var OutputLayer = cc.Layer.extend({
         var attackImage = this.getChildByName(armyTemplate.status.ATTACK + "_IMAGE");
         defenceImage.setTexture(res["UNIT_" + defenceUnit.troop.unit]);
         attackImage.setTexture(res["UNIT_" + attackUnit.troop.unit]);
+    },
+
+    onPushLayer : function() {
+        this.setVisible(true);
+    },
+
+    onPopLayer : function() {
+        this.setVisible(false);
     },
 
     onEnter : function() {
