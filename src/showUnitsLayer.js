@@ -4,7 +4,15 @@ var ShowUnitsLayer = cc.Layer.extend({
         myTroops : "myTroops",
         enemyTroops : "enemyTroops",
         calculateMenu : "calculateMenu",
-        attackInfo : "attackInfo",              // 为了区分敌我，作为名字时，这些info信息前都会添加myTroops/enemyTroops
+        /*
+         * 为了区分敌我，以下标签在使用中会遵循以下规则：
+         * faction.iter.info
+         * 其中
+         * faction = myTroops|enemyTroops
+         * iter为索引时数组下标
+         * info = attackInfo|defenceInfo|lifeInfo
+         */
+        attackInfo : "attackInfo",
         defenceInfo : "defenceInfo",
         lifeInfo : "lifeInfo",
     },
@@ -42,9 +50,13 @@ var ShowUnitsLayer = cc.Layer.extend({
         var unitWidth = 150, unitHeight = 150, unitInterval = 30,
             xStart = 75, yMeStart = 190, yEnmyStart = size.height - yMeStart - unitHeight,
             attackBarHeight = 50, defenceBarHeight = 50, titleBarHeight = 50;
-        var fontSize = 40;
+        var fontSize = 40,
+            lifeFontSize = 100;
+        var normalLifeColor = cc.color(125, 125, 125);
         var layer = this;
         for(var iter = 0; iter < this.myTroops.length; iter++) {
+            //////////////////////////////////////////////////
+            // unit本体
             var myUnit = this.myTroops[iter];
             var myPaleUnit = null;
             if (myUnit == null) {
@@ -60,6 +72,61 @@ var ShowUnitsLayer = cc.Layer.extend({
             myPaleUnit.setAnchorPoint(0, 0);
             myPaleUnit.setName(this.moduleNameList.myTroops + "." + iter);
             this.addChild(myPaleUnit);
+
+            if (myUnit != null) {
+                ////////////////////////////////////////////
+                // attackBattle显示元素
+                var myAttackBar = new cc.DrawNode();
+                myAttackBar.drawRect(cc.p(0, 0), cc.p(unitWidth, attackBarHeight), cc.color(255, 0, 0), 0);
+                myAttackBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yMeStart + unitHeight + titleBarHeight);
+                this.addChild(myAttackBar);
+                var myAttackString = new cc.LabelTTF(
+                    this.damageCalculator.getAttackBasis(myUnit),
+                    cc.size(myAttackBar.width, myAttackBar.height), fontSize,
+                    cc.TEXT_ALIGNMENT_CENTER,
+                    cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+                );
+                myAttackString.setPosition(myAttackBar.x + unitWidth / 2, myAttackBar.y + attackBarHeight / 2);
+                myAttackString.setName(this.moduleNameList.attackInfo + "." + this.moduleNameList.myTroops + "." + iter);
+                this.addChild(myAttackString);
+
+                ////////////////////////////////////////////////
+                // title显示元素
+                var myTitleBar = new cc.DrawNode();
+                myTitleBar.drawRect(cc.p(0, 0), cc.p(unitWidth, attackBarHeight), cc.color(255, 255, 255), 0);
+                myTitleBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yMeStart + unitHeight);
+                layer.addChild(myTitleBar);
+                var myTitle = new cc.Sprite(res["TITLE_" + layer.myTroops[iter].title]);
+                myTitle.setAnchorPoint(0, 0);
+                myTitle.setPosition(myTitleBar.x, myTitleBar.y);
+                layer.addChild(myTitle);
+
+                /////////////////////////////////////////////////
+                // defenceBattle显示元素
+                var myDefenceBar = new cc.DrawNode();
+                myDefenceBar.drawRect(cc.p(0, 0), cc.p(unitWidth, defenceBarHeight), cc.color(75, 172, 198), 0);
+                myDefenceBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yMeStart - defenceBarHeight);
+                layer.addChild(myDefenceBar);
+                var myDefenceString = new cc.LabelTTF(
+                    layer.damageCalculator.getDefenceBasis(layer.myTroops[iter]),
+                    cc.size(myDefenceBar.width, myDefenceBar.height), fontSize,
+                    cc.TEXT_ALIGNMENT_CENTER,
+                    cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+                );
+                myDefenceString.setPosition(myDefenceBar.x + unitWidth / 2, myDefenceBar.y + defenceBarHeight / 2);
+                myDefenceString.setName(this.moduleNameList.defenceInfo + "." + this.moduleNameList.myTroops + "." + iter);
+                layer.addChild(myDefenceString);
+
+                //////////////////////////////////////////////////
+                // life显示元素
+                var myLife = new cc.LabelTTF();
+                myLife.setString(myUnit.life);
+                myLife.setFontSize(lifeFontSize);
+                myLife.setPosition(xStart + (unitWidth + unitInterval) * iter + unitWidth / 2, yMeStart + unitHeight / 2);
+                myLife.setColor(normalLifeColor);
+                myLife.setName(this.moduleNameList.lifeInfo + "." + this.moduleNameList.myTroops + "." + iter);
+                this.addChild(myLife);
+            }
         }
         for(var iter = 0; iter < this.enemyTroops.length; iter++) {
             var enemyUnit = this.enemyTroops[iter];
@@ -77,113 +144,62 @@ var ShowUnitsLayer = cc.Layer.extend({
             enemyPalUnit.setAnchorPoint(0, 0);
             enemyPalUnit.setName(this.moduleNameList.enemyTroops + "." + iter);
             this.addChild(enemyPalUnit);
-        }
 
-        function addAttackElement() {
-            for(var iter = 0; iter < layer.myTroops.length; iter++) {
-                if (layer.myTroops[iter] != null) {
-                    var myAttackBar = new cc.DrawNode();
-                    myAttackBar.drawRect(cc.p(0, 0), cc.p(unitWidth, attackBarHeight), cc.color(255, 0, 0), 0);
-                    myAttackBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yMeStart + unitHeight + titleBarHeight);
-                    layer.addChild(myAttackBar);
-                    var myAttackString = new cc.LabelTTF(
-                        layer.damageCalculator.getAttackBasis(layer.myTroops[iter]),
-                        cc.size(myAttackBar.width, myAttackBar.height), fontSize,
-                        cc.TEXT_ALIGNMENT_CENTER,
-                        cc.VERTICAL_TEXT_ALIGNMENT_CENTER
-                    );
-                    myAttackString.setPosition(myAttackBar.x + unitWidth / 2, myAttackBar.y + attackBarHeight / 2);
-                    myAttackString.setName(layer.moduleNameList.myTroops + layer.moduleNameList.attackInfo + iter);
-                    layer.addChild(myAttackString);
-                }
-            }
-            for(var iter = 0; iter < layer.enemyTroops.length; iter++) {
-                if (layer.enemyTroops[iter] != null) {
-                    var enemyAttackBar = new cc.DrawNode();
-                    enemyAttackBar.drawRect(cc.p(0, 0), cc.p(unitWidth, attackBarHeight), cc.color(255, 0, 0), 0);
-                    enemyAttackBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yEnmyStart - attackBarHeight - titleBarHeight);
-                    layer.addChild(enemyAttackBar);
-                    var enemyAttackString = new cc.LabelTTF(
-                        layer.damageCalculator.getAttackBasis(layer.enemyTroops[iter]),
-                        cc.size(enemyAttackBar.width, enemyAttackBar.height), fontSize,
-                        cc.TEXT_ALIGNMENT_CENTER,
-                        cc.VERTICAL_TEXT_ALIGNMENT_CENTER
-                    );
-                    enemyAttackString.setPosition(enemyAttackBar.x + unitWidth / 2, enemyAttackBar.y + attackBarHeight / 2);
-                    enemyAttackString.setName(layer.moduleNameList.enemyTroops + layer.moduleNameList.attackInfo + iter);
-                    layer.addChild(enemyAttackString);
-                }
-            }
-        }
-        function addTitleElement() {
-            for(var iter = 0; iter < layer.myTroops.length; iter++) {
-                if (layer.myTroops[iter] != null) {
-                    var myTitleBar = new cc.DrawNode();
-                    myTitleBar.drawRect(cc.p(0, 0), cc.p(unitWidth, attackBarHeight), cc.color(255, 255, 255), 0);
-                    myTitleBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yMeStart + unitHeight);
-                    layer.addChild(myTitleBar);
-                    var myTitle = new cc.Sprite(res["TITLE_" + layer.myTroops[iter].title]);
-                    myTitle.setAnchorPoint(0, 0);
-                    myTitle.setPosition(myTitleBar.x, myTitleBar.y);
-                    //myAttackString.setName(layer.moduleNameList.myTroops + layer.moduleNameList.attackInfo + iter);
-                    layer.addChild(myTitle);
-                }
-            }
-            for(var iter = 0; iter < layer.enemyTroops.length; iter++) {
-                if (layer.enemyTroops[iter] != null) {
-                    var enemyTitleBar = new cc.DrawNode();
-                    enemyTitleBar.drawRect(cc.p(0, 0), cc.p(unitWidth, attackBarHeight), cc.color(255, 255, 255), 0);
-                    enemyTitleBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yEnmyStart - titleBarHeight);
-                    layer.addChild(enemyTitleBar);
-                    var enemyTitle = new cc.Sprite(res["TITLE_ON_" + layer.enemyTroops[iter].title]);
-                    enemyTitle.setAnchorPoint(0, 0);
-                    enemyTitle.setPosition(enemyTitleBar.x, enemyTitleBar.y);
-                    //enemyTitle.setName(layer.moduleNameList.enemyTroops + layer.moduleNameList.attackInfo + iter);
-                    layer.addChild(enemyTitle);
-                }
-            }
-        }
-        function addDefenceElement() {
-            for(var iter = 0; iter < layer.myTroops.length; iter++) {
-                if (layer.myTroops[iter] != null) {
-                    var myDefenceBar = new cc.DrawNode();
-                    myDefenceBar.drawRect(cc.p(0, 0), cc.p(unitWidth, defenceBarHeight), cc.color(75, 172, 198), 0);
-                    myDefenceBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yMeStart - defenceBarHeight);
-                    layer.addChild(myDefenceBar);
-                    var myDefenceString = new cc.LabelTTF(
-                        layer.damageCalculator.getDefenceBasis(layer.myTroops[iter]),
-                        cc.size(myDefenceBar.width, myDefenceBar.height), fontSize,
-                        cc.TEXT_ALIGNMENT_CENTER,
-                        cc.VERTICAL_TEXT_ALIGNMENT_CENTER
-                    );
-                    myDefenceString.setPosition(myDefenceBar.x + unitWidth / 2, myDefenceBar.y + defenceBarHeight / 2);
-                    myDefenceString.setName(layer.moduleNameList.myTroops + layer.moduleNameList.defenceInfo + iter);
-                    layer.addChild(myDefenceString);
-                }
-            }
-            for(var iter = 0; iter < layer.enemyTroops.length; iter++) {
-                if (layer.enemyTroops[iter] != null) {
-                    var enemyDefenceBar = new cc.DrawNode();
-                    enemyDefenceBar.drawRect(cc.p(0, 0), cc.p(unitWidth, defenceBarHeight), cc.color(75, 172, 198), 0);
-                    enemyDefenceBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yEnmyStart + unitHeight);
-                    layer.addChild(enemyDefenceBar);
-                    var enemyDefenceString = new cc.LabelTTF(
-                        layer.damageCalculator.getDefenceBasis(layer.enemyTroops[iter]),
-                        cc.size(enemyDefenceBar.width, enemyDefenceBar.height), fontSize,
-                        cc.TEXT_ALIGNMENT_CENTER,
-                        cc.VERTICAL_TEXT_ALIGNMENT_CENTER
-                    );
-                    enemyDefenceString.setPosition(enemyDefenceBar.x + unitWidth / 2, enemyDefenceBar.y + defenceBarHeight / 2);
-                    enemyDefenceString.setName(layer.moduleNameList.enemyTroops + layer.moduleNameList.defenceInfo + iter);
-                    layer.addChild(enemyDefenceString);
-                }
-            }
+            if (enemyUnit != null) {
+                ////////////////////////////////////////////////
+                // attackBattle显示元素
+                var enemyAttackBar = new cc.DrawNode();
+                enemyAttackBar.drawRect(cc.p(0, 0), cc.p(unitWidth, attackBarHeight), cc.color(255, 0, 0), 0);
+                enemyAttackBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yEnmyStart - attackBarHeight - titleBarHeight);
+                layer.addChild(enemyAttackBar);
+                var enemyAttackString = new cc.LabelTTF(
+                    layer.damageCalculator.getAttackBasis(layer.enemyTroops[iter]),
+                    cc.size(enemyAttackBar.width, enemyAttackBar.height), fontSize,
+                    cc.TEXT_ALIGNMENT_CENTER,
+                    cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+                );
+                enemyAttackString.setPosition(enemyAttackBar.x + unitWidth / 2, enemyAttackBar.y + attackBarHeight / 2);
+                enemyAttackString.setName(this.moduleNameList.attackInfo + "." + this.moduleNameList.enemyTroops + "." + iter);
+                layer.addChild(enemyAttackString);
 
-        }
+                //////////////////////////////////////////////////
+                // title显示元素
+                var enemyTitleBar = new cc.DrawNode();
+                enemyTitleBar.drawRect(cc.p(0, 0), cc.p(unitWidth, attackBarHeight), cc.color(255, 255, 255), 0);
+                enemyTitleBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yEnmyStart - titleBarHeight);
+                layer.addChild(enemyTitleBar);
+                var enemyTitle = new cc.Sprite(res["TITLE_ON_" + layer.enemyTroops[iter].title]);
+                enemyTitle.setAnchorPoint(0, 0);
+                enemyTitle.setPosition(enemyTitleBar.x, enemyTitleBar.y);
+                layer.addChild(enemyTitle);
 
-        addAttackElement();
-        addTitleElement();
-        addDefenceElement();
+                ////////////////////////////////////////////////////
+                // defenceBattle显示元素
+                var enemyDefenceBar = new cc.DrawNode();
+                enemyDefenceBar.drawRect(cc.p(0, 0), cc.p(unitWidth, defenceBarHeight), cc.color(75, 172, 198), 0);
+                enemyDefenceBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yEnmyStart + unitHeight);
+                layer.addChild(enemyDefenceBar);
+                var enemyDefenceString = new cc.LabelTTF(
+                    layer.damageCalculator.getDefenceBasis(layer.enemyTroops[iter]),
+                    cc.size(enemyDefenceBar.width, enemyDefenceBar.height), fontSize,
+                    cc.TEXT_ALIGNMENT_CENTER,
+                    cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+                );
+                enemyDefenceString.setPosition(enemyDefenceBar.x + unitWidth / 2, enemyDefenceBar.y + defenceBarHeight / 2);
+                enemyDefenceString.setName(this.moduleNameList.defenceInfo + "." + this.moduleNameList.enemyTroops + "." + iter);
+                layer.addChild(enemyDefenceString);
+
+                //////////////////////////////////////////////////
+                // life显示元素
+                var enemyLife = new cc.LabelTTF();
+                enemyLife.setString(enemyUnit.life);
+                enemyLife.setFontSize(lifeFontSize);
+                enemyLife.setPosition(xStart + (unitWidth + unitInterval) * iter + unitWidth / 2, yEnmyStart + unitHeight / 2);
+                enemyLife.setColor(normalLifeColor);
+                enemyLife.setName(this.moduleNameList.lifeInfo + "." + this.moduleNameList.enemyTroops + "." + iter);
+                this.addChild(enemyLife);
+            }
+        }
     },
 
     addOutputMenu : function(size, scale, imageScale) {
@@ -221,7 +237,7 @@ var ShowUnitsLayer = cc.Layer.extend({
         var parentNode = this.getParent();
         parentNode.getChildByName(parentNode.moduleNameList.battleLayer).eraseUnits();
         this.onPopLayer();
-        parentNode.getChildByName(parentNode.moduleNameList.outputLayer).loadOutput(defence, attack, defence.damage, attack.damage);
+        parentNode.getChildByName(parentNode.moduleNameList.outputLayer).loadOutput(defence, attack);
     },
 
     resetShow : function() {
@@ -235,15 +251,31 @@ var ShowUnitsLayer = cc.Layer.extend({
         }
     },
 
-    onPushLayer : function(unit) {
+    onPushLayer : function(output) {
         this.setVisible(true);
-        if (this.damageCalList.length > 0) {
+
+        ////////////////////////////////////////////
+        // 从battleLayer返回需要执行下列内容
+        if (output !== undefined && typeof output === 'object' && this.damageCalList.length > 0) {
             this.getChildByName(this.moduleNameList.calculateMenu).setVisible(true);
-            this.damageCalList.push(unit);
+            this.damageCalList.push(output);
             console.log(this.damageCalList);
         }
         else
             this.resetShow();
+
+        ////////////////////////////////////////////////
+        // 从outputLayer返回需要执行下列内容
+        // 将计算结果重载回myTroops和enemyTroops
+        if (output instanceof Array) {
+            for (var iter = 0; iter < output.length; iter++) {
+                var unit = output[iter];
+                this[unit.faction][unit.serial] = unit;
+            }
+        }
+
+        /////////////////////////////////////////////////
+        // 通用，唤醒非空白组件的监听器
         for (var iter = 0; iter < this.myTroops.length; iter++) {
             if (this.myTroops[iter] !== null && !this._inArray(this.myTroops[iter], this.damageCalList))
                 cc.eventManager.resumeTarget(this.getChildByName(this.moduleNameList.myTroops + "." + iter));

@@ -75,34 +75,37 @@ var OutputLayer = cc.Layer.extend({
         parentNode.getChildByName(parentNode.moduleNameList.showUnitsLayer).onPushLayer();
     },
 
-    loadOutput : function(defenceUnit, attackUnit, battleDamage, counterDamage) {
+    loadOutput : function(defenceUnit, attackUnit) {
         console.log("show output!");
 
         this.onPushLayer();
+        var showLayer = this.getParent().getChildByName(this.getParent().moduleNameList.showUnitsLayer);
 
         var attackString = this.getChildByName(armyTemplate.status.ATTACK + "_STRING");
         var defenceString = this.getChildByName(armyTemplate.status.DEFENCE + "_STRING");
-        defenceString.setString(defenceUnit.troop.status + " : " + battleDamage);
-        attackString.setString(attackUnit.troop.status + " : " + counterDamage);
         function paintString(unit, string) {
             // 根据life的数值来给出不同的颜色
-            var normalColor = cc.color(0, 0, 0);
-            var fleeColor = cc.color(255, 255, 255);
+            var normalColor = cc.color(125, 125, 125);
+            var fleeColor = cc.color(255, 217, 101);
             var deathColor = cc.color(255, 0, 0);
-            if (unit.damage >= unit.troop.moraleDestroy)
+            if (unit.life <= 0) {
                 string.setColor(deathColor);
-            else if (unit.damage >= unit.troop.moraleFlee)
+            }
+            else if (unit.life <= unit.fleeLife)
                 string.setColor(fleeColor);
             else
                 string.setColor(normalColor);
+            string.setString(unit.life);
         }
         paintString(defenceUnit, defenceString);
         paintString(attackUnit, attackString);
+        paintString(defenceUnit, showLayer.getChildByName(showLayer.moduleNameList.lifeInfo + "." + defenceUnit.faction + "." + defenceUnit.serial));
+        paintString(attackUnit, showLayer.getChildByName(showLayer.moduleNameList.lifeInfo + "." + attackUnit.faction + "." + attackUnit.serial));
 
         var defenceImage = this.getChildByName(armyTemplate.status.DEFENCE + "_IMAGE");
         var attackImage = this.getChildByName(armyTemplate.status.ATTACK + "_IMAGE");
-        defenceImage.setTexture(res["UNIT_" + defenceUnit.troop.unit]);
-        attackImage.setTexture(res["UNIT_" + attackUnit.troop.unit]);
+        defenceImage.setTexture(res["UNIT_" + defenceUnit.unit + "_ON"]);
+        attackImage.setTexture(res["UNIT_ATTACK_" + attackUnit.unit]);
     },
 
     onPushLayer : function() {

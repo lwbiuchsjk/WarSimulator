@@ -11,20 +11,6 @@
  * 当前没有在结算时考虑engage属性的影响。
  *
  */
-function DamagePair(unit, damage) {
-    this._troop = unit;
-    this._damage = damage;
-}
-DamagePair.prototype = {
-    get troop() {
-        return this._troop;
-    },
-
-    get damage() {
-        return this._damage;
-    }
-};
-
 function DamageCalculator(armyList) {
     if (armyList != null) {
         this.defenceUnit = armyList[0];
@@ -173,6 +159,9 @@ DamageCalculator.prototype = {
                 return 0;
         }
     },
+    calLife : function(unit, damage) {
+        return unit.life - damage > 0 ? unit.life - damage : 0;
+    },
     getDamage : function(attackList, defenceUnit) {
         /*
          * 简单版本的伤害计算器。
@@ -207,12 +196,14 @@ DamageCalculator.prototype = {
                 console.log("counter: " + defenceUnit.unit + " battle: " + eval(this.getAttack(defenceUnit, attackUnit)) + "\n" +
                     "suffer: " + attackUnit.unit + " battle: " + eval(this.getDefence(defenceUnit, attackUnit)));
                 counterDamage = this.calDamage(attackUnit, this.getAttack(defenceUnit, attackUnit), this.getDefence(defenceUnit, attackUnit));
-                damageSequence.push(new DamagePair(attackUnit, counterDamage));
+                attackUnit.life = this.calLife(attackUnit, counterDamage);
+                damageSequence.push(attackUnit);
             }
         }
         if (damageSequence.length === 0)
-            damageSequence.push(new DamagePair(attackList[0], 0));
-        damageSequence.push(new DamagePair(defenceUnit, attackDamage));
+            damageSequence.push(attackList[0]);
+        defenceUnit.life = this.calLife(defenceUnit, attackDamage);
+        damageSequence.push(defenceUnit);
 
         return damageSequence;
     }

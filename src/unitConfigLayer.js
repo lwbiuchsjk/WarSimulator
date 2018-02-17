@@ -248,7 +248,6 @@ var UnitConfigLayer = cc.Layer.extend({
         titleMenu.setPosition(0, 0);
         titleMenu.setName(this.moduleNameList.titleMenu);
         titleMenu.setVisible(false);
-        console.log(titleMenu);
         this.addChild(titleMenu);
     },
 
@@ -324,7 +323,6 @@ var UnitConfigLayer = cc.Layer.extend({
         seqMenu.setVisible(false);
         var armyMenu = this.getChildByName(seq + "Menu");
         armyMenu.setVisible(true);
-        this.currentUnit = new Unit();
         console.log(seq + " chosen!");
     },
 
@@ -350,17 +348,19 @@ var UnitConfigLayer = cc.Layer.extend({
     },
 
     lfBtnCallback : function(life) {
-        this.currentUnit.morale = life;
-        console.log("life " + life + " chosen!");
-
         this.currentUnit.loadUnit();
+
+        this.currentUnit.life = this.currentUnit.maxLife - life;
+        console.log("life " + this.currentUnit.life + " chosen!");
         var parentNode = this.getParent();
         var displayLayer = parentNode.getChildByName(parentNode.moduleNameList.displayLayer);
         displayLayer.resumeLayer(this.currentUnit);
         this.setVisible(false);
     },
 
-    motiveLayer : function() {
+    motiveLayer : function(unit) {
+        this.currentUnit = unit;
+        console.log(unit);
         this.setVisible(true);
         this.getChildByName(this.moduleNameList.lifeMenu).setVisible(false);
         this.getChildByName(this.moduleNameList.seqMenu).setVisible(true);

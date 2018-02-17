@@ -53,8 +53,8 @@ var armyTemplate = {
                 attackFormation : 3,
                 defenceWeapon : 3,
                 defenceFormation : 3,
-                moraleFlee : 2,
-                moraleDestroy : 4,
+                fleeLife : 2,
+                maxLife : 4,
                 speciality : ""
             },
             {
@@ -63,8 +63,8 @@ var armyTemplate = {
                 attackFormation : 3,
                 defenceWeapon : 4,
                 defenceFormation : 4,
-                moraleFlee : 3,
-                moraleDestroy : 5,
+                fleeLife : 3,
+                maxLife : 5,
                 speciality : ""
             },
             {
@@ -73,8 +73,8 @@ var armyTemplate = {
                 attackFormation : 3,
                 defenceWeapon : 4,
                 defenceFormation : 4,
-                moraleFlee : 4,
-                moraleDestroy : 6,
+                fleeLife : 4,
+                maxLife : 6,
                 speciality : [
                     "defence.heavyInfantry.defence.pls.weapon.1",
                     "defence.heavyInfantry.defence.pls.formation.1",
@@ -94,8 +94,8 @@ var armyTemplate = {
                 attackFormation : 3,
                 defenceWeapon : 3,
                 defenceFormation : 3,
-                moraleFlee : 2,
-                moraleDestroy : 4,
+                fleeLife : 2,
+                maxLife : 4,
                 speciality : ""
             },
             {
@@ -104,8 +104,8 @@ var armyTemplate = {
                 attackFormation : 3,
                 defenceWeapon : 4,
                 defenceFormation : 4,
-                moraleFlee : 3,
-                moraleDestroy : 5,
+                fleeLife : 3,
+                maxLife : 5,
                 speciality : ""
             },
             {
@@ -114,8 +114,8 @@ var armyTemplate = {
                 attackFormation : 3,
                 defenceWeapon : 4,
                 defenceFormation : 4,
-                moraleFlee : 4,
-                moraleDestroy : 6,
+                fleeLife : 4,
+                maxLife : 6,
                 speciality : [
                     "defence_charge_face.heavyCavalvy.attack.pls.weapon.1",
                     "defence_charge_face.heavyCavalvy.attack.pls.formation.1",
@@ -137,8 +137,8 @@ var armyTemplate = {
                 attackFormation : 3,
                 defenceWeapon : 3,
                 defenceFormation : 3,
-                moraleFlee : 2,
-                moraleDestroy : 4,
+                fleeLife : 2,
+                maxLife : 4,
                 speciality : ""
             },
             {
@@ -147,8 +147,8 @@ var armyTemplate = {
                 attackFormation : 4,
                 defenceWeapon : 3,
                 defenceFormation : 3,
-                moraleFlee : 3,
-                moraleDestroy : 5,
+                fleeLife : 3,
+                maxLife : 5,
                 speciality : ""
             },
             {
@@ -157,8 +157,8 @@ var armyTemplate = {
                 attackFormation : 4,
                 defenceWeapon : 3,
                 defenceFormation : 3,
-                moraleFlee : 4,
-                moraleDestroy : 6,
+                fleeLife : 4,
+                maxLife : 6,
                 speciality : [
                     "attack.heavyInfantry.attack.pls.weapon.2",
                     "attack.heavyInfantry.attack.pls.formation.1",
@@ -178,8 +178,8 @@ var armyTemplate = {
                 attackFormation : 3,
                 defenceWeapon : 2,
                 defenceFormation : 3,
-                moraleFlee : 2,
-                moraleDestroy : 4,
+                fleeLife : 2,
+                maxLife : 4,
                 speciality : [
                     "attack_engage.heavyInfantry.attack.pls.formation.1",
                     "attack_engage.lightInfantry.attack.pls.formation.1",
@@ -193,8 +193,8 @@ var armyTemplate = {
                 attackFormation : 3,
                 defenceWeapon : 2,
                 defenceFormation : 3,
-                moraleFlee : 3,
-                moraleDestroy : 5,
+                fleeLife : 3,
+                maxLife : 5,
                 speciality : [
                     "attack_engage.heavyInfantry.attack.pls.formation.1",
                     "attack_engage.lightInfantry.attack.pls.formation.1",
@@ -208,8 +208,8 @@ var armyTemplate = {
                 attackFormation : 4,
                 defenceWeapon : 2,
                 defenceFormation : 3,
-                moraleFlee : 4,
-                moraleDestroy : 6,
+                fleeLife : 4,
+                maxLife : 6,
                 speciality : [
                     "attack_engage.heavyInfantry.attack.pls.formation.1",
                     "attack_engage.lightInfantry.attack.pls.formation.1",
@@ -232,8 +232,8 @@ var armyTemplate = {
                 attackFormation : 2,
                 defenceWeapon : 3,
                 defenceFormation : 2,
-                moraleFlee : 3,
-                moraleDestroy : 4,
+                fleeLife : 3,
+                maxLife : 4,
                 speciality : [
                     "attack_charge.heavyInfantry.attack.pls.weapon.2",
                     "attack_charge.heavyInfantry.attack.pls.formation.2",
@@ -247,8 +247,8 @@ var armyTemplate = {
                 attackFormation : 3,
                 defenceWeapon : 3,
                 defenceFormation : 3,
-                moraleFlee : 4,
-                moraleDestroy : 5,
+                fleeLife : 4,
+                maxLife : 5,
                 speciality : [
                     "attack_charge.heavyInfantry.attack.pls.weapon.3",
                     "attack_charge.heavyInfantry.attack.pls.formation.3",
@@ -262,8 +262,8 @@ var armyTemplate = {
                 attackFormation : 3,
                 defenceWeapon : 4,
                 defenceFormation : 3,
-                moraleFlee : 5,
-                moraleDestroy : 6,
+                fleeLife : 5,
+                maxLife : 6,
                 speciality : [
                     "attack_charge.heavyInfantry.attack.pls.weapon.3",
                     "attack_charge.heavyInfantry.attack.pls.formation.3",
@@ -290,8 +290,8 @@ var armyTemplate = {
                 attackFormation : 2,
                 defenceWeapon : 2,
                 defenceFormation : 2,
-                moraleFlee : 3,
-                moraleDestroy : 4,
+                fleeLife : 3,
+                maxLife : 4,
                 speciality : [
                     "attack_charge.heavyInfantry.attack.pls.weapon.1",
                     "attack_charge.heavyInfantry.attack.pls.formation.1",
@@ -313,8 +313,8 @@ var armyTemplate = {
                 attackFormation : 3,
                 defenceWeapon : 2,
                 defenceFormation : 2,
-                moraleFlee : 4,
-                moraleDestroy : 5,
+                fleeLife : 4,
+                maxLife : 5,
                 speciality : [
                     "attack_charge.heavyInfantry.attack.pls.weapon.1",
                     "attack_charge.heavyInfantry.attack.pls.formation.1",
@@ -336,8 +336,8 @@ var armyTemplate = {
                 attackFormation : 4,
                 defenceWeapon : 3,
                 defenceFormation : 2,
-                moraleFlee : 5,
-                moraleDestroy : 6,
+                fleeLife : 5,
+                maxLife : 6,
                 speciality : [
                     "attack_charge.heavyInfantry.attack.pls.weapon.2",
                     "attack_charge.heavyInfantry.attack.pls.formation.1",
@@ -360,11 +360,13 @@ var armyTemplate = {
 function Unit() {
     this._unit = null;
     this._rank = null;
-    this._morale = null;
+    this._life = null;
     this._status = null;
     this._position = null;
     this._engage = null;
     this._title = null;
+    this._faction = null;
+    this._serialNum = null;
 }
 
 Unit.prototype = {
@@ -385,11 +387,11 @@ Unit.prototype = {
         return this._rank;
     },
 
-    set morale(morale) {
-        this._morale = morale;
+    set life(life) {
+        this._life = life;
     },
-    get morale() {
-        return this._morale;
+    get life() {
+        return this._life;
     },
 
     set status(status) {
@@ -416,6 +418,20 @@ Unit.prototype = {
         return this._title;
     },
 
+    set faction(faction) {
+        this._faction = faction;
+    },
+    get faction() {
+        return this._faction;
+    },
+
+    set serial(serial) {
+        this._serialNum = serial;
+    },
+    get serial() {
+        return this._serialNum;
+    },
+
     _inArray : function(array, ele) {
         for (var i in array) {
             if (array[i] === ele)
@@ -436,8 +452,8 @@ Unit.prototype = {
                     this.attackFormation = squad[team].attackFormation;
                     this.defenceWeapon = squad[team].defenceWeapon;
                     this.defenceFormation = squad[team].defenceFormation;
-                    this.moraleFlee = squad[team].moraleFlee;
-                    this.moraleDestroy = squad[team].moraleDestroy;
+                    this.fleeLife = squad[team].fleeLife;
+                    this.maxLife = squad[team].maxLife;
                     this.speciality = squad[team].speciality;
                     break;
                 }

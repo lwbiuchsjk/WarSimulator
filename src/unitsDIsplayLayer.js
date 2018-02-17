@@ -23,6 +23,8 @@ var UnitsDisplayLayer = cc.Layer.extend({
     configUnit : null,
     emptyUnitCount : 20,
 
+    testLength : 17,         // 修改此处来处理测试长度
+
     ctor:function () {
         //////////////////////////////
         // 1. super init first
@@ -82,67 +84,42 @@ var UnitsDisplayLayer = cc.Layer.extend({
         this.addChild(runButton);
     },
 
-    setUnitFromFlag : function(string, unit) {
-        var point = string.indexOf(".");
-        var target = string.slice(0, point);
-        var number = string.slice(point + 1, string.length);
-        if (this[target][number] == null)
-            this[target][number] = unit;
-        else
-            throw target + " team is FULL!!!";
-    },
-
-    getUnitButtonFromFlag : function(string) {
-        var point = string.indexOf(".");
-        var target = string.slice(0, point);
-        var number = string.slice(point + 1, string.length);
-        switch (target) {
-            case this.moduleNameList.myTroops : {
-                return this.myUnitsButtons[number];
-            }
-            case this.moduleNameList.enemyTroops : {
-                return this.enemyUnitsButtons[number];
-            }
-        }
-    },
-
-    setUnitFlag : function(string) {
-        this.configUnit = string;
-    },
-
-    eraseUnitFlag : function() {
-        this.configUnit = null;
-    },
-
     resumeLayer : function(unit) {
+        console.log(unit);
         var that = this;
-        function unitButtonChanger() {
-            that.setUnitFromFlag(that.configUnit, unit);
-            var button = that.getUnitButtonFromFlag(that.configUnit);
-            button.setTexture(res["UNIT_" + unit.unit]);
-            button.setScale(that.unitImageScale, that.unitImageScale);
-            that.eraseUnitFlag();
-            for (var iter = 0; iter < that.myUnitsButtons.length; iter++) {
-                var myButton = that.myUnitsButtons[iter];
-                if (that.myTroops[iter] == null) {
-                    myButton.setTexture(res.UNIT_ON);
-                    cc.eventManager.resumeTarget(myButton);
+        function _getUnitButtonFromFlag(faction, number) {
+            switch (faction) {
+                case that.moduleNameList.myTroops : {
+                    return that.myUnitsButtons[number];
                 }
-            }
-            for (var iter = 0; iter < that.enemyUnitsButtons.length; iter++) {
-                var enemyButton = that.enemyUnitsButtons[iter];
-                if (that.enemyTroops[iter] == null){
-                    enemyButton.setTexture(res.UNIT_ON);
-                    cc.eventManager.resumeTarget(enemyButton);
+                case that.moduleNameList.enemyTroops : {
+                    return that.enemyUnitsButtons[number];
                 }
             }
         }
 
-        if (this.emptyUnitCount > 19) {
-            unitButtonChanger();
+        this[unit.faction][unit.serial] = unit;
+        var button = _getUnitButtonFromFlag(unit.faction, unit.serial);
+        button.setTexture(res["UNIT_" + unit.unit]);
+        button.setScale(this.unitImageScale, this.unitImageScale);
+        for (var iter = 0; iter < this.myUnitsButtons.length; iter++) {
+            var myButton = this.myUnitsButtons[iter];
+            if (this.myTroops[iter] == null) {
+                myButton.setTexture(res.UNIT_ON);
+                cc.eventManager.resumeTarget(myButton);
+            }
+        }
+        for (var iter = 0; iter < this.enemyUnitsButtons.length; iter++) {
+            var enemyButton = this.enemyUnitsButtons[iter];
+            if (this.enemyTroops[iter] == null){
+                enemyButton.setTexture(res.UNIT_ON);
+                cc.eventManager.resumeTarget(enemyButton);
+            }
+        }
+
+        if (this.emptyUnitCount > this.testLength) {
             this.emptyUnitCount--;
         }else {
-            unitButtonChanger();
             console.log("ready to run");
             this.getChildByName(this.moduleNameList.runButton).setVisible(true);
         }
@@ -178,12 +155,15 @@ var UnitsDisplayLayer = cc.Layer.extend({
                 var size = target.getContentSize();
                 var rect = cc.rect(0 ,0, size.width, size.height);
                 if (cc.rectContainsPoint(rect, pos)) {
+                    var unit = new Unit();
                     for (var iter = 0; iter < layer.myUnitsButtons.length; iter++) {
                         var myButton = layer.myUnitsButtons[iter];
                         if (myButton !== target && layer.myTroops[iter] == null)
                             myButton.setTexture(res.UNIT_OFF);
                         else if (myButton === target && layer.myTroops[iter] == null) {
-                            layer.setUnitFlag(layer.moduleNameList.myTroops + "." + iter);
+                            // 首先确定unit的faction与serialNumber。这是myTroop。
+                            unit.faction = layer.moduleNameList.myTroops;
+                            unit.serial = iter;
                             console.log("chosen unit:" + myButton.getName());
                         }
                     }
@@ -192,14 +172,16 @@ var UnitsDisplayLayer = cc.Layer.extend({
                         if (enemyButton !== target && layer.enemyTroops[iter] == null)
                             enemyButton.setTexture(res.UNIT_OFF);
                         else if (enemyButton === target && layer.enemyTroops[iter] == null) {
-                            layer.setUnitFlag(layer.moduleNameList.enemyTroops + "." + iter);
+                            // 首先确定unit的faction与serialNumber。这是enemyTroop。
+                            unit.faction = layer.moduleNameList.enemyTroops;
+                            unit.serial = iter;
                             console.log("chosen unit:" + enemyButton.getName());
                         }
                     }
 
                     var sceneNode = layer.getParent();
                     var configLayer = sceneNode.getChildByName(sceneNode.moduleNameList.configLayer);
-                    configLayer.motiveLayer();
+                    configLayer.motiveLayer(unit);
                     for (var iter = 0; iter < layer.myUnitsButtons.length; iter++) {
                         cc.eventManager.pauseTarget(layer.myUnitsButtons[iter]);
                     }
