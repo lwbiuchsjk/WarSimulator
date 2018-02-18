@@ -1,12 +1,22 @@
 var UnitsDisplayLayer = cc.Layer.extend({
     sprite : null,
     moduleNameList : {
-        myUnit : "myUnit",
-        enemyUnit : "enemyUnit",
-        myUnitsMenu : "myUnitsMenu",
-        enemyUnitsMenu : "enemyUnitsMenu",
+        /*
+         * 以下为敌我标识
+         */
         myTroops : "myTroops",
         enemyTroops : "enemyTroops",
+        /*
+         * 以下name属性实现为faction.iter.property
+         * 其中
+         * faction = myTroops|enemyTroops
+         * iter为数组下标
+         * property = unitButton|unitTitle|titleBar
+         */
+        unitButton : "myUnit",
+        unitTitle : "unitTitle",
+        titleBar : "titleBar",
+
         runButton : "runButton",
     },
 
@@ -21,9 +31,9 @@ var UnitsDisplayLayer = cc.Layer.extend({
     unitImageScale : 0.3,  // 在新图标上线前，暂用参数。
 
     configUnit : null,
-    emptyUnitCount : 20,
+    emptyUnitCount : 19,
 
-    testLength : 17,         // 修改此处来处理测试长度
+    testLength : 0,         // 修改此处来处理测试长度
 
     ctor:function () {
         //////////////////////////////
@@ -51,8 +61,8 @@ var UnitsDisplayLayer = cc.Layer.extend({
     },
 
     addUnitsMenu : function(size, scale) {
-        var unitWidth = 150, unitHeight = 200, unitInterval = 30,
-            xStart = 75, yMeStart = 215, yEnmyStart = size.height - yMeStart - unitHeight;
+        var unitWidth = 150, unitHeight = 200, unitInterval = 30, titleHeight = 50,
+            xStart = 75, yMeStart = 190, yEnmyStart = size.height - yMeStart - unitHeight;
         for(var iter = 0; iter < this.myUnitsButtons.length; iter++) {
             var myPaleUnit = new cc.Sprite(res.UNIT_ON);
             myPaleUnit.x = (xStart + iter * (unitWidth + unitInterval)) * scale;
@@ -60,8 +70,22 @@ var UnitsDisplayLayer = cc.Layer.extend({
             myPaleUnit.setScale(scale, scale);
             myPaleUnit.setAnchorPoint(0, 0);
             this.myUnitsButtons[iter] = myPaleUnit;
-            myPaleUnit.setName(this.moduleNameList.myUnit + iter);
+            myPaleUnit.setName(this.moduleNameList.myTroops + "." + iter + "." + this.moduleNameList.unitButton );
             this.addChild(myPaleUnit);
+
+            ////////////////////////////////////////////////
+            // title显示元素
+            var myTitleBar = new cc.DrawNode();
+            myTitleBar.drawRect(cc.p(0, 0), cc.p(unitWidth, titleHeight), cc.color(255, 255, 255), 0);
+            myTitleBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yMeStart + unitWidth);
+            myTitleBar.setName(this.moduleNameList.myTroops + "." + iter + "." + this.moduleNameList.titleBar);
+            myTitleBar.setVisible(false);
+            this.addChild(myTitleBar);
+            var myTitle = new cc.Sprite();
+            myTitle.setAnchorPoint(0, 0);
+            myTitle.setPosition(myTitleBar.x, myTitleBar.y);
+            myTitle.setName(this.moduleNameList.myTroops + "." + iter + "." + this.moduleNameList.unitTitle);
+            this.addChild(myTitle);
         }
         for(var iter = 0; iter < this.enemyUnitsButtons.length; iter++) {
             var enemyPalUnit = new cc.Sprite(res.UNIT_ON);
@@ -70,8 +94,22 @@ var UnitsDisplayLayer = cc.Layer.extend({
             enemyPalUnit.setScale(scale, scale);
             enemyPalUnit.setAnchorPoint(0, 0);
             this.enemyUnitsButtons[iter] = enemyPalUnit;
-            enemyPalUnit.setName(this.moduleNameList.enemyUnit + iter);
+            enemyPalUnit.setName(this.moduleNameList.enemyTroops + "." + iter + "." + this.moduleNameList.unitButton );
             this.addChild(enemyPalUnit);
+
+            //////////////////////////////////////////////////
+            // title显示元素
+            var enemyTitleBar = new cc.DrawNode();
+            enemyTitleBar.drawRect(cc.p(0, 0), cc.p(unitWidth, titleHeight), cc.color(255, 255, 255), 0);
+            enemyTitleBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yEnmyStart + unitWidth);
+            enemyTitleBar.setName(this.moduleNameList.enemyTroops + "." + iter + "." + this.moduleNameList.titleBar);
+            this.addChild(enemyTitleBar);
+            enemyTitleBar.setVisible(false);
+            var enemyTitle = new cc.Sprite();
+            enemyTitle.setAnchorPoint(0, 0);
+            enemyTitle.setPosition(enemyTitleBar.x, enemyTitleBar.y);
+            enemyTitle.setName(this.moduleNameList.enemyTroops + "." + iter + "." + this.moduleNameList.unitTitle);
+            this.addChild(enemyTitle);
         }
     },
 
@@ -86,22 +124,14 @@ var UnitsDisplayLayer = cc.Layer.extend({
 
     resumeLayer : function(unit) {
         console.log(unit);
-        var that = this;
-        function _getUnitButtonFromFlag(faction, number) {
-            switch (faction) {
-                case that.moduleNameList.myTroops : {
-                    return that.myUnitsButtons[number];
-                }
-                case that.moduleNameList.enemyTroops : {
-                    return that.enemyUnitsButtons[number];
-                }
-            }
-        }
-
         this[unit.faction][unit.serial] = unit;
-        var button = _getUnitButtonFromFlag(unit.faction, unit.serial);
+        var button = this.getChildByName(unit.faction + "." + unit.serial + "." + this.moduleNameList.unitButton);
         button.setTexture(res["UNIT_" + unit.unit]);
         button.setScale(this.unitImageScale, this.unitImageScale);
+        var title = this.getChildByName(unit.faction + "." + unit.serial + "." + this.moduleNameList.unitTitle);
+        var titleBar = this.getChildByName(unit.faction + "." + unit.serial + "." + this.moduleNameList.titleBar);
+        title.setTexture(res["TITLE_" + unit.title]);
+        titleBar.setVisible(true);
         for (var iter = 0; iter < this.myUnitsButtons.length; iter++) {
             var myButton = this.myUnitsButtons[iter];
             if (this.myTroops[iter] == null) {

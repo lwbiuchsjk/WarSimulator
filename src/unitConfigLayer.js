@@ -343,7 +343,8 @@ var UnitConfigLayer = cc.Layer.extend({
     titleBtnCallback : function(title) {
         this.currentUnit.title = title;
         this.getChildByName(this.moduleNameList.titleMenu).setVisible(false);
-        this.getChildByName(this.moduleNameList.lifeMenu).setVisible(true);
+        //this.getChildByName(this.moduleNameList.lifeMenu).setVisible(true);
+        this.lfBtnCallback(0);
         console.log("title " + title + " chosen!");
     },
 
