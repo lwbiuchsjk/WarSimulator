@@ -9,12 +9,28 @@ var UnitConfigLayer = cc.Layer.extend({
         lightInfantryMenu : "lightInfantryMenu",
 
         rankMenu : "rankMenu",
+        /*
+         * 使用titleMenu字段来索引menu本身与其子节点的每一个toggle。
+         * 索引toggle时，name属性为titleMenu.(iter+1)
+         * 其中iter为数组下标。
+         */
         titleMenu : "titleMenu",
         lifeMenu : "lifeMenu",
         runMenu : "runMenu",
         posListener : "posListener",
     },
 
+    /*
+     * 使用titledUnits结构对已经选择过title的unit做记录。
+     * 在各troop中，如果一个unit第一次被选择，则新建一个该unit的array(6)结构，并推入对应troop。
+     * 在该array中，数组下标装在对应的title，对应关系为iter = title - 1。这是因为在所有title与iter共存的环境中，约定两者之间差1。
+     * 特别是res中，title图片的url是从1开始命名。在title组件中，name属性中包含的数字也是从1开始。
+     * 这就使得当前unit的array(6)结构中，与title组件button的数组下标有对应关系。方便快速检索。
+     */
+    titledUnits : {
+        myTroops : [],
+        enemyTroops : []
+    },
     posListener : null,
     currentUnit: null,          // 取到当前正在处理的unit
 
@@ -231,11 +247,9 @@ var UnitConfigLayer = cc.Layer.extend({
         var startX = 435,         // 85
             middleInterval = 30;       // 80
         for (var iter = 0; iter < 6; iter++) {
-            var titleButton = new cc.MenuItemToggle(
-                new cc.MenuItemImage(
-                    res["TITLE_" + (iter + 1)],
-                    res["TITLE_ON_" + (iter + 1)]
-                ),
+            var titleButton = new cc.MenuItemImage(
+                res["TITLE_" + (iter + 1)],
+                res["TITLE_ON_" + (iter + 1)],
                 this.titleBtnCallback.bind(this, iter + 1),
                 this
             );
@@ -243,6 +257,8 @@ var UnitConfigLayer = cc.Layer.extend({
             titleButton.setAnchorPoint(0, 0);
             titleButton.setScale(iScale, iScale);
             titleButtons.push(titleButton);
+            titleButton.setName(this.moduleNameList.titleMenu + "." + (iter + 1));
+            console.log(titleButton);
         }
         var titleMenu = new cc.Menu(titleButtons);
         titleMenu.setPosition(0, 0);
@@ -336,12 +352,42 @@ var UnitConfigLayer = cc.Layer.extend({
     rnkBtnCallback : function(rank) {
         this.currentUnit.rank = rank;
         this.getChildByName(this.moduleNameList.rankMenu).setVisible(false);
-        this.getChildByName(this.moduleNameList.titleMenu).setVisible(true);
+        var titleMenu = this.getChildByName(this.moduleNameList.titleMenu);
+        titleMenu.setVisible(true);
+
+        //////////////////////////////////////////////////////////////
+        // 以下是通过titleUnits结果来检索当前unit的title的选取结果。将已经选取的title处理为不可选取。
+        var titledSeq = this.titledUnits[this.currentUnit.faction][this.currentUnit.unit];
+        for (var iter = 0; iter < titleMenu.getChildren().length; iter++) {
+            var titleItem = titleMenu.getChildByName(this.moduleNameList.titleMenu + "." + (iter + 1));
+
+            if (!titledSeq) {
+                titleItem.setNormalSpriteFrame(res["TITLE_" + (iter + 1)]);
+                titleItem.setCallback(this.titleBtnCallback.bind(this, iter + 1));
+                continue;
+            }
+            if (titledSeq[iter]) {
+                titleItem.setNormalSpriteFrame(res["TITLE_ON_" + (iter + 1)]);
+                titleItem.setCallback(function() {console.log("well done!!!");});
+            } else {
+                titleItem.setNormalSpriteFrame(res["TITLE_" + (iter + 1)]);
+                titleItem.setCallback(this.titleBtnCallback.bind(this, iter + 1));
+            }
+            console.log(titleItem);
+        }
+
         console.log("rank " +  rank + " chosen!");
     },
 
     titleBtnCallback : function(title) {
         this.currentUnit.title = title;
+
+        // 以下是通过titledUnits结构来更新并记录已经选取过的unit的title。
+        var titledSeq = this.titledUnits[this.currentUnit.faction][this.currentUnit.unit];
+        if (!titledSeq)
+            this.titledUnits[this.currentUnit.faction][this.currentUnit.unit] = new Array(6);
+        this.titledUnits[this.currentUnit.faction][this.currentUnit.unit][title - 1] = title;
+        console.log(this.titledUnits);
         this.getChildByName(this.moduleNameList.titleMenu).setVisible(false);
         //this.getChildByName(this.moduleNameList.lifeMenu).setVisible(true);
         this.lfBtnCallback(0);
@@ -361,7 +407,6 @@ var UnitConfigLayer = cc.Layer.extend({
 
     motiveLayer : function(unit) {
         this.currentUnit = unit;
-        console.log(unit);
         this.setVisible(true);
         this.getChildByName(this.moduleNameList.lifeMenu).setVisible(false);
         this.getChildByName(this.moduleNameList.seqMenu).setVisible(true);

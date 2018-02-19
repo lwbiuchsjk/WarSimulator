@@ -123,7 +123,6 @@ var UnitsDisplayLayer = cc.Layer.extend({
     },
 
     resumeLayer : function(unit) {
-        console.log(unit);
         this[unit.faction][unit.serial] = unit;
         var button = this.getChildByName(unit.faction + "." + unit.serial + "." + this.moduleNameList.unitButton);
         button.setTexture(res["UNIT_" + unit.unit]);
