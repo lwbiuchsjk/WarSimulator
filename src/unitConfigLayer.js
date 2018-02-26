@@ -38,7 +38,7 @@ var UnitConfigLayer = cc.Layer.extend({
         this._super();
         var globalSize = cc.director.getWinSize();
         var globalScale = globalSize.width / 1920;
-        var imageScale = 0.4;
+        var imageScale = 1;
         this.addSeqMenu(globalSize, globalScale, imageScale);
         this.addHeavyInfantryMenu(globalSize, globalScale, imageScale);
         this.addLightInfantryMenu(globalSize, globalScale, imageScale);
@@ -84,13 +84,13 @@ var UnitConfigLayer = cc.Layer.extend({
             this
         );
 
-        var btnInterval = 60;
-        var btnWidth = 250;
+        var btnInterval = 200;
+        var btnWidth = 150;
         hvyCvyToggleBtn.setScale(iScale, iScale);
         lghtInfToggleBtn.setScale(iScale, iScale);
         hvyInfToggleBtn.setScale(iScale, iScale);
         lghtCvyToggleBtn.setScale(iScale, iScale);
-        hvyCvyToggleBtn.x = size.width / 2;
+        hvyCvyToggleBtn.x = size.width / 2 + (btnInterval + btnWidth) / 2;
         lghtInfToggleBtn.x = hvyCvyToggleBtn.x - btnWidth - btnInterval;
         hvyInfToggleBtn.x = lghtInfToggleBtn.x - btnWidth - btnInterval;
         lghtCvyToggleBtn.x = hvyCvyToggleBtn.x + btnWidth + btnInterval;

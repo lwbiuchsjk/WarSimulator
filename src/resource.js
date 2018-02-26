@@ -1,28 +1,26 @@
 var res = {
-    SET_GRAY_BACKGROUND : "res/SET_GRAY_BACKGROUND.bmp",
-
     UNIT_ON : "res/UNIT_ON.bmp",
     UNIT_OFF : "res/UNIT_OFF.bmp",
     UNIT_DONE : "res/UNIT_DONE.bmp",
 
-    SEQ_HEAVY_CAVALVY : "res/SEQ_HEAVY_CAVALVY_BLACK.bmp",
+    SEQ_HEAVY_CAVALVY : "res/SEQ_HEAVY_CAVALVY.bmp",
     SEQ_HEAVY_CAVALVY_ON : "res/SEQ_HEAVY_CAVALVY_ON.bmp",
-    SEQ_HEAVY_INFANTRY : "res/SEQ_HEAVY_INFANTRY_BLACK.bmp",
+    SEQ_HEAVY_INFANTRY : "res/SEQ_HEAVY_INFANTRY.bmp",
     SEQ_HEAVY_INFANTRY_ON : "res/SEQ_HEAVY_INFANTRY_ON.bmp",
-    SEQ_LIGHT_CAVALVY : "res/SEQ_LIGHT_CAVALVY_BLACK.bmp",
+    SEQ_LIGHT_CAVALVY : "res/SEQ_LIGHT_CAVALVY.bmp",
     SEQ_LIGHT_CAVALVY_ON : "res/SEQ_LIGHT_CAVALVY_ON.bmp",
-    SEQ_LIGHT_INFANTRY : "res/SEQ_LIGHT_INFANTRY_BLACK.bmp",
+    SEQ_LIGHT_INFANTRY : "res/SEQ_LIGHT_INFANTRY.bmp",
     SEQ_LIGHT_INFANTRY_ON : "res/SEQ_LIGHT_INFANTRY_ON.bmp",
 
     /*
      * 下列UNIT_后加驼峰写法，是为了在之后通过["UNIT_" + unitName]来访问。
      */
-    UNIT_axeMan : "res/UNIT_AXEMAN_BLACK.bmp",
-    UNIT_bowMan : "res/UNIT_BOWMAN_BLACK.bmp",
-    UNIT_huntHorse : "res/UNIT_HUNTHORSE_BLACK.bmp",
-    UNIT_impactHorse : "res/UNIT_IMPACTHORSE_BLACK.bmp",
-    UNIT_pikeMan : "res/UNIT_PIKEMAN_BLACK.bmp",
-    UNIT_shieldMan : "res/UNIT_SHIELDMAN_BLACK.bmp",
+    UNIT_axeMan : "res/UNIT_AXEMAN.bmp",
+    UNIT_bowMan : "res/UNIT_BOWMAN.bmp",
+    UNIT_huntHorse : "res/UNIT_HUNTHORSE.bmp",
+    UNIT_impactHorse : "res/UNIT_IMPACTHORSE.bmp",
+    UNIT_pikeMan : "res/UNIT_PIKEMAN.bmp",
+    UNIT_shieldMan : "res/UNIT_SHIELDMAN.bmp",
     UNIT_axeMan_ON : "res/UNIT_AXEMAN_ON.bmp",
     UNIT_bowMan_ON : "res/UNIT_BOWMAN_ON.bmp",
     UNIT_huntHorse_ON : "res/UNIT_HUNTHORSE_ON.bmp",

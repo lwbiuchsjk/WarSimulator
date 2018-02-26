@@ -8,7 +8,7 @@ var OutputLayer = cc.Layer.extend({
 
         var globalSize = cc.director.getWinSize();
         var globalScale = globalSize.width / 1920;
-        var unitImageScale = 0.3;
+        var unitImageScale = 1;
 
         ////////////////////////////////////
         // 背景

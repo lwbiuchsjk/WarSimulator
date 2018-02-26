@@ -28,12 +28,10 @@ var UnitsDisplayLayer = cc.Layer.extend({
     myTroops : new Array(10),           // FLAG = "myTroops" + "." + NUMBER
     enemyTroops : new Array(10),        // FLAG = "enemyTroops" + "." + NUMBER
 
-    unitImageScale : 0.3,  // 在新图标上线前，暂用参数。
-
     configUnit : null,
     emptyUnitCount : 19,
 
-    testLength : 0,         // 修改此处来处理测试长度
+    testLength : 18,         // 修改此处来处理测试长度
 
     ctor:function () {
         //////////////////////////////
@@ -126,7 +124,6 @@ var UnitsDisplayLayer = cc.Layer.extend({
         this[unit.faction][unit.serial] = unit;
         var button = this.getChildByName(unit.faction + "." + unit.serial + "." + this.moduleNameList.unitButton);
         button.setTexture(res["UNIT_" + unit.unit]);
-        button.setScale(this.unitImageScale, this.unitImageScale);
         var title = this.getChildByName(unit.faction + "." + unit.serial + "." + this.moduleNameList.unitTitle);
         var titleBar = this.getChildByName(unit.faction + "." + unit.serial + "." + this.moduleNameList.titleBar);
         title.setTexture(res["TITLE_" + unit.title]);
