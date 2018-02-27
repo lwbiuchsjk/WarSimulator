@@ -13,7 +13,7 @@ var OutputLayer = cc.Layer.extend({
         ////////////////////////////////////
         // 背景
         var bg = new cc.DrawNode();
-        bg.drawRect(cc.p(0, 0), cc.p(globalSize.width, globalSize.height), cc.color(125, 125, 125));
+        bg.drawRect(cc.p(0, 0), cc.p(globalSize.width, globalSize.height), cc.color(200, 200, 200));
         bg.setAnchorPoint(0.5, 0.5);
         bg.setPosition(0, 0);
         this.addChild(bg);

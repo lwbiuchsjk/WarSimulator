@@ -39,322 +39,7 @@ var armyTemplate = {
         IMPACT_HORSE : "impactHorse",
         HUNT_HORSE : "huntHorse"
     },
-
-    /*
-     * 以下是重装步兵
-     */
-    shieldMan : {
-        unit : "shieldMan",
-        sequence : "heavyInfantry",
-        troop : [
-            {
-                rank : 1,
-                attackWeapon : 3,
-                attackFormation : 3,
-                defenceWeapon : 3,
-                defenceFormation : 3,
-                fleeLife : 2,
-                maxLife : 4,
-                speciality : ""
-            },
-            {
-                rank : 2,
-                attackWeapon : 3,
-                attackFormation : 3,
-                defenceWeapon : 4,
-                defenceFormation : 4,
-                fleeLife : 3,
-                maxLife : 5,
-                speciality : ""
-            },
-            {
-                rank : 3,
-                attackWeapon : 2,
-                attackFormation : 3,
-                defenceWeapon : 4,
-                defenceFormation : 4,
-                fleeLife : 4,
-                maxLife : 6,
-                speciality : [
-                    "defence.heavyInfantry.defence.pls.weapon.1",
-                    "defence.heavyInfantry.defence.pls.formation.1",
-                    "defence.lightInfantry.defence.pls.weapon.1",
-                    "defence.lightInfantry.defence.pls.formation.1"
-                ]
-            }
-        ]
-    },
-    pikeMan : {
-        unit : "pikeMan",
-        sequence : "heavyInfantry",
-        troop : [
-            {
-                rank : 1,
-                attackWeapon : 4,
-                attackFormation : 3,
-                defenceWeapon : 3,
-                defenceFormation : 3,
-                fleeLife : 2,
-                maxLife : 4,
-                speciality : ""
-            },
-            {
-                rank : 2,
-                attackWeapon : 4,
-                attackFormation : 3,
-                defenceWeapon : 4,
-                defenceFormation : 4,
-                fleeLife : 3,
-                maxLife : 5,
-                speciality : ""
-            },
-            {
-                rank : 3,
-                attackWeapon : 3,
-                attackFormation : 3,
-                defenceWeapon : 4,
-                defenceFormation : 4,
-                fleeLife : 4,
-                maxLife : 6,
-                speciality : [
-                    "defence_charge_face.heavyCavalvy.attack.pls.weapon.1",
-                    "defence_charge_face.heavyCavalvy.attack.pls.formation.1",
-                    "defence_charge_face.lightCavalvy.attack.pls.weapon.1",
-                    "defence_charge_face.lightCavalvy.attack.pls.formation.1",
-                    "defence_charge_face.heavyCavalvy.defence.pls.weapon.2",
-                    "defence_charge_face.lightCavalvy.defence.pls.weapon.2"
-                ]
-            }
-        ]
-    },
-    axeMan : {
-        unit : "axeMan",
-        sequence : "heavyInfantry",
-        troop : [
-            {
-                rank : 1,
-                attackWeapon : 4,
-                attackFormation : 3,
-                defenceWeapon : 3,
-                defenceFormation : 3,
-                fleeLife : 2,
-                maxLife : 4,
-                speciality : ""
-            },
-            {
-                rank : 2,
-                attackWeapon : 5,
-                attackFormation : 4,
-                defenceWeapon : 3,
-                defenceFormation : 3,
-                fleeLife : 3,
-                maxLife : 5,
-                speciality : ""
-            },
-            {
-                rank : 3,
-                attackWeapon : 4,
-                attackFormation : 4,
-                defenceWeapon : 3,
-                defenceFormation : 3,
-                fleeLife : 4,
-                maxLife : 6,
-                speciality : [
-                    "attack.heavyInfantry.attack.pls.weapon.2",
-                    "attack.heavyInfantry.attack.pls.formation.1",
-                    "attack.heavyCavalvy.attack.pls.weapon.2",
-                    "attack.heavyCavalvy.attack.pls.formation.1"
-                ]
-            }
-        ]
-    },
-    bowMan : {      // 考虑到当前还没有实现engage判断，因此现在将每个阶级的bowMan的attackWeapon+1.
-        unit : "bowMan",
-        sequence : "heavyInfantry",
-        troop : [
-            {
-                rank : 1,
-                attackWeapon : 3,   // +1down
-                attackFormation : 3,
-                defenceWeapon : 2,
-                defenceFormation : 3,
-                fleeLife : 2,
-                maxLife : 4,
-                speciality : [
-                    "attack_engage.heavyInfantry.attack.pls.formation.1",
-                    "attack_engage.lightInfantry.attack.pls.formation.1",
-                    "attack_engage.heavyCavalvy.attack.pls.formation.1",
-                    "attack_engage.lightCavalvy.attack.pls.formation.1"
-                ]
-            },
-            {
-                rank : 2,
-                attackWeapon : 5,   // +1down
-                attackFormation : 3,
-                defenceWeapon : 2,
-                defenceFormation : 3,
-                fleeLife : 3,
-                maxLife : 5,
-                speciality : [
-                    "attack_engage.heavyInfantry.attack.pls.formation.1",
-                    "attack_engage.lightInfantry.attack.pls.formation.1",
-                    "attack_engage.heavyCavalvy.attack.pls.formation.1",
-                    "attack_engage.lightCavalvy.attack.pls.formation.1"
-                ]
-            },
-            {
-                rank : 3,
-                attackWeapon : 6,   // +1down
-                attackFormation : 4,
-                defenceWeapon : 2,
-                defenceFormation : 3,
-                fleeLife : 4,
-                maxLife : 6,
-                speciality : [
-                    "attack_engage.heavyInfantry.attack.pls.formation.1",
-                    "attack_engage.lightInfantry.attack.pls.formation.1",
-                    "attack_engage.heavyCavalvy.attack.pls.formation.1",
-                    "attack_engage.lightCavalvy.attack.pls.formation.1"
-                ]
-            }
-        ]
-    },
-    /*
-     * 以下是重装骑兵
-     */
-    impactHorse : {
-        unit : "impactHorse",
-        sequence : "heavyCavalvy",
-        troop : [
-            {
-                rank : 1,
-                attackWeapon : 3,
-                attackFormation : 2,
-                defenceWeapon : 3,
-                defenceFormation : 2,
-                fleeLife : 3,
-                maxLife : 4,
-                speciality : [
-                    "attack_charge.heavyInfantry.attack.pls.weapon.2",
-                    "attack_charge.heavyInfantry.attack.pls.formation.2",
-                    "attack_charge.lightInfantry.attack.pls.weapon.2",
-                    "attack_charge.lightInfantry.attack.pls.formation.2"
-                ]
-            },
-            {
-                rank : 2,
-                attackWeapon : 3,
-                attackFormation : 3,
-                defenceWeapon : 3,
-                defenceFormation : 3,
-                fleeLife : 4,
-                maxLife : 5,
-                speciality : [
-                    "attack_charge.heavyInfantry.attack.pls.weapon.3",
-                    "attack_charge.heavyInfantry.attack.pls.formation.3",
-                    "attack_charge.lightInfantry.attack.pls.weapon.3",
-                    "attack_charge.lightInfantry.attack.pls.formation.3"
-                ]
-            },
-            {
-                rank : 3,
-                attackWeapon : 4,
-                attackFormation : 3,
-                defenceWeapon : 4,
-                defenceFormation : 3,
-                fleeLife : 5,
-                maxLife : 6,
-                speciality : [
-                    "attack_charge.heavyInfantry.attack.pls.weapon.3",
-                    "attack_charge.heavyInfantry.attack.pls.formation.3",
-                    "attack_charge_side.heavyInfantry.attack.pls.weapon.2",
-                    "attack_charge_side.heavyInfantry.attack.pls.formation.1",
-                    "attack_charge.lightInfantry.attack.pls.weapon.3",
-                    "attack_charge.lightInfantry.attack.pls.formation.3",
-                    "attack_charge_side.lightInfantry.attack.pls.weapon.2",
-                    "attack_charge_side.lightInfantry.attack.pls.formation.1"
-                ]
-            }
-        ]
-    },
-    /*
-     * 以下是轻装骑兵
-     */
-    huntHorse : {
-        unit : "impactHorse",
-        sequence : "lightCavalry",
-        troop : [
-            {
-                rank : 1,
-                attackWeapon : 3,
-                attackFormation : 2,
-                defenceWeapon : 2,
-                defenceFormation : 2,
-                fleeLife : 3,
-                maxLife : 4,
-                speciality : [
-                    "attack_charge.heavyInfantry.attack.pls.weapon.1",
-                    "attack_charge.heavyInfantry.attack.pls.formation.1",
-                    "attack_charge.lightInfantry.attack.pls.weapon.1",
-                    "attack_charge.lightInfantry.attack.pls.formation.1",
-                    "attack_charge.heavyCavalvy.attack.pls.weapon.1",
-                    "attack_charge.heavyCavalvy.attack.pls.formation.1",
-                    "attack_advantage.heavyCavalvy.attack.pls.weapon.1",
-                    "attack_advantage.heavyCavalvy.attack.pls.formation.1",
-                    "attack_charge.lightCavalvy.attack.pls.weapon.1",
-                    "attack_charge.lightCavalvy.attack.pls.formation.1",
-                    "attack_advantage.lightCavalvy.attack.pls.weapon.1",
-                    "attack_advantage.lightCavalvy.attack.pls.formation.1"
-                ]
-            },
-            {
-                rank : 2,
-                attackWeapon : 4,
-                attackFormation : 3,
-                defenceWeapon : 2,
-                defenceFormation : 2,
-                fleeLife : 4,
-                maxLife : 5,
-                speciality : [
-                    "attack_charge.heavyInfantry.attack.pls.weapon.1",
-                    "attack_charge.heavyInfantry.attack.pls.formation.1",
-                    "attack_charge.lightInfantry.attack.pls.weapon.1",
-                    "attack_charge.lightInfantry.attack.pls.formation.1",
-                    "attack_charge.heavyCavalvy.attack.pls.weapon.1",
-                    "attack_charge.heavyCavalvy.attack.pls.formation.1",
-                    "attack_advantage.heavyCavalvy.attack.pls.weapon.2",
-                    "attack_advantage.heavyCavalvy.attack.pls.formation.1",
-                    "attack_charge.lightCavalvy.attack.pls.weapon.1",
-                    "attack_charge.lightCavalvy.attack.pls.formation.1",
-                    "attack_advantage.lightCavalvy.attack.pls.weapon.2",
-                    "attack_advantage.lightCavalvy.attack.pls.formation.1"
-                ]
-            },
-            {
-                rank : 3,
-                attackWeapon : 5,
-                attackFormation : 4,
-                defenceWeapon : 3,
-                defenceFormation : 2,
-                fleeLife : 5,
-                maxLife : 6,
-                speciality : [
-                    "attack_charge.heavyInfantry.attack.pls.weapon.2",
-                    "attack_charge.heavyInfantry.attack.pls.formation.1",
-                    "attack_charge.lightInfantry.attack.pls.weapon.2",
-                    "attack_charge.lightInfantry.attack.pls.formation.1",
-                    "attack_charge.heavyCavalvy.attack.pls.weapon.1",
-                    "attack_charge.heavyCavalvy.attack.pls.formation.1",
-                    "attack_advantage.heavyCavalvy.attack.pls.weapon.2",
-                    "attack_advantage.heavyCavalvy.attack.pls.formation.1",
-                    "attack_charge.lightCavalvy.attack.pls.weapon.1",
-                    "attack_charge.lightCavalvy.attack.pls.formation.1",
-                    "attack_advantage.lightCavalvy.attack.pls.weapon.2",
-                    "attack_advantage.lightCavalvy.attack.pls.formation.1"
-                ]
-            }
-        ]
-    }
+    troops : null                                             //读入兵种信息后，将数据装载在这里
 };
 
 function Unit() {
@@ -366,7 +51,7 @@ function Unit() {
     this._engage = null;
     this._title = null;
     this._faction = null;
-    this._serialNum = null;
+    this._serialNum = null;         // 所在数组下标
 }
 
 Unit.prototype = {
@@ -444,26 +129,31 @@ Unit.prototype = {
         /*
          * 因为loadUnit的时机是在display阶段，导致unit没有status信息。因而判断中取消对status的判断。
          */
-        if (this._unit in armyTemplate) {
-            var squad = armyTemplate[this._unit].troop;
-            for (var team in squad) {
-                if (squad[team].rank === this._rank) {
-                    this.attackWeapon = squad[team].attackWeapon;
-                    this.attackFormation = squad[team].attackFormation;
-                    this.defenceWeapon = squad[team].defenceWeapon;
-                    this.defenceFormation = squad[team].defenceFormation;
-                    this.fleeLife = squad[team].fleeLife;
-                    this.maxLife = squad[team].maxLife;
-                    this.speciality = squad[team].speciality;
-                    break;
-                }
+        var squad = armyTemplate.troops[this._unit].troop;
+        for (var team in squad) {
+            if (squad[team].rank === this._rank) {
+                this.attackWeapon = squad[team].attackWeapon;
+                this.attackFormation = squad[team].attackFormation;
+                this.defenceWeapon = squad[team].defenceWeapon;
+                this.defenceFormation = squad[team].defenceFormation;
+                this.fleeLife = squad[team].fleeLife;
+                this.maxLife = squad[team].maxLife;
+                this.speciality = squad[team].speciality;
+                break;
             }
-            if (this._position === undefined || !this._inArray(armyTemplate.position, this._position))
-                this._position = armyTemplate.position.FACE;
-            this.sequence = armyTemplate[this._unit].sequence;
-            this._engage = 0;
         }
+        if (this._position === undefined || !this._inArray(armyTemplate.position, this._position))
+            this._position = armyTemplate.position.FACE;
+        this.sequence = armyTemplate.troops[this._unit].sequence;
+        this._engage = 0;
     }
 };
+
+function UnitLoader() {
+    cc.loader.loadJson("res/unit.json", function(err, data) {
+        armyTemplate.troops = data;
+        console.log(armyTemplate.troops);
+    });
+}
 
 

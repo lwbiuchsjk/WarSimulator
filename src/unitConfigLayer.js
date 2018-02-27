@@ -33,12 +33,15 @@ var UnitConfigLayer = cc.Layer.extend({
     },
     posListener : null,
     currentUnit: null,          // 取到当前正在处理的unit
+    unitLoader : null,
 
     ctor : function() {
         this._super();
         var globalSize = cc.director.getWinSize();
         var globalScale = globalSize.width / 1920;
         var imageScale = 1;
+
+        this.unitLoader = new UnitLoader();
         this.addSeqMenu(globalSize, globalScale, imageScale);
         this.addHeavyInfantryMenu(globalSize, globalScale, imageScale);
         this.addLightInfantryMenu(globalSize, globalScale, imageScale);
@@ -398,7 +401,7 @@ var UnitConfigLayer = cc.Layer.extend({
         this.currentUnit.loadUnit();
 
         this.currentUnit.life = this.currentUnit.maxLife - life;
-        console.log("life " + this.currentUnit.life + " chosen!");
+        console.log(this.currentUnit);
         var parentNode = this.getParent();
         var displayLayer = parentNode.getChildByName(parentNode.moduleNameList.displayLayer);
         displayLayer.resumeLayer(this.currentUnit);
