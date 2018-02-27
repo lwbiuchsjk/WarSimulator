@@ -31,7 +31,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
     configUnit : null,
     emptyUnitCount : 19,
 
-    testLength : 18,         // 修改此处来处理测试长度
+    testLength : 0,         // 修改此处来处理测试长度，0为正式游戏，双方共有10单位兵种
 
     ctor:function () {
         //////////////////////////////
@@ -148,6 +148,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
         }else {
             console.log("ready to run");
             this.getChildByName(this.moduleNameList.runButton).setVisible(true);
+            cc.eventManager.resumeTarget(this.getChildByName(this.moduleNameList.runButton));
         }
 
         console.log("my troops----------------------------");
@@ -258,6 +259,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
             }
         });
         cc.eventManager.addListener(this.runButtonListener, this.getChildByName(this.moduleNameList.runButton))
+        cc.eventManager.pauseTarget(this.getChildByName(this.moduleNameList.runButton), true);
     },
 
     onExit : function() {

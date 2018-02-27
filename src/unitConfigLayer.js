@@ -261,7 +261,6 @@ var UnitConfigLayer = cc.Layer.extend({
             titleButton.setScale(iScale, iScale);
             titleButtons.push(titleButton);
             titleButton.setName(this.moduleNameList.titleMenu + "." + (iter + 1));
-            console.log(titleButton);
         }
         var titleMenu = new cc.Menu(titleButtons);
         titleMenu.setPosition(0, 0);
