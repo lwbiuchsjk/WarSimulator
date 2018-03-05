@@ -121,9 +121,10 @@ var UnitConfigLayer = cc.Layer.extend({
         var bwmnToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(
                 res.UNIT_bowMan, res.UNIT_bowMan_ON
-            ),
+            )/*,
             this.unitBtnCallback.bind(this, armyTemplate.units.BOW_MAN, armyTemplate.sequences.HEAVY_INFANTRY),
             this
+            */
         );
         var pkmnToggleBtn = new cc.MenuItemToggle(
             new cc.MenuItemImage(

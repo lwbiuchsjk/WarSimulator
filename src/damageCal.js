@@ -109,17 +109,18 @@ DamageCalculator.prototype = {
         /*
          * 当前的advantage只考虑攻防单位之间的关系。还不涉及地形因素。
          * 攻防单位关系只有在side（进攻方攻击防守方侧面）和back（进攻方攻击防守方背面）时才会获得奖励。
+         * 通常情况下，从侧翼进攻攻击力+1，从背面进攻攻击力+2
          *
          * 返回值是String。
          */
         var output = "";
         switch (position) {
             case armyTemplate.position.SIDE : {
-                output += ("+" + Math.ceil(this.getDefenceBasis(defenceUnit) / 2));
+                output += ("+" + 1);
                 break;
             }
             case armyTemplate.position.BACK : {
-                output += ("+" + this.getDefenceBasis(defenceUnit));
+                output += ("+" + 2);
                 break;
             }
         }
