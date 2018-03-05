@@ -1,4 +1,24 @@
 var res = {
+    ATC_FACTION : "res/ATK_FACTION.png",
+    DFC_FACTION : "res/DFC_FACTION.png",
+
+    RETURN_BUTTON : "res/RETURN_BUTTON.png",
+    RETURN_BUTTON_ON : "res/RETURN_ON_BUTTON.png",
+    RESET_BUTTON : "res/RESET_BUTTON.png",
+    RESET_BUTTON_ON : "res/RESET_ON_BUTTON.png",
+
+    ATK_CONFIG_BUTTON : "res/ATK_CONFIG_BUTTON.png",
+    DFC_CONFIG_BUTTON : "res/DFC_CONFIG_BUTTON.png",
+    LIFE_CONFIG_BUTTON : "res/LIFE_CONFIG_BUTTON.png",
+    ATK_CONFIG_BAR : "res/ATK_CONFIG_BAR.png",
+    DFC_CONFIG_BAR : "res/DFC_CONFIG_BAR.png",
+    LIFE_CONFIG_BAR :"res/LIFE_CONFIG_BAR.png",
+
+    COMMIT_BUTTON : "res/COMMIT_BUTTON.png",
+    GOBATTLE_BUTTON : "res/GOBATTLE_BUTTON.png",
+    COMMIT_BUTTON_ON : "res/COMMIT_BUTTON_ON.png",
+    GOBATTLE_BUTTON_ON : "res/GOBATTLE_BUTTON_ON.png",
+
     UNIT_ON : "res/UNIT_ON.bmp",
     UNIT_OFF : "res/UNIT_OFF.bmp",
     UNIT_DONE : "res/UNIT_DONE.bmp",
@@ -27,6 +47,12 @@ var res = {
     UNIT_impactHorse_ON : "res/UNIT_IMPACTHORSE_ON.bmp",
     UNIT_pikeMan_ON : "res/UNIT_PIKEMAN_ON.bmp",
     UNIT_shieldMan_ON : "res/UNIT_SHIELDMAN_ON.bmp" ,
+    UNIT_axeMan_OFF : "res/UNIT_AXEMAN_OFF.bmp",
+    UNIT_bowMan_OFF : "res/UNIT_BOWMAN_OFF.bmp",
+    UNIT_huntHorse_OFF : "res/UNIT_HUNTHORSE_OFF.bmp",
+    UNIT_impactHorse_OFF : "res/UNIT_IMPACTHORSE_OFF.bmp",
+    UNIT_pikeMan_OFF : "res/UNIT_PIKEMAN_OFF.bmp",
+    UNIT_shieldMan_OFF : "res/UNIT_SHIELDMAN_OFF.bmp",
     UNIT_ATTACK_axeMan : "res/UNIT_ATTACK_AXEMAN.bmp",
     UNIT_ATTACK_bowMan : "res/UNIT_ATTACK_BOWMAN.bmp",
     UNIT_ATTACK_huntHorse : "res/UNIT_ATTACK_HUNTHORSE.bmp",

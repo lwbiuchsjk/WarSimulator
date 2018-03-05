@@ -129,19 +129,15 @@ Unit.prototype = {
         /*
          * 因为loadUnit的时机是在display阶段，导致unit没有status信息。因而判断中取消对status的判断。
          */
-        var squad = armyTemplate.troops[this._unit].troop;
-        for (var team in squad) {
-            if (squad[team].rank === this._rank) {
-                this.attackWeapon = squad[team].attackWeapon;
-                this.attackFormation = squad[team].attackFormation;
-                this.defenceWeapon = squad[team].defenceWeapon;
-                this.defenceFormation = squad[team].defenceFormation;
-                this.fleeLife = squad[team].fleeLife;
-                this.maxLife = squad[team].maxLife;
-                this.speciality = squad[team].speciality;
-                break;
-            }
-        }
+        var squad = armyTemplate.troops[this._unit]["troop"];
+        console.log(squad);
+        this.attackWeapon = squad.attackWeapon;
+        this.attackFormation = squad.attackFormation;
+        this.defenceWeapon = squad.defenceWeapon;
+        this.defenceFormation = squad.defenceFormation;
+        this.fleeLife = squad.fleeLife;
+        this.maxLife = squad.maxLife;
+        this.speciality = squad.speciality;
         if (this._position === undefined || !this._inArray(armyTemplate.position, this._position))
             this._position = armyTemplate.position.FACE;
         this.sequence = armyTemplate.troops[this._unit].sequence;

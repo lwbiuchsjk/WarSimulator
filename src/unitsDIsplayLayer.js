@@ -60,7 +60,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
 
     addUnitsMenu : function(size, scale) {
         var unitWidth = 150, unitHeight = 200, unitInterval = 30, titleHeight = 50,
-            xStart = 75, yMeStart = 190, yEnmyStart = size.height - yMeStart - unitHeight;
+            xStart = 75, yMeStart = 80, yEnmyStart = size.height - yMeStart - unitHeight;
         for(var iter = 0; iter < this.myUnitsButtons.length; iter++) {
             var myPaleUnit = new cc.Sprite(res.UNIT_ON);
             myPaleUnit.x = (xStart + iter * (unitWidth + unitInterval)) * scale;
@@ -77,6 +77,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
             myTitleBar.drawRect(cc.p(0, 0), cc.p(unitWidth, titleHeight), cc.color(255, 255, 255), 0);
             myTitleBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yMeStart + unitWidth);
             myTitleBar.setName(this.moduleNameList.myTroops + "." + iter + "." + this.moduleNameList.titleBar);
+            myTitleBar.setAnchorPoint(0, 0);
             myTitleBar.setVisible(false);
             this.addChild(myTitleBar);
             var myTitle = new cc.Sprite();
@@ -101,6 +102,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
             enemyTitleBar.drawRect(cc.p(0, 0), cc.p(unitWidth, titleHeight), cc.color(255, 255, 255), 0);
             enemyTitleBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yEnmyStart + unitWidth);
             enemyTitleBar.setName(this.moduleNameList.enemyTroops + "." + iter + "." + this.moduleNameList.titleBar);
+            enemyTitleBar.setAnchorPoint(0, 0);
             this.addChild(enemyTitleBar);
             enemyTitleBar.setVisible(false);
             var enemyTitle = new cc.Sprite();
