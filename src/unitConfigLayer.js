@@ -27,10 +27,7 @@ var UnitConfigLayer = cc.Layer.extend({
      * 特别是res中，title图片的url是从1开始命名。在title组件中，name属性中包含的数字也是从1开始。
      * 这就使得当前unit的array(6)结构中，与title组件button的数组下标有对应关系。方便快速检索。
      */
-    titledUnits : {
-        myTroops : [],
-        enemyTroops : []
-    },
+    titledUnits : [],
     maxTitleLength : 6,
     posListener : null,
     currentUnit: null,          // 取到当前正在处理的unit
@@ -160,8 +157,8 @@ var UnitConfigLayer = cc.Layer.extend({
 
     unitBtnCallback : function(unit, seq) {
         this.currentUnit.unit = unit;
-        this.titledUnits[this.currentUnit.faction][this.currentUnit.unit] == null ? this.titledUnits[this.currentUnit.faction][this.currentUnit.unit] = [] : 1;
-        var titledSeq = this.titledUnits[this.currentUnit.faction][this.currentUnit.unit];
+        this.titledUnits[this.currentUnit.unit] == null ? this.titledUnits[this.currentUnit.unit] = [] : 1;
+        var titledSeq = this.titledUnits[this.currentUnit.unit];
         this.currentUnit.title = titledSeq.length + 1;
         titledSeq.push(this.currentUnit.title);
         if (titledSeq.length === this.maxTitleLength) {
@@ -180,12 +177,10 @@ var UnitConfigLayer = cc.Layer.extend({
         var parentNode = this.getParent();
         var displayLayer = parentNode.getChildByName(parentNode.moduleNameList.displayLayer);
         displayLayer.resumeLayer(this.currentUnit);
-        this.setVisible(false);
     },
 
     motiveLayer : function(unit) {
         this.currentUnit = unit;
-        this.setVisible(true);
     },
 
     onEnter : function() {

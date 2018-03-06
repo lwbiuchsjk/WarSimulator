@@ -39,6 +39,10 @@ var armyTemplate = {
         IMPACT_HORSE : "impactHorse",
         HUNT_HORSE : "huntHorse"
     },
+    faction : {
+        attackFaction : "attackFaction",
+        defenceFaction: "defenceFaction"
+    },
     troops : null                                             //读入兵种信息后，将数据装载在这里
 };
 

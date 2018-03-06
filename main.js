@@ -84,7 +84,7 @@ cc.game.onStart = function(){
 
     //load resources
     cc.LoaderScene.preload(g_resources, function () {
-        cc.director.runScene(new ConfigScene());
+        cc.director.runScene(new FactionScene());
     }, this);
 };
 cc.game.run();

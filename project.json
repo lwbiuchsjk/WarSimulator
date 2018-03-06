@@ -21,6 +21,7 @@
         "src/unitConfigLayer.js",
         "src/showUnitsLayer.js",
         "src/battleLayer.js",
-        "src/outputLayer.js"
+        "src/outputLayer.js",
+        "src/factionScene.js"
     ]
 }

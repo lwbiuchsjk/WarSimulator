@@ -1,5 +1,5 @@
 var res = {
-    ATC_FACTION : "res/ATK_FACTION.png",
+    ATK_FACTION : "res/ATK_FACTION.png",
     DFC_FACTION : "res/DFC_FACTION.png",
 
     RETURN_BUTTON : "res/RETURN_BUTTON.png",
