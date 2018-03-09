@@ -156,41 +156,56 @@ var UnitConfigLayer = cc.Layer.extend({
     },
 
     unitBtnCallback : function(unit, seq) {
-        this.currentUnit.unit = unit;
-        this.titledUnits[this.currentUnit.unit] == null ? this.titledUnits[this.currentUnit.unit] = [] : 1;
-        var titledSeq = this.titledUnits[this.currentUnit.unit];
-        this.currentUnit.title = titledSeq.length + 1;
-        titledSeq.push(this.currentUnit.title);
-        if (titledSeq.length === this.maxTitleLength) {
-            this.getChildByName(seq).getChildByName(unit).setNormalSpriteFrame(res["UNIT_" + unit +  "_OFF"]);
-            this.getChildByName(seq).getChildByName(unit).setCallback(function() {console.log("well done!")});
-        }
+        console.log(this.currentUnit);
+        if (this.currentUnit) {
+            this.currentUnit.unit = unit;
+            this.titledUnits[this.currentUnit.unit] == null ? this.titledUnits[this.currentUnit.unit] = [] : 1;
+            var titledSeq = this.titledUnits[this.currentUnit.unit];
+            this.currentUnit.title = titledSeq.length + 1;
+            titledSeq.push(this.currentUnit.title);
+            if (titledSeq.length === this.maxTitleLength) {
+                this.getChildByName(seq).getChildByName(unit).setNormalSpriteFrame(res["UNIT_" + unit +  "_OFF"]);
+                this.getChildByName(seq).getChildByName(unit).setCallback(function() {console.log("well done!")});
+            }
 
-        console.log(unit + " chosen!");
-        this.lfBtnCallback(0);
+            console.log(unit + " chosen!");
+            this.lfBtnCallback(0);
+        } else {
+            this._resumeDisplayLayer();
+        }
     },
 
     lfBtnCallback : function(life) {
         this.currentUnit.loadUnit();
         this.currentUnit.life = this.currentUnit.maxLife - life;
         console.log(this.currentUnit);
+        this._resumeDisplayLayer(this.currentUnit);
+    },
+
+    _resumeDisplayLayer : function(unit) {
         var parentNode = this.getParent();
         var displayLayer = parentNode.getChildByName(parentNode.moduleNameList.displayLayer);
-        displayLayer.resumeLayer(this.currentUnit);
+        displayLayer.resumeLayer(unit);
     },
 
     motiveLayer : function(unit) {
         this.currentUnit = unit;
+        console.log(this.currentUnit);
+    },
+
+    resetUnit : function() {
+        this.currentUnit = null;
+    },
+
+    wipeTitle : function() {
+        this.titledUnits = [];
     },
 
     onEnter : function() {
         this._super();
-
-        console.log("config begin");
     },
 
     onExit : function() {
         this._super();
-        //cc.eventManager.removeAllEventListeners();
     }
 });

@@ -9,10 +9,12 @@ var ConfigScene = cc.Scene.extend({
         this._super();
         var displayLayer = new UnitsDisplayLayer();
         displayLayer.setName(this.moduleNameList.displayLayer);
+        displayLayer.wipeTroops();
         this.addChild(displayLayer);
 
         var configLayer = new UnitConfigLayer();
         configLayer.setName(this.moduleNameList.configLayer);
+        configLayer.wipeTitle();
         this.addChild(configLayer);
     },
     setFaction : function(faction) {
@@ -21,7 +23,6 @@ var ConfigScene = cc.Scene.extend({
 
     onEnter:function () {
         this._super();
-        console.log(this.faction);
         this.getChildByName(this.moduleNameList.displayLayer).loadFaction(this.faction);
     }
 });

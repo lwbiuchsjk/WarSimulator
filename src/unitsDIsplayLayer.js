@@ -1,3 +1,7 @@
+/*
+ * 在使用本layer的过程中，需要根据this.faction字段来判断runButton的功能与纹理，因此在创建runButton = new cc.Sprite时，通过其name属性来做标志。代价是不能通过name来索引该组件。
+ */
+
 var UnitsDisplayLayer = cc.Layer.extend({
     sprite : null,
     moduleNameList : {
@@ -24,13 +28,15 @@ var UnitsDisplayLayer = cc.Layer.extend({
     runButtonListener : null,
     myUnitsButtons : new Array(10),     // buttons与troops的长度应该相等
 
-    myTroops : new Array(10),           // FLAG = "myTroops" + "." + NUMBER
+    myTroops : null,           // FLAG = "myTroops" + "." + NUMBER
     faction : null,
 
     backGroundColor : {
         attackFaction : cc.color(217, 150, 144),
         defenceFaction : cc.color(147, 205, 221)
     },
+
+    runButton : null,
 
     ctor:function () {
         //////////////////////////////
@@ -91,39 +97,47 @@ var UnitsDisplayLayer = cc.Layer.extend({
     addRunButton : function(size, scale) {
         var runButton = new cc.Sprite();
         runButton.setPosition(1750, size.height / 2);
-        runButton.setName(this.moduleNameList.runButton);
+        this.runButton = runButton;
         this.addChild(runButton);
     },
 
     resumeLayer : function(unit) {
-        this.myTroops[unit.serial] = unit;
-        var button = this.getChildByName(this.moduleNameList.myTroops + "." + unit.serial + "." + this.moduleNameList.unitButton);
-        button.setTexture(res["UNIT_" + unit.unit]);
-        var titleBar = this.getChildByName(this.moduleNameList.myTroops + "." + unit.serial + "." + this.moduleNameList.titleBar);
-        titleBar.getChildByName(this.moduleNameList.unitTitle).setTexture(res["TITLE_" + unit.title]);
-        titleBar.setVisible(true);
+        if (unit) {
+            this.myTroops[unit.serial] = unit;
+            this.getParent().getChildByName(this.getParent().moduleNameList.configLayer).resetUnit();
+            var button = this.getChildByName(this.moduleNameList.myTroops + "." + unit.serial + "." + this.moduleNameList.unitButton);
+            button.setTexture(res["UNIT_" + unit.unit]);
+            var titleBar = this.getChildByName(this.moduleNameList.myTroops + "." + unit.serial + "." + this.moduleNameList.titleBar);
+            titleBar.getChildByName(this.moduleNameList.unitTitle).setTexture(res["TITLE_" + unit.title]);
+            titleBar.setVisible(true);
 
-        console.log("my troops----------------------------");
-        console.log(this.myTroops);
+            console.log("my troops----------------------------");
+            console.log(this.myTroops);
 
-        this.toSetBlankUnit();
+            this.toSetBlankUnit();
+        }
     },
 
     toSetBlankUnit : function() {
-        var blankNum = 0;
+        console.log(this.myTroops.length);
+        var blankNum = null;
         for (var iter = 0; iter < this.myTroops.length; iter++) {
             if (this.myTroops[iter] == null) {
                 blankNum = iter;
                 break;
             }
         }
-        this._changeBlankUnitImage(blankNum);
-        var unit = new Unit();
-        unit.faction = this.faction;
-        unit.serial = blankNum;
-        var sceneNode = this.getParent();
-        var configLayer = sceneNode.getChildByName(sceneNode.moduleNameList.configLayer);
-        configLayer.motiveLayer(unit);
+        console.log(blankNum);
+        if (blankNum != null) {
+            this._changeBlankUnitImage(blankNum);
+            var unit = new Unit();
+            unit.faction = this.faction;
+            unit.serial = blankNum;
+            var sceneNode = this.getParent();
+            var configLayer = sceneNode.getChildByName(sceneNode.moduleNameList.configLayer);
+            console.log("motive config...");
+            configLayer.motiveLayer(unit);
+        }
     },
 
     _changeBlankUnitImage : function(num) {
@@ -138,21 +152,47 @@ var UnitsDisplayLayer = cc.Layer.extend({
 
     loadFaction : function(faction) {
         this.faction = faction;
+        var layer = this;
 
         var globalSize = cc.director.getWinSize();
         this.getChildByName(this.moduleNameList.backGround).drawRect(cc.p(0, 0), cc.p(globalSize.width, globalSize.height), this.backGroundColor[this.faction]);
 
-        switch (this.faction) {
-            case armyTemplate.faction.attackFaction : {
-                this.getChildByName(this.moduleNameList.runButton).setTexture(res.DFC_FACTION);
-                break;
+        var socket = new WebSocket("ws://127.0.0.1:3000");
+        socket.onopen = function() {
+            console.log("send check file");
+            socket.send(layer.faction);
+        };
+        socket.onmessage = function(data) {
+            switch (data.data) {
+                case armyTemplate.faction.attackFaction : {
+                    layer.runButton.setName(armyTemplate.faction.defenceFaction);
+                    layer.runButton.setTexture(res.DFC_FACTION);
+                    socket.close();
+                    break;
+                }
+                case armyTemplate.faction.defenceFaction : {
+                    layer.runButton.setName(armyTemplate.faction.attackFaction);
+                    layer.runButton.setTexture(res.ATK_FACTION);
+                    socket.close();
+                    break;
+                }
+                case messageCode.TROOP_CONFIG_READY : {
+                    console.log(data.data);
+                    layer.runButton.setName(layer.moduleNameList.runButton);
+                    layer.runButton.setTexture(res.BUTTON_RUN);
+                    socket.close();
+                    break;
+                }
+                default : {
+                    console.log(data.data);
+                    break;
+                }
             }
-            case armyTemplate.faction.defenceFaction : {
-                this.getChildByName(this.moduleNameList.runButton).setTexture(res.ATK_FACTION);
-                break;
-            }
-        }
-        //this.getChildByName(this.moduleNameList.backGround).setColor(this.backGroundColor[this.faction]);
+        };
+    },
+
+    wipeTroops : function() {
+        this.myTroops = new Array(10);
     },
 
     onEnter : function() {
@@ -210,7 +250,6 @@ var UnitsDisplayLayer = cc.Layer.extend({
                 var size = target.getContentSize();
                 var rect = cc.rect(0, 0, size.width, size.height);
                 if (cc.rectContainsPoint(rect, pos)) {
-                    target.setTexture(res.BUTTON_RUN_GO);
                     return true;
                 }
                 return false;
@@ -224,13 +263,50 @@ var UnitsDisplayLayer = cc.Layer.extend({
                 var size = target.getContentSize();
                 var rect = cc.rect(0, 0, size.width, size.height);
                 if (cc.rectContainsPoint(rect, pos)) {
-                    cc.director.pushScene(new BattleScene(layer.myTroops, layer.attackFaction));
+                    console.log("click");
+                    var targetName = target.getName();
+                    if (targetName === armyTemplate.faction.attackFaction || targetName === armyTemplate.faction.defenceFaction) {
+                        var socket = new WebSocket("ws://127.0.0.1:3000");
+                        socket.onopen = function() {
+                            console.log("connect called.");
+                            socket.send("config " + targetName);
+                            var troopMsg = new FactionTroopMessage();
+                            troopMsg.faction = layer.faction;
+                            troopMsg.troops = layer.myTroops;
+                            socket.send(JSON.stringify(troopMsg));
+                            var configScene = new ConfigScene();
+                            configScene.setFaction(targetName);
+                            cc.director.pushScene(configScene);
+                        };
+                        socket.onclose = function() {
+                            console.log("connect cancelled!");
+                        };
+                    } else if (targetName === messageCode.TROOP_CONFIG_READY) {
+                        console.log("ready to war!!!");
+                        var goSocket = new WebSocket("ws://127.0.0.1:3000");
+                        goSocket.onopen = function() {
+                            console.log("connect called.");
+                            var troopMsg = new FactionTroopMessage();
+                            troopMsg.faction = layer.faction;
+                            troopMsg.troops = layer.myTroops;
+                            goSocket.send(JSON.stringify(troopMsg));
+                            var configScene = new ConfigScene();
+                            configScene.setFaction(targetName);
+                        };
+                        goSocket.onclose = function() {
+                            console.log("connect cancelled!");
+                        };
+                        goSocket.onmessage = function(data) {
+                            var result = JSON.parse(data.data);
+                            console.log(result.troops);
+                        }
+                    }
                     return true;
                 }
                 return false;
             }
         });
-        cc.eventManager.addListener(this.runButtonListener, this.getChildByName(this.moduleNameList.runButton));
+        cc.eventManager.addListener(this.runButtonListener, this.runButton);
 
         this.toSetBlankUnit();
     },

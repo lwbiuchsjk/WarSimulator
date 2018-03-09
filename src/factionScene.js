@@ -47,7 +47,6 @@ var FactionLayer = cc.Layer.extend({
     },
 
     factionCallback : function(faction) {
-        console.log(faction);
         var configScene = new ConfigScene();
         configScene.setFaction(faction);
         cc.director.pushScene(configScene);

@@ -22,6 +22,7 @@
         "src/showUnitsLayer.js",
         "src/battleLayer.js",
         "src/outputLayer.js",
-        "src/factionScene.js"
+        "src/factionScene.js",
+        "src/messageChannel.js"
     ]
 }
