@@ -324,38 +324,10 @@ var ShowUnitsLayer = cc.Layer.extend({
                 console.log(error);
             }
             if (jsonData != null) {
-                console.log(jsonData.faction);
-                switch (jsonData.faction) {
-                    case armyTemplate.faction.attackFaction : {
-                        if (jsonData.troops) {
-                            layer.attackFaction == null ? layer.attackFaction = jsonData.troops : console.error("attack troops EXISTS!!!");
-                            if (layer.defenceFaction) {
-                                layer._loadUnitElement();
-                                socket.send(messageCode.DELETE_TROOPS);
-                            }
-                        } else {
-                            console.error("NO ATTACK TROOPS!!!");
-                        }
-                        break;
-                    }
-                    case armyTemplate.faction.defenceFaction : {
-                        if (jsonData.troops) {
-                            layer.defenceFaction == null ? layer.defenceFaction = jsonData.troops : console.error("defence troops EXISTS!!!");
-                            if (layer.attackFaction) {
-                                layer._loadUnitElement();
-                                socket.send(messageCode.DELETE_TROOPS);
-                            }
-                        } else {
-                            console.error("NO DEFENCE TROOPS!!!");
-                        }
-                        break;
-                    }
-                    default : {
-                        console.log("not troops...");
-                        console.log(jsonData);
-                        break;
-                    }
-                }
+                layer.attackFaction = jsonData[armyTemplate.faction.attackFaction];
+                layer.defenceFaction = jsonData[armyTemplate.faction.defenceFaction];
+                layer._loadUnitElement();
+                socket.send(messageCode.DELETE_TROOPS);
             } else {
                 console.log("server message: " + msg.data);
             }

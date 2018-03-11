@@ -27,3 +27,5 @@ var ConfigScene = cc.Scene.extend({
     }
 });
 
+
+

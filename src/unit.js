@@ -5,7 +5,6 @@
  * 当前的存储方式，只能手工创建与导入。还没有找到自动化的方法。
  * 另外，当前的engage属性还没有利用起来。
  */
-
 var armyTemplate = {
     sequences : {
         HEAVY_INFANTRY : "heavyInfantry",
@@ -72,7 +71,6 @@ Unit.prototype = {
          * 因为loadUnit的时机是在display阶段，导致unit没有status信息。因而判断中取消对status的判断。
          */
         var squad = armyTemplate.troops[this.unit]["troop"];
-        console.log(squad);
         this.attackWeapon = squad.attackWeapon;
         this.attackFormation = squad.attackFormation;
         this.defenceWeapon = squad.defenceWeapon;

@@ -15,6 +15,7 @@
         "src/resource.js",
         "src/configScene.js",
         "src/unit.js",
+        "src/messageChannel.js",
         "src/damageCal.js",
         "src/unitsDisplayLayer.js",
         "src/battleScene.js",
@@ -22,7 +23,6 @@
         "src/showUnitsLayer.js",
         "src/battleLayer.js",
         "src/outputLayer.js",
-        "src/factionScene.js",
-        "src/messageChannel.js"
+        "src/factionScene.js"
     ]
 }

@@ -156,7 +156,6 @@ var UnitConfigLayer = cc.Layer.extend({
     },
 
     unitBtnCallback : function(unit, seq) {
-        console.log(this.currentUnit);
         if (this.currentUnit) {
             this.currentUnit.unit = unit;
             this.titledUnits[this.currentUnit.unit] == null ? this.titledUnits[this.currentUnit.unit] = [] : 1;
@@ -178,7 +177,6 @@ var UnitConfigLayer = cc.Layer.extend({
     lfBtnCallback : function(life) {
         this.currentUnit.loadUnit();
         this.currentUnit.life = this.currentUnit.maxLife - life;
-        console.log(this.currentUnit);
         this._resumeDisplayLayer(this.currentUnit);
     },
 

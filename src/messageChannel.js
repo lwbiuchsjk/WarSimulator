@@ -1,3 +1,4 @@
+
 var FactionTroopMessage = function() {
     this.faction = null;
     this.troops = null;
@@ -9,5 +10,5 @@ var messageCode = {
     LOAD_TROOPS : "loadTroops",
     CHECK_FACTION : "faction",
     DELETE_TROOPS : "deleteTroops",
-    WAR_BEGIN : "warBegin",
+    WAR_BEGIN : "warBegin"
 };
