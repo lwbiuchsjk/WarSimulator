@@ -14,7 +14,7 @@ var BattleScene = cc.Scene.extend({
         this.myTroops = mines;
         this.enemyTroops = enemies;
 
-        var showUnitsLayer = new ShowUnitsLayer(mines, enemies);
+        var showUnitsLayer = new ShowUnitsLayer();
         showUnitsLayer.setName(this.moduleNameList.showUnitsLayer);
         this.addChild(showUnitsLayer);
 

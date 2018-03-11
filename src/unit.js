@@ -47,80 +47,18 @@ var armyTemplate = {
 };
 
 function Unit() {
-    this._unit = null;
-    this._rank = null;
-    this._life = null;
-    this._status = null;
-    this._position = null;
-    this._engage = null;
-    this._title = null;
-    this._faction = null;
-    this._serialNum = null;         // 所在数组下标
+    this.unit = null;
+    this.rank = null;
+    this.life = null;
+    this.status = null;
+    this.position = null;
+    this.engage = null;
+    this.title = null;
+    this.faction = null;
+    this.serialNum = null;         // 所在数组下标
 }
 
 Unit.prototype = {
-    set unit(unit) {
-        if (this._inArray(armyTemplate.units, unit))
-            this._unit = unit;
-        else
-            throw "unit error!"
-    },
-    get unit() {
-        return this._unit;
-    },
-
-    set rank(rank) {
-        this._rank = rank;
-    },
-    get rank() {
-        return this._rank;
-    },
-
-    set life(life) {
-        this._life = life;
-    },
-    get life() {
-        return this._life;
-    },
-
-    set status(status) {
-        this._status = status;
-    },
-    get status() {
-        return this._status;
-    },
-
-    set position(position) {
-        if (this._inArray(armyTemplate.position, position))
-            this._position = position;
-        else
-            throw "position error!"
-    },
-    get position() {
-        return this._position;
-    },
-
-    set title(FLAG) {
-        this._title = FLAG;
-    },
-    get title() {
-        return this._title;
-    },
-
-    set faction(faction) {
-        this._faction = faction;
-    },
-    get faction() {
-        return this._faction;
-    },
-
-    set serial(serial) {
-        this._serialNum = serial;
-    },
-    get serial() {
-        return this._serialNum;
-    },
-
     _inArray : function(array, ele) {
         for (var i in array) {
             if (array[i] === ele)
@@ -133,7 +71,7 @@ Unit.prototype = {
         /*
          * 因为loadUnit的时机是在display阶段，导致unit没有status信息。因而判断中取消对status的判断。
          */
-        var squad = armyTemplate.troops[this._unit]["troop"];
+        var squad = armyTemplate.troops[this.unit]["troop"];
         console.log(squad);
         this.attackWeapon = squad.attackWeapon;
         this.attackFormation = squad.attackFormation;
@@ -142,10 +80,10 @@ Unit.prototype = {
         this.fleeLife = squad.fleeLife;
         this.maxLife = squad.maxLife;
         this.speciality = squad.speciality;
-        if (this._position === undefined || !this._inArray(armyTemplate.position, this._position))
-            this._position = armyTemplate.position.FACE;
-        this.sequence = armyTemplate.troops[this._unit].sequence;
-        this._engage = 0;
+        if (this.position === undefined || !this._inArray(armyTemplate.position, this.position))
+            this.position = armyTemplate.position.FACE;
+        this.sequence = armyTemplate.troops[this.unit].sequence;
+        this.engage = 0;
     }
 };
 

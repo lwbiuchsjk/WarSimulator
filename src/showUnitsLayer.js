@@ -25,13 +25,11 @@ var ShowUnitsLayer = cc.Layer.extend({
     ctor : function(mines, enemies) {
         this._super();
 
-        this.defenceFaction = mines;
-        this.attackFaction = enemies;
+        mines == null ? this.defenceFaction = mines : 1;
+        enemies == null ? this.attackFaction = enemies : 1;
         this.damageCalculator = new DamageCalculator();
 
         var globalSize = cc.director.getWinSize();
-        var globalScale = globalSize.width / 1920;
-        var unitImageScale = 1;
 
         ////////////////////////////////////
         // 背景
@@ -41,12 +39,12 @@ var ShowUnitsLayer = cc.Layer.extend({
         bg.setPosition(0, 0);
         this.addChild(bg);
 
-        this.addUnitsMenu(globalSize, globalScale, unitImageScale);
-        this.addOutputMenu(globalSize, globalScale, unitImageScale);
         return true;
     },
 
     addUnitsMenu : function(size, scale, imageScale) {
+        console.log(this.attackFaction);
+        console.log(this.defenceFaction);
         var unitWidth = 150, unitHeight = 150, unitInterval = 30,
             xStart = 75, yMeStart = 190, yEnmyStart = size.height - yMeStart - unitHeight,
             attackBarHeight = 50, defenceBarHeight = 50, titleBarHeight = 50;
@@ -309,10 +307,71 @@ var ShowUnitsLayer = cc.Layer.extend({
         console.log("pop " + this.getName());
     },
 
-    onEnter : function() {
-        this._super();
-        console.log("show units!");
+    loadTroops : function() {
         var layer = this;
+        var socket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
+
+        socket.onopen = function() {
+            console.log("load troops connection is ready...");
+            socket.send(messageCode.LOAD_TROOPS);
+        };
+        socket.onmessage = function(msg) {
+            var data = msg.data;
+            var jsonData;
+            try {
+                jsonData = JSON.parse(data);
+            } catch (error) {
+                console.log(error);
+            }
+            if (jsonData != null) {
+                console.log(jsonData.faction);
+                switch (jsonData.faction) {
+                    case armyTemplate.faction.attackFaction : {
+                        if (jsonData.troops) {
+                            layer.attackFaction == null ? layer.attackFaction = jsonData.troops : console.error("attack troops EXISTS!!!");
+                            if (layer.defenceFaction) {
+                                layer._loadUnitElement();
+                                socket.send(messageCode.DELETE_TROOPS);
+                            }
+                        } else {
+                            console.error("NO ATTACK TROOPS!!!");
+                        }
+                        break;
+                    }
+                    case armyTemplate.faction.defenceFaction : {
+                        if (jsonData.troops) {
+                            layer.defenceFaction == null ? layer.defenceFaction = jsonData.troops : console.error("defence troops EXISTS!!!");
+                            if (layer.attackFaction) {
+                                layer._loadUnitElement();
+                                socket.send(messageCode.DELETE_TROOPS);
+                            }
+                        } else {
+                            console.error("NO DEFENCE TROOPS!!!");
+                        }
+                        break;
+                    }
+                    default : {
+                        console.log("not troops...");
+                        console.log(jsonData);
+                        break;
+                    }
+                }
+            } else {
+                console.log("server message: " + msg.data);
+            }
+        };
+        socket.onclose = function() {
+            console.log("connection is cancelled by server...");
+        }
+    },
+
+    _loadUnitElement : function() {
+        var globalSize = cc.director.getWinSize();
+        var globalScale = globalSize.width / 1920;
+        var unitImageScale = 1;
+
+        this.addUnitsMenu(globalSize, globalScale, unitImageScale);
+        this.addOutputMenu(globalSize, globalScale, unitImageScale);
 
         var unitListener = cc.EventListener.create({
             event : cc.EventListener.TOUCH_ONE_BY_ONE,
@@ -365,7 +424,6 @@ var ShowUnitsLayer = cc.Layer.extend({
                 return false;
             }
         });
-        //cc.eventManager.addListener(unitListener, this.getChildByName(this.moduleNameList.defenceFaction + "." + 0));
         for (var iter = 0; iter < this.defenceFaction.length; iter++) {
             if (this.defenceFaction[iter] != null)
                 cc.eventManager.addListener(unitListener.clone(), this.getChildByName(this.moduleNameList.defenceFaction + "." + iter));
@@ -374,6 +432,14 @@ var ShowUnitsLayer = cc.Layer.extend({
             if (this.attackFaction[iter] != null)
                 cc.eventManager.addListener(unitListener.clone(), this.getChildByName(this.moduleNameList.attackFaction + "." + iter));
         }
+    },
+
+    onEnter : function() {
+        this._super();
+        console.log("show units!");
+        var layer = this;
+
+        this.loadTroops();
     },
 
     onExit : function() {

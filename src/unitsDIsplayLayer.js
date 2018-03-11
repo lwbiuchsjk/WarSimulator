@@ -157,7 +157,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
         var globalSize = cc.director.getWinSize();
         this.getChildByName(this.moduleNameList.backGround).drawRect(cc.p(0, 0), cc.p(globalSize.width, globalSize.height), this.backGroundColor[this.faction]);
 
-        var socket = new WebSocket("ws://127.0.0.1:3000");
+        var socket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
         socket.onopen = function() {
             console.log("send check file");
             socket.send(layer.faction);
@@ -266,7 +266,8 @@ var UnitsDisplayLayer = cc.Layer.extend({
                     console.log("click");
                     var targetName = target.getName();
                     if (targetName === armyTemplate.faction.attackFaction || targetName === armyTemplate.faction.defenceFaction) {
-                        var socket = new WebSocket("ws://127.0.0.1:3000");
+
+                        var socket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
                         socket.onopen = function() {
                             console.log("connect called.");
                             socket.send("config " + targetName);
@@ -283,7 +284,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
                         };
                     } else if (targetName === messageCode.TROOP_CONFIG_READY) {
                         console.log("ready to war!!!");
-                        var goSocket = new WebSocket("ws://127.0.0.1:3000");
+                        var goSocket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
                         goSocket.onopen = function() {
                             console.log("connect called.");
                             var troopMsg = new FactionTroopMessage();
@@ -294,12 +295,16 @@ var UnitsDisplayLayer = cc.Layer.extend({
                             configScene.setFaction(targetName);
                         };
                         goSocket.onclose = function() {
-                            console.log("connect cancelled!");
+                            console.log("connect cancelled by server...");
                         };
-                        goSocket.onmessage = function(data) {
-                            var result = JSON.parse(data.data);
-                            console.log(result.troops);
-                        }
+                        goSocket.onmessage = function(msg) {
+                            if (msg.data === messageCode.WAR_BEGIN) {
+                                console.log("go to battle scene...")
+                                cc.director.pushScene(new BattleScene())
+                            } else {
+                                console.log(msg.data);
+                            }
+                        };
                     }
                     return true;
                 }
