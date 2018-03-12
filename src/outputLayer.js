@@ -100,7 +100,9 @@ var OutputLayer = cc.Layer.extend({
         paintString(defenceUnit, defenceString);
         paintString(attackUnit, attackString);
         paintString(defenceUnit, showLayer.getChildByName(showLayer.moduleNameList.lifeInfo + "." + defenceUnit.faction + "." + defenceUnit.serial));
+        paintString(defenceUnit, showLayer.getChildByName(showLayer.moduleNameList.showLifeInfo + "." + defenceUnit.faction + "." + defenceUnit.serial));
         paintString(attackUnit, showLayer.getChildByName(showLayer.moduleNameList.lifeInfo + "." + attackUnit.faction + "." + attackUnit.serial));
+        paintString(attackUnit, showLayer.getChildByName(showLayer.moduleNameList.showLifeInfo + "." + attackUnit.faction + "." + attackUnit.serial));
 
         var defenceImage = this.getChildByName(armyTemplate.status.DEFENCE + "_IMAGE");
         var attackImage = this.getChildByName(armyTemplate.status.ATTACK + "_IMAGE");

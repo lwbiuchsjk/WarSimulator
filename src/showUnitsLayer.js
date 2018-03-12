@@ -1,6 +1,7 @@
 var ShowUnitsLayer = cc.Layer.extend({
     sprite : null,
     moduleNameList : {
+        backGround : "backGround",
         defenceFaction : "defenceFaction",
         attackFaction : "attackFaction",
         calculateMenu : "calculateMenu",
@@ -15,6 +16,12 @@ var ShowUnitsLayer = cc.Layer.extend({
         attackInfo : "attackInfo",
         defenceInfo : "defenceInfo",
         lifeInfo : "lifeInfo",
+        showLifeInfo : "showLifeInfo",
+    },
+
+    backGroundColor : {
+        attackFaction : cc.color(217, 150, 144),
+        defenceFaction : cc.color(147, 205, 221)
     },
 
     defenceFaction : null,
@@ -33,11 +40,16 @@ var ShowUnitsLayer = cc.Layer.extend({
 
         ////////////////////////////////////
         // 背景
-        var bg = new cc.DrawNode();
-        bg.drawRect(cc.p(0, 0), cc.p(globalSize.width, globalSize.height), cc.color(200, 200, 200));
-        bg.setAnchorPoint(0.5, 0.5);
-        bg.setPosition(0, 0);
-        this.addChild(bg);
+        var bg_attack = new cc.DrawNode();
+        var bg_defence = new cc.DrawNode();
+        bg_attack.drawRect(cc.p(0, globalSize.height / 2), cc.p(globalSize.width, globalSize.height), this.backGroundColor.attackFaction);
+        bg_attack.setAnchorPoint(0.5, 0.5);
+        bg_attack.setPosition(0, 0);
+        bg_defence.drawRect(cc.p(0, 0), cc.p(globalSize.width, globalSize.height / 2), this.backGroundColor.defenceFaction);
+        bg_defence.setAnchorPoint(0.5, 0.5);
+        bg_defence.setPosition(0, 0);
+        this.addChild(bg_attack);
+        this.addChild(bg_defence);
 
         return true;
     },
@@ -46,8 +58,12 @@ var ShowUnitsLayer = cc.Layer.extend({
         console.log(this.attackFaction);
         console.log(this.defenceFaction);
         var unitWidth = 150, unitHeight = 150, unitInterval = 30,
-            xStart = 75, yMeStart = 190, yEnmyStart = size.height - yMeStart - unitHeight,
-            attackBarHeight = 50, defenceBarHeight = 50, titleBarHeight = 50;
+            xStart = 75, yMeStart = 90, yEnmyStart = size.height - yMeStart - unitHeight,
+            attackBarHeight = 50, defenceBarHeight = 50, titleBarHeight = 50,
+            showEleHeight = 100, showEleWidth = 50;
+        var showAttackColor = cc.color(98, 39, 33),
+            showDefenceColor = cc.color(33, 89, 104),
+            showLifeColor = cc.color(0, 0, 0);
         var fontSize = 40,
             lifeFontSize = 100;
         var normalLifeColor = cc.color(125, 125, 125);
@@ -124,6 +140,51 @@ var ShowUnitsLayer = cc.Layer.extend({
                 myLife.setColor(normalLifeColor);
                 myLife.setName(this.moduleNameList.lifeInfo + "." + this.moduleNameList.defenceFaction + "." + iter);
                 this.addChild(myLife);
+
+                /////////////////////////////////////////////////////
+                // show显示元素
+                var showMyAttackBar = new cc.DrawNode();
+                showMyAttackBar.drawRect(cc.p(0, 0), cc.p(showEleWidth, showEleHeight), showAttackColor, 0);
+                showMyAttackBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yMeStart + unitHeight + attackBarHeight * 3);
+                var showMyAttackString = new cc.LabelTTF(
+                    myAttackString.getString(),
+                    cc.size(showMyAttackBar.width, showMyAttackBar.height), fontSize,
+                    cc.TEXT_ALIGNMENT_CENTER,
+                    cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+                );
+                showMyAttackString.setPosition(showMyAttackBar.x + showEleWidth / 2, showMyAttackBar.y + showEleHeight / 2);
+                showMyAttackString.setRotation(180, 180);
+                this.addChild(showMyAttackBar);
+                this.addChild(showMyAttackString);
+
+                var showMyLifeBar = new cc.DrawNode();
+                showMyLifeBar.drawRect(cc.p(0, 0), cc.p(showEleWidth, showEleHeight), showLifeColor, 0);
+                showMyLifeBar.setPosition(xStart + showEleWidth + (unitWidth + unitInterval) * iter, yMeStart + unitHeight + attackBarHeight * 3);
+                var showMyLifeString = new cc.LabelTTF(
+                    myLife.getString(),
+                    cc.size(showMyLifeBar.width, showMyLifeBar.height), fontSize,
+                    cc.TEXT_ALIGNMENT_CENTER,
+                    cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+                );
+                showMyLifeString.setPosition(showMyLifeBar.x + showEleWidth / 2, showMyLifeBar.y + showEleHeight / 2);
+                showMyLifeString.setRotation(180, 180);
+                showMyLifeString.setName(this.moduleNameList.showLifeInfo + "." + this.moduleNameList.defenceFaction + "." + iter);
+                this.addChild(showMyLifeBar);
+                this.addChild(showMyLifeString);
+
+                var showMyDefenceBar = new cc.DrawNode();
+                showMyDefenceBar.drawRect(cc.p(0, 0), cc.p(showEleWidth, showEleHeight), showDefenceColor, 0);
+                showMyDefenceBar.setPosition(xStart + showEleWidth * 2 + (unitWidth + unitInterval) * iter, yMeStart + unitHeight + attackBarHeight * 3);
+                var showMyDefenceString = new cc.LabelTTF(
+                    myDefenceString.getString(),
+                    cc.size(showMyDefenceBar.width, showMyDefenceBar.height), fontSize,
+                    cc.TEXT_ALIGNMENT_CENTER,
+                    cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+                );
+                showMyDefenceString.setPosition(showMyDefenceBar.x + showEleWidth / 2, showMyDefenceBar.y + showEleHeight / 2);
+                showMyDefenceString.setRotation(180, 180);
+                this.addChild(showMyDefenceBar);
+                this.addChild(showMyDefenceString);
             }
         }
         for(var iter = 0; iter < this.attackFaction.length; iter++) {
@@ -137,10 +198,11 @@ var ShowUnitsLayer = cc.Layer.extend({
                 enemyPalUnit = new cc.Sprite(res["UNIT_" + enemyUnit.unit]);
                 enemyPalUnit.setScale(imageScale, imageScale);
             }
-            enemyPalUnit.x = (xStart + iter * (unitWidth + unitInterval)) * scale;
-            enemyPalUnit.y = yEnmyStart * scale;
+            enemyPalUnit.x = (xStart + unitWidth + iter * (unitWidth + unitInterval)) * scale;
+            enemyPalUnit.y = unitHeight + yEnmyStart * scale;
             enemyPalUnit.setAnchorPoint(0, 0);
             enemyPalUnit.setName(this.moduleNameList.attackFaction + "." + iter);
+            enemyPalUnit.setRotation(180, 180);
             this.addChild(enemyPalUnit);
 
             if (enemyUnit != null) {
@@ -157,6 +219,7 @@ var ShowUnitsLayer = cc.Layer.extend({
                     cc.VERTICAL_TEXT_ALIGNMENT_CENTER
                 );
                 enemyAttackString.setPosition(enemyAttackBar.x + unitWidth / 2, enemyAttackBar.y + attackBarHeight / 2);
+                enemyAttackString.setRotation(180, 180);
                 enemyAttackString.setName(this.moduleNameList.attackInfo + "." + this.moduleNameList.attackFaction + "." + iter);
                 layer.addChild(enemyAttackString);
 
@@ -184,6 +247,7 @@ var ShowUnitsLayer = cc.Layer.extend({
                     cc.VERTICAL_TEXT_ALIGNMENT_CENTER
                 );
                 enemyDefenceString.setPosition(enemyDefenceBar.x + unitWidth / 2, enemyDefenceBar.y + defenceBarHeight / 2);
+                enemyDefenceString.setRotation(180, 180);
                 enemyDefenceString.setName(this.moduleNameList.defenceInfo + "." + this.moduleNameList.attackFaction + "." + iter);
                 layer.addChild(enemyDefenceString);
 
@@ -193,9 +257,52 @@ var ShowUnitsLayer = cc.Layer.extend({
                 enemyLife.setString(enemyUnit.life);
                 enemyLife.setFontSize(lifeFontSize);
                 enemyLife.setPosition(xStart + (unitWidth + unitInterval) * iter + unitWidth / 2, yEnmyStart + unitHeight / 2);
+                enemyLife.setRotation(180, 180);
                 enemyLife.setColor(normalLifeColor);
                 enemyLife.setName(this.moduleNameList.lifeInfo + "." + this.moduleNameList.attackFaction + "." + iter);
                 this.addChild(enemyLife);
+
+                /////////////////////////////////////////////////////
+                // show显示元素
+                var showEnemyAttackBar = new cc.DrawNode();
+                showEnemyAttackBar.drawRect(cc.p(0, 0), cc.p(showEleWidth, showEleHeight), showAttackColor, 0);
+                showEnemyAttackBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yEnmyStart - showEleHeight - attackBarHeight * 3);
+                var showEnemyAttackString = new cc.LabelTTF(
+                    enemyAttackString.getString(),
+                    cc.size(showEnemyAttackBar.width, showEnemyAttackBar.height), fontSize,
+                    cc.TEXT_ALIGNMENT_CENTER,
+                    cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+                );
+                showEnemyAttackString.setPosition(showEnemyAttackBar.x + showEleWidth / 2, showEnemyAttackBar.y + showEleHeight / 2);
+                this.addChild(showEnemyAttackBar);
+                this.addChild(showEnemyAttackString);
+
+                var showEnemyLifeBar = new cc.DrawNode();
+                showEnemyLifeBar.drawRect(cc.p(0, 0), cc.p(showEleWidth, showEleHeight), showLifeColor, 0);
+                showEnemyLifeBar.setPosition(xStart + showEleWidth + (unitWidth + unitInterval) * iter, yEnmyStart - showEleHeight - attackBarHeight * 3);
+                var showEnemyLifeString = new cc.LabelTTF(
+                    enemyLife.getString(),
+                    cc.size(showEnemyLifeBar.width, showEnemyLifeBar.height), fontSize,
+                    cc.TEXT_ALIGNMENT_CENTER,
+                    cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+                );
+                showEnemyLifeString.setPosition(showEnemyLifeBar.x + showEleWidth / 2, showEnemyLifeBar.y + showEleHeight / 2);
+                showEnemyLifeString.setName(this.moduleNameList.showLifeInfo + "." + this.moduleNameList.attackFaction + "." + iter);
+                this.addChild(showEnemyLifeBar);
+                this.addChild(showEnemyLifeString);
+
+                var showEnemyDefenceBar = new cc.DrawNode();
+                showEnemyDefenceBar.drawRect(cc.p(0, 0), cc.p(showEleWidth, showEleHeight), showDefenceColor, 0);
+                showEnemyDefenceBar.setPosition(xStart + showEleWidth * 2 + (unitWidth + unitInterval) * iter, yEnmyStart - showEleHeight - attackBarHeight * 3);
+                var showEnemyDefenceString = new cc.LabelTTF(
+                    enemyDefenceString.getString(),
+                    cc.size(showEnemyDefenceBar.width, showEnemyDefenceBar.height), fontSize,
+                    cc.TEXT_ALIGNMENT_CENTER,
+                    cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+                );
+                showEnemyDefenceString.setPosition(showEnemyDefenceBar.x + showEleWidth / 2, showEnemyDefenceBar.y + showEleHeight / 2);
+                this.addChild(showEnemyDefenceBar);
+                this.addChild(showEnemyDefenceString);
             }
         }
     },
@@ -273,13 +380,13 @@ var ShowUnitsLayer = cc.Layer.extend({
         }
 
         /////////////////////////////////////////////////
-        // 通用，唤醒非空白组件的监听器
+        // 通用，唤醒非空白、并且结算后仍然存活（life > 0）的组件的监听器
         for (var iter = 0; iter < this.defenceFaction.length; iter++) {
-            if (this.defenceFaction[iter] !== null && !this._inArray(this.defenceFaction[iter], this.damageCalList))
+            if (this.defenceFaction[iter] !== null && !this._inArray(this.defenceFaction[iter], this.damageCalList) && this.defenceFaction[iter].life > 0)
                 cc.eventManager.resumeTarget(this.getChildByName(this.moduleNameList.defenceFaction + "." + iter));
         }
         for (var iter = 0; iter < this.attackFaction.length; iter++) {
-            if (this.attackFaction[iter] !== null && !this._inArray(this.attackFaction[iter], this.damageCalList))
+            if (this.attackFaction[iter] !== null && !this._inArray(this.attackFaction[iter], this.damageCalList) && this.attackFaction[iter].life > 0)
                 cc.eventManager.resumeTarget(this.getChildByName(this.moduleNameList.attackFaction + "." + iter));
         }
     },
@@ -341,6 +448,7 @@ var ShowUnitsLayer = cc.Layer.extend({
         var globalSize = cc.director.getWinSize();
         var globalScale = globalSize.width / 1920;
         var unitImageScale = 1;
+        var layer = this;
 
         this.addUnitsMenu(globalSize, globalScale, unitImageScale);
         this.addOutputMenu(globalSize, globalScale, unitImageScale);
