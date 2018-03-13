@@ -1,4 +1,8 @@
 var ShowUnitsLayer = cc.Layer.extend({
+    /*
+     * 在双人同屏设定中，defenceFaction在下方，背景颜色为蓝色；attackFaction在上方，背景颜色为红色。
+     * 在双人远程设定中，myTroops在下方；enemyTroops在上方。
+     */
     sprite : null,
     moduleNameList : {
         backGround : "backGround",
@@ -10,13 +14,19 @@ var ShowUnitsLayer = cc.Layer.extend({
          * faction.iter.info
          * 其中
          * faction = defenceFaction|attackFaction
-         * iter为索引时数组下标
+         * iter为索引时数组下标，也就是unit.serial
          * info = attackInfo|defenceInfo|lifeInfo
          */
         attackInfo : "attackInfo",
         defenceInfo : "defenceInfo",
         lifeInfo : "lifeInfo",
         showLifeInfo : "showLifeInfo",
+        /*
+         * 以下attackFaction与defenceFaction各有一个，命名规则为：
+         * faction.buttonName
+         */
+        resetButton : "resetButton",    // 用于重置damageCalList中的对应部分
+        goCalButton : "goCalButton"     // 用于双方确认
     },
 
     backGroundColor : {
@@ -26,8 +36,12 @@ var ShowUnitsLayer = cc.Layer.extend({
 
     defenceFaction : null,
     attackFaction : null,
-    damageCalList : [],       // 用于存储当前伤害计算序列。第一个都是防御方。
+    damageCalList : null,
     damageCalculator : null,
+    GO_CAL_FLAG : {
+        attackFaction : 0,
+        defenceFaction : 0
+    },
 
     ctor : function(mines, enemies) {
         this._super();
@@ -308,21 +322,54 @@ var ShowUnitsLayer = cc.Layer.extend({
     },
 
     addOutputMenu : function(size, scale, imageScale) {
-        var calculateButton = new cc.MenuItemToggle(
-            new cc.MenuItemImage(
-                res.BUTTON_RUN, res.BUTTON_RUN_GO
-            ),
-            this.outputCallback,
-            this
+        var defenceResetButton = new cc.MenuItemImage(
+            res.RESET_BUTTON,
+            res.RESET_BUTTON_ON,
+            this._resetDamageList.bind(this, null)
         );
+        defenceResetButton.setName(armyTemplate.faction.defenceFaction + "." + this.moduleNameList.resetButton);
+        defenceResetButton.setPosition(0, 0);
+        defenceResetButton.setAnchorPoint(0, 0);
+        defenceResetButton.setScale(2, 2);
+        var defenceGoButton = new cc.MenuItemImage(
+            res.RETURN_BUTTON,
+            res.RETURN_BUTTON_ON,
+            this.goButtonCallback.bind(this, armyTemplate.faction.defenceFaction)
+        );
+        defenceGoButton.setName(armyTemplate.faction.defenceFaction + "." + this.moduleNameList.goCalButton);
+        defenceGoButton.setPosition(size.width, 0);
+        defenceGoButton.setAnchorPoint(1, 0);
+        defenceGoButton.setScale(3, 3);
+        var attackResetButton = new cc.MenuItemImage(
+            res.RESET_BUTTON,
+            res.RESET_BUTTON_ON,
+            this._resetDamageList.bind(this, null)
+        );
+        attackResetButton.setName(armyTemplate.faction.attackFaction + "." + this.moduleNameList.resetButton);
+        attackResetButton.setAnchorPoint(0, 0);
+        attackResetButton.setPosition(size.width, size.height);
+        attackResetButton.setRotation(180, 180);
+        attackResetButton.setScale(2, 2);
+        var attackGoButton = new cc.MenuItemImage(
+            res.RETURN_BUTTON,
+            res.RETURN_BUTTON_ON,
+            this.goButtonCallback.bind(this, armyTemplate.faction.attackFaction)
+        );
+        attackGoButton.setName(armyTemplate.faction.attackFaction + "." + this.moduleNameList.goCalButton);
+        attackGoButton.setAnchorPoint(1, 0);
+        attackGoButton.setPosition(0, size.height);
+        attackGoButton.setRotation(180, 180);
+        attackGoButton.setScale(3, 3);
+        var calMenu = new cc.Menu(attackResetButton, attackGoButton, defenceResetButton, defenceGoButton);
+        calMenu.setPosition(0, 0);
+        this.addChild(calMenu);
+    },
 
-        calculateButton.setPosition(size.width / 2, size.height / 2);
-        calculateButton.setScale(2.5, 2.5);
-        var calculateMenu = new cc.Menu(calculateButton);
-        calculateMenu.setPosition(0, 0);
-        calculateMenu.setName(this.moduleNameList.calculateMenu);
-        calculateMenu.setVisible(false);
-        this.addChild(calculateMenu);
+    goButtonCallback : function(faction) {
+        console.log();
+        this.GO_CAL_FLAG[faction] = 1;
+        if (this.GO_CAL_FLAG[armyTemplate.faction.attackFaction] && this.GO_CAL_FLAG[armyTemplate.faction.defenceFaction])
+            this.outputCallback();
     },
 
     outputCallback : function() {
@@ -330,9 +377,8 @@ var ShowUnitsLayer = cc.Layer.extend({
          * 通过这个回调函数打开outputLayer
          * 另外，在该函数中还要讲damageCalList清空，以便从outputLayer调用本layer的onPushLayer时，可以重置界面元素。
          */
-        this.damageCalculator.loadDefenceUnit(this.damageCalList[0]);
-        this.damageCalculator.loadAttackList(this.damageCalList.slice(1, this.damageCalList.length));
-        this.damageCalList = [];
+        this.damageCalculator.loadDefenceUnit(this.damageCalList[armyTemplate.status.DEFENCE]);
+        this.damageCalculator.loadAttackList(this.damageCalList[armyTemplate.status.ATTACK]);
 
         var damageList = this.damageCalculator.getDamage(this.damageCalculator.attackList, this.damageCalculator.defenceUnit);
         console.log(damageList);
@@ -340,35 +386,10 @@ var ShowUnitsLayer = cc.Layer.extend({
         var attack = damageList[0];
 
         var parentNode = this.getParent();
-        parentNode.getChildByName(parentNode.moduleNameList.battleLayer).eraseUnits();
-        this.onPopLayer();
         parentNode.getChildByName(parentNode.moduleNameList.outputLayer).loadOutput(defence, attack);
     },
 
-    resetShow : function() {
-        for (var iter = 0; iter < this.defenceFaction.length; iter++) {
-            if (this.defenceFaction[iter] != null)
-                this.getChildByName(this.moduleNameList.defenceFaction + "." + iter).setTexture(res["UNIT_" + this.defenceFaction[iter].unit]);
-        }
-        for (var iter = 0; iter < this.attackFaction.length; iter++) {
-            if (this.attackFaction[iter] != null)
-                this.getChildByName(this.moduleNameList.attackFaction + "." + iter).setTexture(res["UNIT_" + this.attackFaction[iter].unit]);
-        }
-    },
-
-    onPushLayer : function(output) {
-        this.setVisible(true);
-
-        ////////////////////////////////////////////
-        // 从battleLayer返回需要执行下列内容
-        if (output !== undefined && typeof output === 'object' && this.damageCalList.length > 0) {
-            this.getChildByName(this.moduleNameList.calculateMenu).setVisible(true);
-            this.damageCalList.push(output);
-            console.log(this.damageCalList);
-        }
-        else
-            this.resetShow();
-
+    reloadLayer : function(output) {
         ////////////////////////////////////////////////
         // 从outputLayer返回需要执行下列内容
         // 将计算结果重载回defenceFaction和attackFaction
@@ -380,38 +401,17 @@ var ShowUnitsLayer = cc.Layer.extend({
         }
 
         /////////////////////////////////////////////////
-        // 通用，唤醒非空白、并且结算后仍然存活（life > 0）的组件的监听器
+        // 通用，暂停非空白、并且结算后仍然存活（life > 0）的组件的监听器
         for (var iter = 0; iter < this.defenceFaction.length; iter++) {
-            if (this.defenceFaction[iter] !== null && !this._inArray(this.defenceFaction[iter], this.damageCalList) && this.defenceFaction[iter].life > 0)
-                cc.eventManager.resumeTarget(this.getChildByName(this.moduleNameList.defenceFaction + "." + iter));
-        }
-        for (var iter = 0; iter < this.attackFaction.length; iter++) {
-            if (this.attackFaction[iter] !== null && !this._inArray(this.attackFaction[iter], this.damageCalList) && this.attackFaction[iter].life > 0)
-                cc.eventManager.resumeTarget(this.getChildByName(this.moduleNameList.attackFaction + "." + iter));
-        }
-    },
-
-    _inArray : function(ele, array) {
-        for (var iter in array) {
-            if (ele === array[iter])
-                return true;
-        }
-        return false;
-    },
-
-    onPopLayer : function() {
-        for (var iter = 0; iter < this.defenceFaction.length; iter++) {
-            if (this.defenceFaction[iter] !== null)
+            if (this.defenceFaction[iter].life <= 0)
                 cc.eventManager.pauseTarget(this.getChildByName(this.moduleNameList.defenceFaction + "." + iter), true);
         }
         for (var iter = 0; iter < this.attackFaction.length; iter++) {
-            if (this.attackFaction[iter] !== null)
+            if (this.attackFaction[iter].life <= 0)
                 cc.eventManager.pauseTarget(this.getChildByName(this.moduleNameList.attackFaction + "." + iter), true);
         }
-        this.setVisible(false);
-        this.getChildByName(this.moduleNameList.calculateMenu).setVisible(false);
 
-        console.log("pop " + this.getName());
+        this._resetDamageList();
     },
 
     loadTroops : function() {
@@ -433,6 +433,7 @@ var ShowUnitsLayer = cc.Layer.extend({
             if (jsonData != null) {
                 layer.attackFaction = jsonData[armyTemplate.faction.attackFaction];
                 layer.defenceFaction = jsonData[armyTemplate.faction.defenceFaction];
+                layer._resetDamageList();
                 layer._loadUnitElement();
                 socket.send(messageCode.DELETE_TROOPS);
             } else {
@@ -453,53 +454,118 @@ var ShowUnitsLayer = cc.Layer.extend({
         this.addUnitsMenu(globalSize, globalScale, unitImageScale);
         this.addOutputMenu(globalSize, globalScale, unitImageScale);
 
+
         var unitListener = cc.EventListener.create({
             event : cc.EventListener.TOUCH_ONE_BY_ONE,
             swallowTouches : true,
+            selectedUnit : null,
 
             onTouchBegan : function(touch, event) {
                 var target = event.getCurrentTarget();
                 var pos = target.convertToNodeSpace(touch.getLocation());
                 var size = target.getContentSize();
                 var rect = cc.rect(0 ,0, size.width, size.height);
-                return cc.rectContainsPoint(rect, pos);
+                var _toParesFactionNumber = function(string) {
+                    var point = string.indexOf(".");
+                    return eval(string.slice(point + 1, string.length));
+                };
+                var _toParesFaction = function(string) {
+                    var point = string.indexOf(".");
+                    return string.slice(0, point);
+                };
+                if (cc.rectContainsPoint(rect, pos)) {
+                    var name = target.getName();
+                    var unit = layer[_toParesFaction(name)][_toParesFactionNumber(name)];
+                    this.selectedUnit = unit;
+                    var attackUnit = layer.damageCalList[armyTemplate.status.ATTACK],
+                        defenceUnit = layer.damageCalList[armyTemplate.status.DEFENCE];
+                    if (attackUnit == null) {
+                        target.setTexture(res["UNIT_ATTACK_"  + unit.unit]);
+                        unit.status = armyTemplate.status.ATTACK;
+                        unit.position = armyTemplate.position.FACE;
+                    } else if (this.selectedUnit.faction === attackUnit.faction){
+                        layer._resetDamageList(armyTemplate.status.ATTACK);
+                        target.setTexture(res["UNIT_ATTACK_"  + unit.unit]);
+                        unit.status = armyTemplate.status.ATTACK;
+                        unit.position = armyTemplate.position.FACE;
+                    } else if (defenceUnit == null) {
+                        target.setTexture(res["UNIT_"  + unit.unit + "_ON"]);
+                        unit.status = armyTemplate.status.DEFENCE;
+                        unit.position = armyTemplate.position.FACE;
+                    } else if (this.selectedUnit.faction === defenceUnit.faction){
+                        layer._resetDamageList(armyTemplate.status.DEFENCE);
+                        target.setTexture(res["UNIT_"  + unit.unit + "_ON"]);
+                        unit.status = armyTemplate.status.DEFENCE;
+                        unit.position = armyTemplate.position.FACE;
+                    }
+                    this.selectedUnit = unit;
+                    console.log(unit);
+                    return true;
+                }
+                return false;
             },
             onTouchMoved : function(touch, event) {
                 return true;
             },
             onTouchEnded : function(touch, event) {
-                function toParseArrayNumber(string) {
-                    var point = string.indexOf(".");
-                    return eval(string.slice(point + 1, string.length));
+                function _loadUnit(string, unit) {
+                    layer.damageCalList[string] = unit;
+                    unit = null;
                 }
-                function toParesArray(string) {
-                    var point = string.indexOf(".");
-                    return string.slice(0, point);
-                }
-
                 var target = event.getCurrentTarget();
                 var pos = target.convertToNodeSpace(touch.getLocation());
                 var size = target.getContentSize();
                 var rect = cc.rect(0 ,0, size.width, size.height);
-                if (cc.rectContainsPoint(rect, pos)) {
-                    var name = target.getName();
-                    var unit = layer[toParesArray(name)][toParseArrayNumber(name)];
-                    var parentNode = layer.getParent();
-                    var battleLayer = parentNode.getChildByName(parentNode.moduleNameList.battleLayer);
-                    if (layer.damageCalList.length === 0) {
-                        unit.status = armyTemplate.status.DEFENCE;
-                        unit.position = armyTemplate.position.FACE;
-                        target.setTexture(res["UNIT_" + unit.unit + "_ON"]);
-                        battleLayer.loadDefenceUnit(unit);
-                        layer.damageCalList.push(unit);
-                    } else if (unit !== battleLayer.defenceUnit) {
-                        target.setTexture(res["UNIT_ATTACK_" + unit.unit]);
-                        unit.status = armyTemplate.status.ATTACK;
-                        battleLayer.loadAttackUnit(unit);
-                        layer.onPopLayer();
-                        battleLayer.onPushLayer();
+                if (this.selectedUnit != null) {
+                    if (cc.rectContainsPoint(rect, pos)) {
+                        if (this.selectedUnit.status === armyTemplate.status.ATTACK) {
+                            _loadUnit(armyTemplate.status.ATTACK, this.selectedUnit);
+                            return true;
+                        }
+                        if (this.selectedUnit.status === armyTemplate.status.DEFENCE) {
+                            layer.damageCalList[armyTemplate.status.ATTACK].position = armyTemplate.position.FACE;
+                            _loadUnit(armyTemplate.status.DEFENCE, this.selectedUnit);
+                            return true;
+                        }
+                    } else {
+                        if (this.selectedUnit.status === armyTemplate.status.ATTACK) {
+                            if (pos.y > size.height && (pos.x > 0 && pos.x < size.width)) {
+                                this.selectedUnit.status = armyTemplate.status.ATTACK_CHARGE;
+                                console.log(this.selectedUnit.faction + ": " + this.selectedUnit.unit + " : " + this.selectedUnit.status + " : " + this.selectedUnit.position);
+                                _loadUnit(armyTemplate.status.ATTACK, this.selectedUnit);
+                                return true;
+                            }
+                            if (pos.y < 0 && (pos.x > 0 && pos.x < size.width)) {
+                                this.selectedUnit.status = armyTemplate.status.ATTACK_REMOTE;
+                                console.log(this.selectedUnit.faction + ": " + this.selectedUnit.unit + " : " + this.selectedUnit.status + " : " + this.selectedUnit.position);
+                                _loadUnit(armyTemplate.status.ATTACK, this.selectedUnit);
+                                return true;
+                            }
+                        }
+                        if (this.selectedUnit.status === armyTemplate.status.DEFENCE) {
+                            if ((pos.x < 0 || pos.x > size.width) && (pos.y > 0 &&  pos.y < size.height)) {
+                                // defence side attack
+                                layer.damageCalList[armyTemplate.status.ATTACK].position = armyTemplate.position.SIDE;
+                                _loadUnit(armyTemplate.status.DEFENCE, this.selectedUnit);
+                                console.log(layer.damageCalList[armyTemplate.status.ATTACK].position);
+                                return true;
+                            }
+                            if ((pos.x > 0 && pos.x < size.width) && pos.y < 0) {
+                                // defence back attack
+                                layer.damageCalList[armyTemplate.status.ATTACK].position = armyTemplate.position.BACK;
+                                _loadUnit(armyTemplate.status.DEFENCE, this.selectedUnit);
+                                console.log(layer.damageCalList[armyTemplate.status.ATTACK].position);
+                                return true;
+                            }
+                            if ((pos.x > 0 && pos.x < size.width) && pos.y >= 0) {
+                                // defence back attack
+                                layer.damageCalList[armyTemplate.status.ATTACK].position = armyTemplate.position.FACE;
+                                _loadUnit(armyTemplate.status.DEFENCE, this.selectedUnit);
+                                console.log(layer.damageCalList[armyTemplate.status.ATTACK].position);
+                                return true;
+                            }
+                        }
                     }
-                    return true;
                 }
                 return false;
             }
@@ -512,6 +578,62 @@ var ShowUnitsLayer = cc.Layer.extend({
             if (this.attackFaction[iter] != null)
                 cc.eventManager.addListener(unitListener.clone(), this.getChildByName(this.moduleNameList.attackFaction + "." + iter));
         }
+    },
+
+    _resetDamageList : function(FLAG) {
+        var layer = this;
+        function _resetAttackEle () {
+            var attackUnit = layer.damageCalList[armyTemplate.status.ATTACK];
+            if (attackUnit != null) {
+                layer._resetUnitButtonImage(attackUnit);
+                layer.damageCalList[armyTemplate.status.ATTACK] = null;
+                layer.GO_CAL_FLAG[attackUnit.faction] = 0;
+            }
+        }
+        function _resetDefenceEle () {
+            var defenceUnit = layer.damageCalList[armyTemplate.status.DEFENCE];
+            if (defenceUnit != null) {
+                layer._resetUnitButtonImage(defenceUnit);
+                layer.damageCalList[armyTemplate.status.DEFENCE] = null;
+                layer.GO_CAL_FLAG[defenceUnit.faction] = 0;
+            }
+        }
+        if (this.damageCalList == null) {
+            // 初始化
+            this.damageCalList = {};
+            this.damageCalList[armyTemplate.status.ATTACK] = null;
+            this.damageCalList[armyTemplate.status.DEFENCE] = null;
+            console.log("init damageCalList...");
+        } else {
+            // 之后每次调用
+            switch (FLAG) {
+                case armyTemplate.status.ATTACK : {
+                    console.log("reset attack unit...");
+                    _resetAttackEle();
+                    break;
+                }
+                case armyTemplate.status.DEFENCE : {
+                    console.log("reset defence unit...");
+                    _resetDefenceEle();
+                    break;
+                }
+                default : {
+                    console.log(FLAG);
+                    if (!FLAG) {
+                        console.log("reset damageCalList...");
+                        _resetAttackEle();
+                        _resetDefenceEle();
+                    } else {
+                        throw "WRONG reset element FLAG!"
+                    }
+                    break
+                }
+            }
+        }
+    },
+
+    _resetUnitButtonImage : function(unit) {
+        this.getChildByName(unit.faction + "." + unit.serial).setTexture(res["UNIT_" + unit.unit]);
     },
 
     onEnter : function() {

@@ -1,7 +1,8 @@
 /*
- * 当前的结算方式，是将所有attackUnit的battle加起来之后，与defenceUnit的battle作用一次，然后计算damage。
- * 这样的坏处是，defenceUnit的defence battle只计算一次，即只对所有被激发的attack属性，每次结算attackUnit时都会覆盖之前的defence状况。
- * 考虑到日后如果多种attack都可以激发defence属性的话，并且需要综合考虑的情况，当前的模型十分不便。
+ * 当前的结算模型为瞬时结算，不保留状态。
+ * 当前的模型中，交战双方各有一支单位。即使实际情况中有多支单位参与到交火中，每次都只结算两者之间的关系。
+ * attackUnit的position属性解释为“攻击目标的某一面”。也就是说，如果attackUnit.position = BACK，那么则是attackUnit对defenceUnit的背面发起进攻。
+ * 在计算反击的时候，考虑的也是attackUnit.position是否为FACE。因此在当前瞬时结算模型中，defenceUnit的position属性暂时无用。
  *
  * 当前没有考虑地形影响。
  *
@@ -22,8 +23,12 @@ DamageCalculator.prototype = {
     loadDefenceUnit : function(unit) {
         this.defenceUnit = unit;
     },
-    loadAttackList : function(list) {
-        this.attackList = list;
+    loadAttackList : function(input) {
+        if (input instanceof  Array)
+            this.attackList = input;
+        else {
+            this.attackList = [input];
+        }
     },
     getAttackBasis : function(attackUnit) {
         /*
