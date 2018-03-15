@@ -1,21 +1,19 @@
 {
- "shieldMan" : {
-    "unit" : "shieldMan",
-    "sequence" : "heavyInfantry",
-    "troop" : {
+    "server" : "ws://45.76.68.20:3000",
+    "shieldMan" : {
+        "unit" : "shieldMan",
+        "sequence" : "heavyInfantry",
         "attackWeapon" : 5,
         "attackFormation" : 0,
         "defenceWeapon" : 6,
         "defenceFormation" : 0,
         "fleeLife" : 0,
         "maxLife" : 7,
-        "speciality" : ""
-    }
-},
-"pikeMan" : {
-    "unit" : "pikeMan",
-    "sequence" : "heavyInfantry",
-    "troop" : {
+        "speciality" : []
+    },
+    "pikeMan" : {
+        "unit" : "pikeMan",
+        "sequence" : "heavyInfantry",
         "attackWeapon" : 5,
         "attackFormation" : 0,
         "defenceWeapon" : 5,
@@ -23,48 +21,53 @@
         "fleeLife" : 0,
         "maxLife" : 7,
         "speciality" : [
-            "defence_charge_face.heavyCavalvy.attack.pls.weapon.1",
-            "defence_charge_face.lightCavalvy.attack.pls.weapon.1",
-            "defence_charge_face.heavyCavalvy.defence.pls.weapon.2",
-            "defence_charge_face.lightCavalvy.defence.pls.weapon.2"
+            "defenceCharge_face.heavyCavalvy.attack.pls.weapon.1",
+            "defenceCharge_face.lightCavalvy.attack.pls.weapon.1",
+            "defenceCharge_face.heavyCavalvy.defence.pls.weapon.2",
+            "defenceCharge_face.lightCavalvy.defence.pls.weapon.2"
         ]
-    }
-},
-"axeMan" : {
-    "unit" : "axeMan",
-    "sequence" : "heavyInfantry",
-    "troop" : {
+    },
+    "axeMan" : {
+        "unit" : "axeMan",
+        "sequence" : "heavyInfantry",
         "attackWeapon" : 6,
         "attackFormation" : 0,
         "defenceWeapon" : 5,
         "defenceFormation" : 0,
         "fleeLife" : 0,
         "maxLife" : 7,
-        "speciality" : ""
-    }
-},
-"bowMan" : {    
-    "unit" : "bowMan",
-    "sequence" : "heavyInfantry",
-    "troop" : {
-        "attackWeapon" : 5,  
-        "attackFormation" : 3,
+        "speciality" : []
+    },
+    "bowMan" : {    
+        "unit" : "bowMan",
+        "sequence" : "heavyInfantry",
+        "attackWeapon" : 2,  
+        "attackFormation" : 2,
         "defenceWeapon" : 2,
-        "defenceFormation" : 0,
+        "defenceFormation" : 2,
         "fleeLife" : 0,
-        "maxLife" : 5,
+        "maxLife" : 7,
         "speciality" : [
-            "attack_engage.heavyInfantry.attack.pls.formation.1",
-            "attack_engage.lightInfantry.attack.pls.formation.1",
-            "attack_engage.heavyCavalvy.attack.pls.formation.1",
-            "attack_engage.lightCavalvy.attack.pls.formation.1"
+            "attackRemote_face.heavyInfantry.attack.pls.formation.3",
+            "attackRemote_side.heavyInfantry.attack.pls.formation.3",
+            "attackRemote_back.heavyInfantry.attack.pls.formation.3",
+    
+            "attackRemote_face.lightInfantry.attack.pls.formation.3",
+            "attackRemote_side.lightInfantry.attack.pls.formation.3",
+            "attackRemote_back.lightInfantry.attack.pls.formation.3",
+    
+            "attackRemote_face.heavyCavalvy.attack.pls.formation.3",
+            "attackRemote_side.heavyCavalvy.attack.pls.formation.3",
+            "attackRemote_back.heavyCavalvy.attack.pls.formation.3",
+    
+            "attackRemote_face.lightCavalvy.attack.pls.formation.3",
+            "attackRemote_side.lightCavalvy.attack.pls.formation.3",
+            "attackRemote_back.lightCavalvy.attack.pls.formation.3"
         ]
-    }
-},
- "impactHorse" : {
-    "unit" : "impactHorse",
-    "sequence" : "heavyCavalvy",
-    "troop" : {
+    },
+     "impactHorse" : {
+        "unit" : "impactHorse",
+        "sequence" : "heavyCavalvy",
         "attackWeapon" : 4,
         "attackFormation" : 0,
         "defenceWeapon" : 5,
@@ -72,15 +75,18 @@
         "fleeLife" : 0,
         "maxLife" : 8,
         "speciality" : [
-            "attack_charge.heavyInfantry.attack.pls.weapon.4",
-            "attack_charge.lightInfantry.attack.pls.weapon.4"
+            "attackCharge_face.heavyInfantry.attack.pls.weapon.4",
+            "attackCharge_side.heavyInfantry.attack.pls.weapon.4",
+            "attackCharge_back.heavyInfantry.attack.pls.weapon.4",
+    
+            "attackCharge_face.lightInfantry.attack.pls.weapon.4",
+            "attackCharge_side.lightInfantry.attack.pls.weapon.4",
+            "attackCharge_back.lightInfantry.attack.pls.weapon.4"
         ]
-    }
-},
- "huntHorse" : {
-    "unit" : "impactHorse",
-    "sequence" : "lightCavalry",
-    "troop" : {
+    },
+     "huntHorse" : {
+        "unit" : "impactHorse",
+        "sequence" : "lightCavalvy",
         "attackWeapon" : 4,
         "attackFormation" : 0,
         "defenceWeapon" : 4,
@@ -88,14 +94,24 @@
         "fleeLife" : 0,
         "maxLife" : 8,
         "speciality" : [
-            "attack_charge.heavyInfantry.attack.pls.weapon.1",
-            "attack_charge.lightInfantry.attack.pls.weapon.1",
-            "attack_charge.heavyCavalvy.attack.pls.weapon.2",
-            "attack_advantage.heavyCavalvy.attack.pls.weapon.2",
-            "attack_charge.lightCavalvy.attack.pls.weapon.2",
-            "attack_advantage.lightCavalvy.attack.pls.weapon.2"
+            "attackCharge_face.lightInfantry.attack.pls.weapon.1",
+            "attackCharge_side.lightInfantry.attack.pls.weapon.1",
+            "attackCharge_back.lightInfantry.attack.pls.weapon.1",
+    
+            "attackCharge_face.heavyCavalvy.attack.pls.weapon.2",
+            "attackCharge_side.heavyCavalvy.attack.pls.weapon.2",
+            "attackCharge_back.heavyCavalvy.attack.pls.weapon.2",
+            
+            "attack_side.heavyCavalvy.attack.pls.weapon.2",
+            "attack_back.heavyCavalvy.attack.pls.weapon.3",
+    
+            "attackCharge_face.lightCavalvy.attack.pls.weapon.2",
+            "attackCharge_side.lightCavalvy.attack.pls.weapon.2",
+            "attackCharge_back.lightCavalvy.attack.pls.weapon.2",
+    
+            "attack_side.lightCavalvy.attack.pls.weapon.2",
+            "attack_back.lightCavalvy.attack.pls.weapon.3"
         ]
     }
-}
 }
 

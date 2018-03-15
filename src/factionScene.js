@@ -22,6 +22,7 @@ var FactionLayer = cc.Layer.extend({
         bg.setPosition(0, 0);
         this.addChild(bg);
 
+        (new UnitLoader());
         this.addFactionButton(globalSize, unitImageScale);
     },
 

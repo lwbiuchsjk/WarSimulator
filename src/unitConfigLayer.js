@@ -31,7 +31,6 @@ var UnitConfigLayer = cc.Layer.extend({
     maxTitleLength : 6,
     posListener : null,
     currentUnit: null,          // 取到当前正在处理的unit
-    unitLoader : null,
 
     ctor : function() {
         this._super();
@@ -39,7 +38,6 @@ var UnitConfigLayer = cc.Layer.extend({
         var globalScale = globalSize.width / 1920;
         var imageScale = 1;
 
-        this.unitLoader = new UnitLoader();
         this.addHeavyInfantryMenu(globalSize, globalScale, imageScale);
         this.addLightInfantryMenu(globalSize, globalScale, imageScale);
         this.addHeavyCavalvyMenu(globalSize, globalScale, imageScale);

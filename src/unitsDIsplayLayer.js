@@ -1,13 +1,6 @@
 /*
  * 在使用本layer的过程中，需要根据this.faction字段来判断runButton的功能与纹理，因此在创建runButton = new cc.Sprite时，通过其name属性来做标志。代价是不能通过name来索引该组件。
  */
-var messageSocket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
-messageSocket.onopen = function() {
-    console.log("connect ready...");
-};
-messageSocket.onclose = function() {
-    console.log("connect cancelled!");
-};
 
 var UnitsDisplayLayer = cc.Layer.extend({
     sprite : null,
@@ -44,6 +37,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
     },
 
     runButton : null,
+    messageSocket : null,
 
     ctor:function () {
         //////////////////////////////
@@ -68,6 +62,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
 
         this.addUnitsMenu(globalSize, globalScale);
         this.addRunButton(globalSize, globalScale);
+
         return true;
     },
 
@@ -157,13 +152,26 @@ var UnitsDisplayLayer = cc.Layer.extend({
 
     loadFaction : function(faction) {
         this.faction = faction;
-        var layer = this;
-
         var globalSize = cc.director.getWinSize();
         this.getChildByName(this.moduleNameList.backGround).drawRect(cc.p(0, 0), cc.p(globalSize.width, globalSize.height), this.backGroundColor[this.faction]);
 
-        messageSocket.send(layer.faction);
-        messageSocket.onmessage = function(data) {
+        this.toSetBlankUnit();
+    },
+
+    wipeTroops : function() {
+        this.myTroops = new Array(10);
+    },
+
+    onEnter : function() {
+        this._super();
+        var layer = this;
+
+        this.messageSocket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
+        this.messageSocket.onopen = function() {
+            console.log("connect ready...");
+            layer.messageSocket.send(layer.faction);
+        };
+        this.messageSocket.onmessage = function(data) {
             switch (data.data) {
                 case armyTemplate.faction.attackFaction : {
                     if (layer.runButton.getName() !== layer.moduleNameList.runButton) {
@@ -199,23 +207,15 @@ var UnitsDisplayLayer = cc.Layer.extend({
                 }
             }
         };
-
-        this.toSetBlankUnit();
-    },
-
-    wipeTroops : function() {
-        this.myTroops = new Array(10);
-    },
-
-    onEnter : function() {
-        this._super();
+        this.messageSocket.onclose = function() {
+            console.log("connect cancelled!");
+        };
 
         function getUnitIter(name) {
             var dot1 = name.indexOf(".");
             var dot2 = name.indexOf(".", dot1 + 1);
             return Number(name.slice(dot1 + 1, dot2));
         }
-        var layer = this;
         this.unitListener = cc.EventListener.create({
             event :  cc.EventListener.TOUCH_ONE_BY_ONE,
             swallowTouches : true,
@@ -280,11 +280,11 @@ var UnitsDisplayLayer = cc.Layer.extend({
                     var troopMsg = new FactionTroopMessage();
                     troopMsg.faction = layer.faction;
                     troopMsg.troops = layer.myTroops;
-                    messageSocket.send(JSON.stringify(troopMsg));
+                    layer.messageSocket.send(JSON.stringify(troopMsg));
                     var configScene = new ConfigScene();
                     configScene.setFaction(targetName);
                     if (targetName === armyTemplate.faction.attackFaction || targetName === armyTemplate.faction.defenceFaction) {
-                        messageSocket.send("config " + targetName);
+                        layer.messageSocket.send("config " + targetName);
                         cc.director.pushScene(configScene);
                     } else if (targetName === messageCode.TROOP_CONFIG_READY) {
                         console.log("ready to war!!!");

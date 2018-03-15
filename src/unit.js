@@ -105,6 +105,7 @@ Unit.prototype = {
 function UnitLoader() {
     cc.loader.loadJson("res/unit.json", function(err, data) {
         armyTemplate.troops = data;
+        messageCode.COMMUNICATION_ADDRESS = data["server"];
     });
 }
 
