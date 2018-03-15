@@ -18,6 +18,8 @@ var res = {
     ATK_CHARGE_SHOW_BAR : "res/ATTACK_CHARGE_SHOW.png",
     ATK_REMOTE_SHOW_BAR : "res/ATTACK_SHOW.png",
     DFC_SHOW_BAR : "res/DEFENCE_POSITION_SHOW.png",
+    ATK_SHOW_UNIT : "res/showAttackUnit.png",
+    DFC_SHOW_UNIT : "res/showDefenceUnit.png",
 
     UNIT_ON : "res/UNIT_ON.bmp",
     UNIT_OFF : "res/UNIT_OFF.bmp",

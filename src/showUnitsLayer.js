@@ -29,10 +29,12 @@ var ShowUnitsLayer = cc.Layer.extend({
         goCalButton : "goCalButton",    // 用于双方确认
         /*
          * 以下用于展示attack/defence动作，命名规则为：
-         * status.showBar。
+         * status.showElement。
          * 其中status = armyTemplaye.status.ATTACK | armyTemplate.status.DEFNECE
+         * showElement = showBar | showUnit
          */
         showBar : "showBar",
+        showUnit : "showUnit",
     },
 
     backGroundColor : {
@@ -379,6 +381,14 @@ var ShowUnitsLayer = cc.Layer.extend({
         defenceShowBar.setName(armyTemplate.status.DEFENCE + "." + this.moduleNameList.showBar);
         defenceShowBar.setVisible(false);
         this.addChild(defenceShowBar);
+        var attackShowUnit = new cc.Sprite(res.ATK_SHOW_UNIT);
+        attackShowUnit.setName(armyTemplate.status.ATTACK + "." + this.moduleNameList.showUnit);
+        attackShowUnit.setVisible(false);
+        this.addChild(attackShowUnit);
+        var defenceShowUnit = new cc.Sprite(res.DFC_SHOW_UNIT);
+        defenceShowUnit.setName(armyTemplate.status.DEFENCE + "." + this.moduleNameList.showUnit);
+        defenceShowUnit.setVisible(false);
+        this.addChild(defenceShowUnit);
     },
 
     goButtonCallback : function(faction) {
@@ -427,6 +437,8 @@ var ShowUnitsLayer = cc.Layer.extend({
                 cc.eventManager.pauseTarget(this.getChildByName(this.moduleNameList.attackFaction + "." + iter), true);
         }
 
+        this.getChildByName(armyTemplate.status.ATTACK + "." + this.moduleNameList.showUnit).setVisible(true);
+        this.getChildByName(armyTemplate.status.DEFENCE + "." + this.moduleNameList.showUnit).setVisible(true);
         this._resetDamageList();
     },
 
@@ -478,6 +490,9 @@ var ShowUnitsLayer = cc.Layer.extend({
             selectedUnit : null,
 
             onTouchBegan : function(touch, event) {
+                layer.getChildByName(armyTemplate.status.ATTACK + "." + layer.moduleNameList.showUnit).setVisible(false);
+                layer.getChildByName(armyTemplate.status.DEFENCE + "." + layer.moduleNameList.showUnit).setVisible(false);
+
                 var target = event.getCurrentTarget();
                 var pos = target.convertToNodeSpace(touch.getLocation());
                 var size = target.getContentSize();
@@ -532,6 +547,7 @@ var ShowUnitsLayer = cc.Layer.extend({
                 var pos = target.convertToNodeSpace(touch.getLocation());
                 var size = target.getContentSize();
                 var rect = cc.rect(0 ,0, size.width, size.height);
+                var listener = this;
                 function _loadUnit(string, unit) {
                     // 向layer中对应位置装载unit，并且添加对应的showBar元素。
                     // string = armyTemplate.status.ATTACK | armyTemplate.status.DEFENCE
@@ -542,6 +558,12 @@ var ShowUnitsLayer = cc.Layer.extend({
                     showBar.setAnchorPoint(0.5, 0);
                     showBar.setPosition(target.x, target.y);
                     showBar.setRotation(target.getRotationX(), target.getRotationY());
+
+                    var showUnit = layer.getChildByName(string + "." + layer.moduleNameList.showUnit);
+                    var moveValue;
+                    listener.selectedUnit.faction === armyTemplate.faction.defenceFaction ? moveValue = 25 : moveValue = -25;
+                    showUnit.setPosition(target.x , target.y + moveValue);  // 此处的25是attackBar的高度的一半。
+                    showUnit.setRotation(target.getRotationX(), target.getRotationY());
                 }
                 if (this.selectedUnit != null) {
                     var showBar = layer.getChildByName(this.selectedUnit.status + "." + layer.moduleNameList.showBar);
