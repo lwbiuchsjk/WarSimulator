@@ -15,14 +15,15 @@ var armyTemplate = {
     status : {
         ////////////////////////////////////
         // 所有新增的单位状态都需要在这里备案
+        UNIQUE_MOVEMENT : "uniqueMovement",
         DEFENCE : "defence",                                  //近距离防御姿态
-        DEFENCE_CHARGE_FACE : "defence_charge_face",          //近距离防御姿态，进攻方正在正面冲锋
+        DEFENCE_CHARGE_FACE : "defenceCharge_face",          //近距离防御姿态，进攻方正在正面冲锋
         ATTACK : "attack",                                    //近距离进攻姿态
-        ATTACK_CHARGE : "attack_charge",                      //近距离进攻_冲锋姿态
-        ATTACK_CHARGE_ADVANTAGE : "attack_charge_advantage",  //近距离进攻_冲锋_优势位置姿态
-        ATTACK_ENGAGE : "attack_engage",                      //进攻_目标正在交火状态
-        ATTACK_REMOTE : "attack_remote",                      //远程攻击姿态
-        DEFENCE_REMOTE: "defence_remote"                      //远程防御姿态
+        ATTACK_CHARGE : "attackCharge",                      //近距离进攻_冲锋姿态
+        ATTACK_CHARGE_ADVANTAGE : "attackCharge_advantage",  //近距离进攻_冲锋_优势位置姿态
+        ATTACK_ENGAGE : "attackEngage",                      //进攻_目标正在交火状态
+        ATTACK_REMOTE : "attackRemote",                      //远程攻击姿态
+        DEFENCE_REMOTE: "defenceRemote"                      //远程防御姿态
     },
     position : {
         FACE : "face",
@@ -45,16 +46,20 @@ var armyTemplate = {
     troops : null                                             //读入兵种信息后，将数据装载在这里
 };
 
-function Unit() {
+function Unit(rawData) {
     this.unit = null;
-    this.rank = null;
     this.life = null;
     this.status = null;
     this.position = null;
     this.engage = null;
     this.title = null;
     this.faction = null;
-    this.serialNum = null;         // 所在数组下标
+    this.serial = null;         // 所在数组下标
+    if (rawData) {
+        for (var prop in rawData) {
+            this[prop] = rawData[prop];
+        }
+    }
 }
 
 Unit.prototype = {
@@ -70,7 +75,7 @@ Unit.prototype = {
         /*
          * 因为loadUnit的时机是在display阶段，导致unit没有status信息。因而判断中取消对status的判断。
          */
-        var squad = armyTemplate.troops[this.unit]["troop"];
+        var squad = armyTemplate.troops[this.unit];
         this.attackWeapon = squad.attackWeapon;
         this.attackFormation = squad.attackFormation;
         this.defenceWeapon = squad.defenceWeapon;
@@ -80,8 +85,20 @@ Unit.prototype = {
         this.speciality = squad.speciality;
         if (this.position === undefined || !this._inArray(armyTemplate.position, this.position))
             this.position = armyTemplate.position.FACE;
-        this.sequence = armyTemplate.troops[this.unit].sequence;
+        this.sequence = squad.sequence;
         this.engage = 0;
+    },
+
+    checkStatus : function() {
+        // 用于输入attackStatus时检测status的合法性
+        console.log(this.status + "_");
+        for (var iter = 0; iter < this.speciality.length; iter++) {
+            if (this.speciality[iter].indexOf(this.status + "_") >= 0) {
+                console.log(this.speciality[iter]);
+                return true;
+            }
+        }
+        return false;
     }
 };
 

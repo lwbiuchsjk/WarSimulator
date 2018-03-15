@@ -61,7 +61,7 @@ var UnitConfigLayer = cc.Layer.extend({
         );
         var bwmnToggleBtn = new cc.MenuItemImage(
             res.UNIT_bowMan, res.UNIT_bowMan_ON, res.UNIT_bowMan_OFF,
-            function() {console.log("well done")},
+            this.unitBtnCallback.bind(this, armyTemplate.units.BOW_MAN, this.moduleNameList.heavyInfantryMenu),
             this
         );
         var pkmnToggleBtn = new cc.MenuItemImage(

@@ -50,7 +50,7 @@ DamageCalculator.prototype = {
         //console.log("defenceUnit: " + defenceUnit.unit + "; defenceBasis: " + (defenceUnit.defenceWeapon + defenceUnit.defenceFormation));
         return (defenceUnit.defenceWeapon + defenceUnit.defenceFormation).toString();
     },
-    getSpeciality : function(status, position, driveUnit, supportUnit, FLAG) {
+    getSpeciality : function(status, position, driveUnit, sufferUnit, FLAG) {
         /*
          * 获得当前状况下该单位适合的speciality。
          * speciality相关详细参见armyTemplate。数据类型为String_Array。array中每个元素都是一条speciality记录。
@@ -83,7 +83,7 @@ DamageCalculator.prototype = {
         }
         function reloadAction(actionString) {
             // 将备用action规范化
-            return actionString + "." + supportUnit.sequence + movement;
+            return actionString + "." + sufferUnit.sequence + movement;
         }
 
         var gift = driveUnit.speciality;
@@ -91,13 +91,14 @@ DamageCalculator.prototype = {
         for (var i in gift) {
             // 获得当前的speciality记录。
             var record = gift[i];
-            var action = getAction(record, 3);      //取3的原因为，前三个分隔符包括的字段分为别status.target.movement，函数中movement由FLAG确定。
-            var actionTmp = reloadAction(status);
-            var actionPositionTmp = reloadAction(status + "_" + position);
-            if (action.indexOf(actionTmp) >= 0 || action.indexOf(actionPositionTmp) >= 0) {
+            var actionOfRecord = getAction(record, 3);      //取3的原因为，前三个分隔符包括的字段分为别status.target.movement，函数中movement由FLAG确定。
+            var action = reloadAction(status);
+            var actionInPosition = reloadAction(status + "_" + position);
+            if (action === actionOfRecord || actionInPosition === actionOfRecord) {
                 // 判断speciality中status字段内容。
+                // 在这里需要精确匹配。即attackStatus_position | attackStatus 与 记录的前半部分严格一致才可以。
                 // 在有符合的情况下，获取calculator。因为calculator占据3个字符，并且action字符串最后一个字符为"."。因此可以通过action.length + 3取出符号。
-                var cal = record.slice(action.length, action.length + 3);
+                var cal = record.slice(actionOfRecord.length, actionOfRecord.length + 3);
                 if (cal === "pls") {
                     output += "+";
                 } else if (cal === "dlt") {
@@ -132,14 +133,14 @@ DamageCalculator.prototype = {
 
         return output;
     },
-    getBonus : function(trigger, driveUnit, supportUnit, FLAG) {
+    getBonus : function(trigger, driveUnit, sufferUnit, FLAG) {
         /*
          * 本函数计算battle的奖励值bonus。
          * bonus分为兵种自带的属性奖励speciality，与因为不同的位置position给进攻方的奖励advantage。
          *
          * 返回值是String。
          */
-        return this.getSpeciality(trigger, driveUnit.position, driveUnit, supportUnit, FLAG) + this.getAdvantage(driveUnit.position, supportUnit);
+        return this.getSpeciality(trigger, driveUnit.position, driveUnit, sufferUnit, FLAG) + this.getAdvantage(driveUnit.position, sufferUnit);
     },
     getAttack : function(attackUnit, defenceUnit) {
         var battle = this.getAttackBasis(attackUnit) + this.getBonus(attackUnit.status, attackUnit, defenceUnit, armyTemplate.status.ATTACK);
@@ -212,5 +213,5 @@ DamageCalculator.prototype = {
         damageSequence.push(defenceUnit);
 
         return damageSequence;
-    }
+    },
 };

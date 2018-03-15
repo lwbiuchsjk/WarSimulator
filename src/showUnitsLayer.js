@@ -459,8 +459,14 @@ var ShowUnitsLayer = cc.Layer.extend({
                 console.log(error);
             }
             if (jsonData != null) {
-                layer.attackFaction = jsonData[armyTemplate.faction.attackFaction];
-                layer.defenceFaction = jsonData[armyTemplate.faction.defenceFaction];
+                layer.attackFaction = [];
+                for (var iter = 0; iter < jsonData[armyTemplate.faction.attackFaction].length; iter++) {
+                    layer.attackFaction.push(new Unit(jsonData[armyTemplate.faction.attackFaction][iter]))
+                }
+                layer.defenceFaction = [];
+                for (var iter = 0; iter < jsonData[armyTemplate.faction.defenceFaction].length; iter++) {
+                    layer.defenceFaction.push(new Unit(jsonData[armyTemplate.faction.defenceFaction][iter]))
+                }
                 layer._resetDamageList();
                 layer._loadUnitElement();
                 socket.send(messageCode.DELETE_TROOPS);
@@ -565,6 +571,11 @@ var ShowUnitsLayer = cc.Layer.extend({
                     showUnit.setPosition(target.x , target.y + moveValue);  // 此处的25是attackBar的高度的一半。
                     showUnit.setRotation(target.getRotationX(), target.getRotationY());
                 }
+                function _resetUnitButton(string) {
+                    target.setTexture(res["UNIT_" + listener.selectedUnit.unit]);
+                    _loadUnit(string, null);
+                    return false;
+                }
                 if (this.selectedUnit != null) {
                     var showBar = layer.getChildByName(this.selectedUnit.status + "." + layer.moduleNameList.showBar);
                     if (cc.rectContainsPoint(rect, pos)) {
@@ -584,25 +595,35 @@ var ShowUnitsLayer = cc.Layer.extend({
                     } else {
                         if (this.selectedUnit.status === armyTemplate.status.ATTACK) {
                             if (pos.y > size.height && (pos.x > 0 && pos.x < size.width)) {
+                                // 向前滑动 = attack charge
+                                // 先更改attackStatus，然后检测输入是否正确
                                 this.selectedUnit.status = armyTemplate.status.ATTACK_CHARGE;
                                 console.log(this.selectedUnit.faction + ": " + this.selectedUnit.unit + " : " + this.selectedUnit.status + " : " + this.selectedUnit.position);
-                                _loadUnit(armyTemplate.status.ATTACK, this.selectedUnit);
-                                showBar.setTexture(res.ATK_CHARGE_SHOW_BAR);
-                                showBar.setVisible(true);
-                                return true;
+                                if (this.selectedUnit.checkStatus()) {
+                                    _loadUnit(armyTemplate.status.ATTACK, this.selectedUnit);
+                                    showBar.setTexture(res.ATK_CHARGE_SHOW_BAR);
+                                    showBar.setVisible(true);
+                                    return true;
+                                } else {
+                                    return _resetUnitButton(armyTemplate.status.ATTACK);
+                                }
                             }
                             if (pos.y < 0 && (pos.x > 0 && pos.x < size.width)) {
+                                // 向后滑动 = attack remote
+                                // 先更改attackStatus，然后检测输入是否正确
                                 this.selectedUnit.status = armyTemplate.status.ATTACK_REMOTE;
                                 console.log(this.selectedUnit.faction + ": " + this.selectedUnit.unit + " : " + this.selectedUnit.status + " : " + this.selectedUnit.position);
-                                _loadUnit(armyTemplate.status.ATTACK, this.selectedUnit);
-                                showBar.setAnchorPoint(0.5, 1);
-                                showBar.setTexture(res.ATK_SHOW_BAR);
-                                showBar.setVisible(true);
-                                return true;
+                                if (this.selectedUnit.checkStatus()) {
+                                    _loadUnit(armyTemplate.status.ATTACK, this.selectedUnit);
+                                    showBar.setAnchorPoint(0.5, 1);
+                                    showBar.setTexture(res.ATK_SHOW_BAR);
+                                    showBar.setVisible(true);
+                                    return true;
+                                } else {
+                                    return _resetUnitButton(armyTemplate.status.ATTACK);
+                                }
                             }
-                            target.setTexture(res["UNIT_" + this.selectedUnit.unit]);
-                            _loadUnit(armyTemplate.status.ATTACK, null);
-                            return false
+                            return _resetUnitButton(armyTemplate.status.ATTACK);
                         }
                         if (this.selectedUnit.status === armyTemplate.status.DEFENCE) {
                             showBar.setTexture(res.DFC_SHOW_BAR);
@@ -633,9 +654,7 @@ var ShowUnitsLayer = cc.Layer.extend({
                                 showBar.setVisible(true);
                                 return true;
                             }
-                            target.setTexture(res["UNIT_" + this.selectedUnit.unit]);
-                            _loadUnit(armyTemplate.status.DEFENCE, null);
-                            return false
+                            return _resetUnitButton(armyTemplate.status.DEFENCE);
                         }
                     }
                 }
