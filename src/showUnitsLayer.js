@@ -77,8 +77,8 @@ var ShowUnitsLayer = cc.Layer.extend({
     addUnitsMenu : function(size, scale, imageScale) {
         console.log(this.attackFaction);
         console.log(this.defenceFaction);
-        var unitWidth = 150, unitHeight = 150, unitInterval = 30,
-            xStart = 75, yMeStart = 90, yEnmyStart = size.height - yMeStart - unitHeight,
+        var unitWidth = 150, unitHeight = 150, unitInterval = 10,
+            xStart = 155, yMeStart = 90, yEnmyStart = size.height - yMeStart - unitHeight,
             attackBarHeight = 50, defenceBarHeight = 50, titleBarHeight = 50,
             showEleHeight = 100, showEleWidth = 50;
         var showAttackColor = cc.color(98, 39, 33),
@@ -326,13 +326,14 @@ var ShowUnitsLayer = cc.Layer.extend({
     },
 
     addOutputMenu : function(size, scale, imageScale) {
+        var outerInterval = 50;
         var defenceResetButton = new cc.MenuItemImage(
             res.RESET_BUTTON,
             res.RESET_BUTTON_ON,
             this._resetDamageList.bind(this, null)
         );
         defenceResetButton.setName(armyTemplate.faction.defenceFaction + "." + this.moduleNameList.resetButton);
-        defenceResetButton.setPosition(0, 0);
+        defenceResetButton.setPosition(outerInterval, outerInterval);
         defenceResetButton.setAnchorPoint(0, 0);
         defenceResetButton.setScale(2, 2);
         var defenceGoButton = new cc.MenuItemImage(
@@ -341,7 +342,7 @@ var ShowUnitsLayer = cc.Layer.extend({
             this.goButtonCallback.bind(this, armyTemplate.faction.defenceFaction)
         );
         defenceGoButton.setName(armyTemplate.faction.defenceFaction + "." + this.moduleNameList.goCalButton);
-        defenceGoButton.setPosition(size.width, 0);
+        defenceGoButton.setPosition(size.width - outerInterval, outerInterval);
         defenceGoButton.setAnchorPoint(1, 0);
         defenceGoButton.setScale(3, 3);
         var attackResetButton = new cc.MenuItemImage(
@@ -351,7 +352,7 @@ var ShowUnitsLayer = cc.Layer.extend({
         );
         attackResetButton.setName(armyTemplate.faction.attackFaction + "." + this.moduleNameList.resetButton);
         attackResetButton.setAnchorPoint(0, 0);
-        attackResetButton.setPosition(size.width, size.height);
+        attackResetButton.setPosition(size.width - outerInterval, size.height - outerInterval);
         attackResetButton.setRotation(180, 180);
         attackResetButton.setScale(2, 2);
         var attackGoButton = new cc.MenuItemImage(
@@ -361,7 +362,7 @@ var ShowUnitsLayer = cc.Layer.extend({
         );
         attackGoButton.setName(armyTemplate.faction.attackFaction + "." + this.moduleNameList.goCalButton);
         attackGoButton.setAnchorPoint(1, 0);
-        attackGoButton.setPosition(0, size.height);
+        attackGoButton.setPosition(outerInterval, size.height - outerInterval);
         attackGoButton.setRotation(180, 180);
         attackGoButton.setScale(3, 3);
         var calMenu = new cc.Menu(attackResetButton, attackGoButton, defenceResetButton, defenceGoButton);
@@ -577,6 +578,9 @@ var ShowUnitsLayer = cc.Layer.extend({
                                 showBar.setVisible(true);
                                 return true;
                             }
+                            target.setTexture(res["UNIT_" + this.selectedUnit.unit]);
+                            _loadUnit(armyTemplate.status.ATTACK, null);
+                            return false
                         }
                         if (this.selectedUnit.status === armyTemplate.status.DEFENCE) {
                             showBar.setTexture(res.DFC_SHOW_BAR);
@@ -607,6 +611,9 @@ var ShowUnitsLayer = cc.Layer.extend({
                                 showBar.setVisible(true);
                                 return true;
                             }
+                            target.setTexture(res["UNIT_" + this.selectedUnit.unit]);
+                            _loadUnit(armyTemplate.status.DEFENCE, null);
+                            return false
                         }
                     }
                 }

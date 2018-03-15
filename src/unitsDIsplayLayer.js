@@ -168,6 +168,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
                 case armyTemplate.faction.attackFaction : {
                     if (layer.runButton.getName() !== layer.moduleNameList.runButton) {
                         layer.runButton.setName(armyTemplate.faction.defenceFaction);
+                        layer.runButton.setScale(1, 1);
                         layer.runButton.setTexture(res.DFC_FACTION);
                     }
                     break;
@@ -175,6 +176,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
                 case armyTemplate.faction.defenceFaction : {
                     if (layer.runButton.getName() !== layer.moduleNameList.runButton) {
                         layer.runButton.setName(armyTemplate.faction.attackFaction);
+                        layer.runButton.setScale(1, 1);
                         layer.runButton.setTexture(res.ATK_FACTION);
                     }
                     break;
@@ -182,6 +184,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
                 case messageCode.TROOP_CONFIG_READY : {
                     console.log(data.data + " ready to run...");
                     layer.runButton.setName(layer.moduleNameList.runButton);
+                    layer.runButton.setScale(2, 2);
                     layer.runButton.setTexture(res.BUTTON_RUN);
                     break;
                 }
