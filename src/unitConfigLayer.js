@@ -53,22 +53,22 @@ var UnitConfigLayer = cc.Layer.extend({
             startX = 300 + btnWidth / 2, startY = 900 + btnWidth / 2;
         var heavyInfantryImage = new cc.Sprite(res.SEQ_HEAVY_INFANTRY);
         var shldmnToggleBtn = new cc.MenuItemImage(
-            res.UNIT_shieldMan, res.UNIT_shieldMan_ON, res.UNIT_shieldMan_OFF,
+            res.UNIT_shieldMan, res.UNIT_ON_shieldMan, res.UNIT_OFF_shieldMan,
             this.unitBtnCallback.bind(this, armyTemplate.units.SHIELD_MAN, this.moduleNameList.heavyInfantryMenu),
             this
         );
         var bwmnToggleBtn = new cc.MenuItemImage(
-            res.UNIT_bowMan, res.UNIT_bowMan_ON, res.UNIT_bowMan_OFF,
+            res.UNIT_bowMan, res.UNIT_ON_bowMan, res.UNIT_OFF_bowMan,
             this.unitBtnCallback.bind(this, armyTemplate.units.BOW_MAN, this.moduleNameList.heavyInfantryMenu),
             this
         );
         var pkmnToggleBtn = new cc.MenuItemImage(
-            res.UNIT_pikeMan, res.UNIT_pikeMan_ON, res.UNIT_pikeMan_OFF,
-            this.unitBtnCallback.bind(this, armyTemplate.units.PIKE_MAN, this.moduleNameList.heavyInfantryMenu),
+            res.UNIT_spearMan, res.UNIT_ON_spearMan, res.UNIT_OFF_spearMan,
+            this.unitBtnCallback.bind(this, armyTemplate.units.SPEAR_MAN, this.moduleNameList.heavyInfantryMenu),
             this
         );
         var axmnToggleBtn = new cc.MenuItemImage(
-            res.UNIT_axeMan, res.UNIT_axeMan_ON, res.UNIT_axeMan_OFF,
+            res.UNIT_axeMan, res.UNIT_ON_axeMan, res.UNIT_OFF_axeMan,
             this.unitBtnCallback.bind(this, armyTemplate.units.AXE_MAN, this.moduleNameList.heavyInfantryMenu),
             this
         );
@@ -112,7 +112,7 @@ var UnitConfigLayer = cc.Layer.extend({
             startX = 300 + btnWidth / 2, startY = 540 + btnWidth / 2;
         var heavyCavalvyImage = new cc.Sprite(res.SEQ_HEAVY_CAVALVY);
         var impcthrsToggleBtn = new cc.MenuItemImage(
-            res.UNIT_impactHorse, res.UNIT_impactHorse_ON, res.UNIT_impactHorse_OFF,
+            res.UNIT_impactHorse, res.UNIT_ON_impactHorse, res.UNIT_OFF_impactHorse,
             this.unitBtnCallback.bind(this, armyTemplate.units.IMPACT_HORSE, this.moduleNameList.heavyCavalvyMenu),
             this
         );
@@ -135,7 +135,7 @@ var UnitConfigLayer = cc.Layer.extend({
         var btnInterval = 60, btnWidth = 150, middleInterval = 200,
             startX = 300 + btnWidth / 2, startY = 360 + btnWidth / 2;
         var hnthrsToggleBtn = new cc.MenuItemImage(
-            res.UNIT_huntHorse, res.UNIT_huntHorse_ON, res.UNIT_huntHorse_OFF,
+            res.UNIT_huntHorse, res.UNIT_ON_huntHorse, res.UNIT_OFF_huntHorse,
             this.unitBtnCallback.bind(this, armyTemplate.units.HUNT_HORSE, this.moduleNameList.lightCavalvyMenu),
             this
         );
@@ -161,7 +161,7 @@ var UnitConfigLayer = cc.Layer.extend({
             this.currentUnit.title = titledSeq.length + 1;
             titledSeq.push(this.currentUnit.title);
             if (titledSeq.length === this.maxTitleLength) {
-                this.getChildByName(seq).getChildByName(unit).setNormalSpriteFrame(res["UNIT_" + unit +  "_OFF"]);
+                this.getChildByName(seq).getChildByName(unit).setNormalSpriteFrame(res["UNIT_OFF_" + unit]);
                 this.getChildByName(seq).getChildByName(unit).setCallback(function() {console.log("well done!")});
             }
 

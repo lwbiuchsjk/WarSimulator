@@ -34,8 +34,10 @@ var armyTemplate = {
     units : {
         SHIELD_MAN : "shieldMan",
         PIKE_MAN : "pikeMan",
-        AXE_MAN : "axeMan",
+        SPEAR_MAN : "spearMan",
         BOW_MAN : "bowMan",
+
+        AXE_MAN : "axeMan",
         IMPACT_HORSE : "impactHorse",
         HUNT_HORSE : "huntHorse"
     },
@@ -86,7 +88,7 @@ Unit.prototype = {
         if (this.position === undefined || !this._inArray(armyTemplate.position, this.position))
             this.position = armyTemplate.position.FACE;
         this.sequence = squad.sequence;
-        this.engage = 0;
+        this.engage = [];
     },
 
     checkStatus : function() {
@@ -99,6 +101,13 @@ Unit.prototype = {
             }
         }
         return false;
+    },
+
+    setEngage : function(unit) {
+        this.engage.push(unit.serial);
+    },
+    resetEngage : function() {
+        this.engage = [];
     }
 };
 

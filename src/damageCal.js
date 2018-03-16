@@ -11,6 +11,8 @@
  *
  * 当前没有在结算时考虑engage属性的影响。
  *
+ * 在考虑side与back情况下
+ *
  */
 function DamageCalculator(armyList) {
     if (armyList != null) {
@@ -111,7 +113,7 @@ DamageCalculator.prototype = {
 
         return output;
     },
-    getAdvantage : function(position, defenceUnit) {
+    getAdvantage : function(driveUnit, sufferUnit, status) {
         /*
          * 当前的advantage只考虑攻防单位之间的关系。还不涉及地形因素。
          * 攻防单位关系只有在side（进攻方攻击防守方侧面）和back（进攻方攻击防守方背面）时才会获得奖励。
@@ -120,14 +122,18 @@ DamageCalculator.prototype = {
          * 返回值是String。
          */
         var output = "";
-        switch (position) {
-            case armyTemplate.position.SIDE : {
+        if (status === armyTemplate.status.ATTACK && driveUnit.status.indexOf(armyTemplate.status.ATTACK) >= 0 && sufferUnit.status.indexOf(armyTemplate.status.DEFENCE) >= 0) {
+            if (driveUnit.position === armyTemplate.position.SIDE) {
                 output += ("+" + 1);
-                break;
-            }
-            case armyTemplate.position.BACK : {
+            } else if (driveUnit.position === armyTemplate.position.BACK ) {
                 output += ("+" + 2);
-                break;
+            }
+        }
+        if (status === armyTemplate.status.ATTACK && driveUnit.status.indexOf(armyTemplate.status.DEFENCE) >= 0 && sufferUnit.status.indexOf(armyTemplate.status.ATTACK) >= 0) {
+            if (sufferUnit.position === armyTemplate.position.SIDE) {
+                output += ("-" + 1);
+            } else if (sufferUnit.position === armyTemplate.position.BACK ) {
+                output += ("-" + 2);
             }
         }
 
@@ -140,7 +146,7 @@ DamageCalculator.prototype = {
          *
          * 返回值是String。
          */
-        return this.getSpeciality(trigger, driveUnit.position, driveUnit, sufferUnit, FLAG) + this.getAdvantage(driveUnit.position, sufferUnit);
+        return this.getSpeciality(trigger, driveUnit.position, driveUnit, sufferUnit, FLAG) + this.getAdvantage(driveUnit, sufferUnit, FLAG);
     },
     getAttack : function(attackUnit, defenceUnit) {
         var battle = this.getAttackBasis(attackUnit) + this.getBonus(attackUnit.status, attackUnit, defenceUnit, armyTemplate.status.ATTACK);
@@ -150,7 +156,7 @@ DamageCalculator.prototype = {
         var battle = this.getDefenceBasis(defenceUnit) + this.getBonus(defenceUnit.status, defenceUnit, attackUnit, armyTemplate.status.DEFENCE);
         return eval(battle);
     },
-    calDamage : function(sufferUnit, attackBattle, defenceBattle) {
+    calDamage : function(attackBattle, defenceBattle) {
         /*
          * 结算damage的函数。
          * 如果attack>defence，那么damage = attack- defence。
@@ -197,16 +203,23 @@ DamageCalculator.prototype = {
             loadDefenceTrigger(attackUnit, defenceUnit);
             console.log("attack: " + attackUnit.unit + " battle: " + eval(this.getAttack(attackUnit, defenceUnit)) + "\n" +
                 "defence: " + defenceUnit.unit + " battle: " + eval(this.getDefence(attackUnit, defenceUnit)));
-            attackDamage += this.calDamage(attackUnit, this.getAttack(attackUnit, defenceUnit), this.getDefence(attackUnit, defenceUnit));
+            attackDamage += this.calDamage(this.getAttack(attackUnit, defenceUnit), this.getDefence(attackUnit, defenceUnit));
             if (attackUnit.position === armyTemplate.position.FACE && attackUnit.status !== armyTemplate.status.ATTACK_REMOTE) {
                 // 处理防守方的反击情况。只有处于正面，并且不是远程攻击的单位，才会遭到反击。
                 console.log("counter: " + defenceUnit.unit + " battle: " + eval(this.getAttack(defenceUnit, attackUnit)) + "\n" +
                     "suffer: " + attackUnit.unit + " battle: " + eval(this.getDefence(defenceUnit, attackUnit)));
-                counterDamage = this.calDamage(attackUnit, this.getAttack(defenceUnit, attackUnit), this.getDefence(defenceUnit, attackUnit));
+                counterDamage = this.calDamage(this.getAttack(defenceUnit, attackUnit), this.getDefence(defenceUnit, attackUnit));
                 attackUnit.life = this.calLife(attackUnit, counterDamage);
                 damageSequence.push(attackUnit);
             }
         }
+
+        // 清除engage标记
+        for (var num in attackList) {
+            attackList[num].resetEngage();
+        }
+        defenceUnit.resetEngage();
+
         if (damageSequence.length === 0)
             damageSequence.push(attackList[0]);
         defenceUnit.life = this.calLife(defenceUnit, attackDamage);

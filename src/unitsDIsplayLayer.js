@@ -68,7 +68,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
 
     addUnitsMenu : function(size, scale) {
         var unitWidth = 150, unitHeight = 200, unitInterval = 30, titleHeight = 50,
-            xStart = 75, yMeStart = 80, yEnmyStart = size.height - yMeStart - unitHeight;
+            xStart = 75, yMeStart = 80;
         for(var iter = 0; iter < this.myUnitsButtons.length; iter++) {
             var myPaleUnit = new cc.Sprite(res.UNIT_ON);
             myPaleUnit.x = (xStart + iter * (unitWidth + unitInterval)) * scale;

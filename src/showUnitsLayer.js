@@ -403,6 +403,9 @@ var ShowUnitsLayer = cc.Layer.extend({
          * 通过这个回调函数打开outputLayer
          * 另外，在该函数中还要讲damageCalList清空，以便从outputLayer调用本layer的onPushLayer时，可以重置界面元素。
          */
+        this.damageCalList[armyTemplate.status.DEFENCE].setEngage(this.damageCalList[armyTemplate.status.ATTACK]);
+        this.damageCalList[armyTemplate.status.ATTACK].setEngage(this.damageCalList[armyTemplate.status.DEFENCE]);
+
         this.damageCalculator.loadDefenceUnit(this.damageCalList[armyTemplate.status.DEFENCE]);
         this.damageCalculator.loadAttackList(this.damageCalList[armyTemplate.status.ATTACK]);
 
@@ -530,12 +533,12 @@ var ShowUnitsLayer = cc.Layer.extend({
                         unit.status = armyTemplate.status.ATTACK;
                         unit.position = armyTemplate.position.FACE;
                     } else if (defenceUnit == null) {
-                        target.setTexture(res["UNIT_"  + unit.unit + "_ON"]);
+                        target.setTexture(res["UNIT_ON_"  + unit.unit]);
                         unit.status = armyTemplate.status.DEFENCE;
                         unit.position = armyTemplate.position.FACE;
                     } else if (this.selectedUnit.faction === defenceUnit.faction){
                         layer._resetDamageList(armyTemplate.status.DEFENCE);
-                        target.setTexture(res["UNIT_"  + unit.unit + "_ON"]);
+                        target.setTexture(res["UNIT_ON_"  + unit.unit]);
                         unit.status = armyTemplate.status.DEFENCE;
                         unit.position = armyTemplate.position.FACE;
                     }
