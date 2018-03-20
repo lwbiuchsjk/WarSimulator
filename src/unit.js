@@ -37,9 +37,18 @@ var armyTemplate = {
         SPEAR_MAN : "spearMan",
         BOW_MAN : "bowMan",
 
-        AXE_MAN : "axeMan",
+        ATTACKER : "attacker",
+        CHARGER : "charger",
+        INTERCEPTOR : "interceptor",
+        SHOOTER : "shooter",
+
         IMPACT_HORSE : "impactHorse",
-        HUNT_HORSE : "huntHorse"
+        SHOOT_HORSE : "shootHorse",
+        DRAGON_HORSE : "dragonHorse",
+
+        HUNT_MOUNT : "huntMount",
+        BOW_MOUNT : "bowMount",
+        ATTACK_MOUNT : "attackMount"
     },
     faction : {
         attackFaction : "attackFaction",
@@ -93,9 +102,8 @@ Unit.prototype = {
 
     checkStatus : function() {
         // 用于输入attackStatus时检测status的合法性
-        console.log(this.status + "_");
         for (var iter = 0; iter < this.speciality.length; iter++) {
-            if (this.speciality[iter].indexOf(this.status + "_") >= 0) {
+            if (this.speciality[iter].indexOf(this.status) >= 0) {
                 console.log(this.speciality[iter]);
                 return true;
             }
@@ -112,7 +120,7 @@ Unit.prototype = {
 };
 
 function UnitLoader() {
-    cc.loader.loadJson("res/unit.json", function(err, data) {
+    cc.loader.loadJson("unit.json", function(err, data) {
         armyTemplate.troops = data;
         messageCode.COMMUNICATION_ADDRESS = data["server"];
     });

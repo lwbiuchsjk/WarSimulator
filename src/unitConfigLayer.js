@@ -3,10 +3,10 @@ var UnitConfigLayer = cc.Layer.extend({
 
     moduleNameList : {
         seqMenu : "seqMenu",
-        heavyCavalvyMenu : "heavyCavalvyMenu",
-        lightCavalvyMenu : "lightCavalvyMenu",
-        heavyInfantryMenu : "heavyInfantryMenu",
-        lightInfantryMenu : "lightInfantryMenu",
+        heavyCavalvyMenu : armyTemplate.sequences.HEAVY_CAVALVY,
+        lightCavalvyMenu : armyTemplate.sequences.LIGHT_CAVALVY,
+        heavyInfantryMenu : armyTemplate.sequences.HEAVY_INFANTRY,
+        lightInfantryMenu : armyTemplate.sequences.LIGHT_INFANTRY,
 
         rankMenu : "rankMenu",
         /*
@@ -49,7 +49,7 @@ var UnitConfigLayer = cc.Layer.extend({
     addHeavyInfantryMenu : function(size, gScale, iScale) {
         //////////////////////////////
         // 以下是heavy infantry的菜单
-        var btnInterval = 60, btnWidth = 150, middleInterval = 200,
+        var btnInterval = 100, btnWidth = 150, middleInterval = 200,
             startX = 300 + btnWidth / 2, startY = 900 + btnWidth / 2;
         var heavyInfantryImage = new cc.Sprite(res.SEQ_HEAVY_INFANTRY);
         var shldmnToggleBtn = new cc.MenuItemImage(
@@ -62,109 +62,321 @@ var UnitConfigLayer = cc.Layer.extend({
             this.unitBtnCallback.bind(this, armyTemplate.units.BOW_MAN, this.moduleNameList.heavyInfantryMenu),
             this
         );
-        var pkmnToggleBtn = new cc.MenuItemImage(
+        var spmnToggleBtn = new cc.MenuItemImage(
             res.UNIT_spearMan, res.UNIT_ON_spearMan, res.UNIT_OFF_spearMan,
             this.unitBtnCallback.bind(this, armyTemplate.units.SPEAR_MAN, this.moduleNameList.heavyInfantryMenu),
             this
         );
-        var axmnToggleBtn = new cc.MenuItemImage(
-            res.UNIT_axeMan, res.UNIT_ON_axeMan, res.UNIT_OFF_axeMan,
-            this.unitBtnCallback.bind(this, armyTemplate.units.AXE_MAN, this.moduleNameList.heavyInfantryMenu),
+        var pkmnToggleBtn = new cc.MenuItemImage(
+            res.UNIT_pikeMan, res.UNIT_ON_pikeMan, res.UNIT_OFF_pikeMan,
+            this.unitBtnCallback.bind(this, armyTemplate.units.PIKE_MAN, this.moduleNameList.heavyInfantryMenu),
             this
         );
         shldmnToggleBtn.setScale(iScale, iScale);
         shldmnToggleBtn.setName(armyTemplate.units.SHIELD_MAN);
         bwmnToggleBtn.setScale(iScale, iScale);
         bwmnToggleBtn.setName(armyTemplate.units.BOW_MAN);
+        spmnToggleBtn.setScale(iScale, iScale);
+        spmnToggleBtn.setName(armyTemplate.units.SPEAR_MAN);
         pkmnToggleBtn.setScale(iScale, iScale);
         pkmnToggleBtn.setName(armyTemplate.units.PIKE_MAN);
-        axmnToggleBtn.setScale(iScale, iScale);
-        axmnToggleBtn.setName(armyTemplate.units.AXE_MAN);
 
         heavyInfantryImage.setPosition(startX, startY);
         shldmnToggleBtn.setPosition(heavyInfantryImage.x + btnWidth + middleInterval, startY);
         bwmnToggleBtn.setPosition(shldmnToggleBtn.x + btnWidth + btnInterval, startY);
-        pkmnToggleBtn.setPosition(bwmnToggleBtn.x + btnWidth + btnInterval, startY);
-        axmnToggleBtn.setPosition(pkmnToggleBtn.x + btnWidth + btnInterval, startY);
+        spmnToggleBtn.setPosition(bwmnToggleBtn.x + btnWidth + btnInterval, startY);
+        pkmnToggleBtn.setPosition(spmnToggleBtn.x + btnWidth + btnInterval, startY);
 
-        var hvyInfMenu = new cc.Menu(shldmnToggleBtn, pkmnToggleBtn, axmnToggleBtn, bwmnToggleBtn);
+        var hvyInfMenu = new cc.Menu(shldmnToggleBtn, pkmnToggleBtn, spmnToggleBtn, bwmnToggleBtn);
         hvyInfMenu.x = 0;
         hvyInfMenu.y = 0;
         hvyInfMenu.setName(this.moduleNameList.heavyInfantryMenu);
         this.addChild(heavyInfantryImage);
         this.addChild(hvyInfMenu);
+
+        for (var iter in hvyInfMenu.getChildren()) {
+            var unitButton = hvyInfMenu.getChildren()[iter];
+            var barHeight = unitButton.height, barWidth = 30,
+                fontSize = 40,
+                attackColor = cc.color(255, 0, 0),
+                defenceColor = cc.color(49, 133, 156);
+            var unitAttackBar = new cc.DrawNode();
+            unitAttackBar.drawRect(cc.p(0, 0), cc.p(barWidth, barHeight), attackColor, 0);
+            unitAttackBar.setPosition(unitButton.x - unitButton.width / 2 - barWidth, unitButton.y - unitButton.height / 2);
+            this.addChild(unitAttackBar);
+            var unitAttackString = new cc.LabelTTF(
+                armyTemplate.troops[unitButton.getName()].attackWeapon + armyTemplate.troops[unitButton.getName()].attackFormation,
+                null , fontSize,
+                cc.TEXT_ALIGNMENT_CENTER,
+                cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+            );
+            unitAttackString.setPosition(unitAttackBar.x + barWidth / 2, unitAttackBar.y + barHeight / 2);
+            this.addChild(unitAttackString);
+
+            var unitDefenceBar = new cc.DrawNode();
+            unitDefenceBar.drawRect(cc.p(0, 0), cc.p(barWidth, barHeight), defenceColor, 0);
+            unitDefenceBar.setPosition(unitButton.x + unitButton.width / 2, unitAttackBar.y);
+            this.addChild(unitDefenceBar);
+            var unitDefenceString = new cc.LabelTTF(
+                armyTemplate.troops[unitButton.getName()].defenceWeapon + armyTemplate.troops[unitButton.getName()].defenceFormation,
+                null , fontSize,
+                cc.TEXT_ALIGNMENT_CENTER,
+                cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+            );
+            unitDefenceString.setPosition(unitDefenceBar.x + barWidth / 2, unitDefenceBar.y + barHeight / 2);
+            this.addChild(unitDefenceString);
+        }
     },
 
     addLightInfantryMenu : function(size, gScale, iScale) {
         /////////////////////////////////////////
         // 以下是light infantry的菜单
-        var btnInterval = 60, btnWidth = 150, middleInterval = 200,
+        var btnInterval = 100, btnWidth = 150, middleInterval = 200,
             startX = 300 + btnWidth / 2, startY = 720 + btnWidth / 2;
         var lightInfantryImage = new cc.Sprite(res.SEQ_LIGHT_INFANTRY);
         lightInfantryImage.setPosition(startX, startY);
+        var attackerButton = new cc.MenuItemImage(
+            res.UNIT_attacker, res.UNIT_ON_attacker, res.UNIT_OFF_attacker,
+            this.unitBtnCallback.bind(this, armyTemplate.units.ATTACKER, this.moduleNameList.lightInfantryMenu),
+            this
+        );
+        var chargerButton = new cc.MenuItemImage(
+            res.UNIT_charger, res.UNIT_ON_charger, res.UNIT_OFF_charger,
+            this.unitBtnCallback.bind(this, armyTemplate.units.CHARGER, this.moduleNameList.lightInfantryMenu),
+            this
+        );
+        var shooterButton = new cc.MenuItemImage(
+            res.UNIT_shooter, res.UNIT_ON_shooter, res.UNIT_OFF_shooter,
+            this.unitBtnCallback.bind(this, armyTemplate.units.SHOOTER, this.moduleNameList.lightInfantryMenu),
+            this
+        );
+        var interceptorButton = new cc.MenuItemImage(
+            res.UNIT_interceptor, res.UNIT_ON_interceptor, res.UNIT_OFF_interceptor,
+            this.unitBtnCallback.bind(this, armyTemplate.units.INTERCEPTOR, this.moduleNameList.lightInfantryMenu),
+            this
+        );
+        attackerButton.setScale(iScale, iScale);
+        attackerButton.setName(armyTemplate.units.ATTACKER);
+        chargerButton.setScale(iScale, iScale);
+        chargerButton.setName(armyTemplate.units.CHARGER);
+        shooterButton.setScale(iScale, iScale);
+        shooterButton.setName(armyTemplate.units.SHOOTER);
+        interceptorButton.setScale(iScale, iScale);
+        interceptorButton.setName(armyTemplate.units.INTERCEPTOR);
+
+        attackerButton.setPosition(lightInfantryImage.x + btnWidth + middleInterval, startY);
+        chargerButton.setPosition(attackerButton.x + btnWidth + btnInterval, startY);
+        shooterButton.setPosition(chargerButton.x + btnWidth + btnInterval, startY);
+        interceptorButton.setPosition(shooterButton.x + btnWidth + btnInterval, startY);
+
+        var lightInfMenu = new cc.Menu(attackerButton, chargerButton, shooterButton, interceptorButton);
+        lightInfMenu.x = 0;
+        lightInfMenu.y = 0;
+        lightInfMenu.setName(this.moduleNameList.lightInfantryMenu);
+        this.addChild(lightInfMenu);
         this.addChild(lightInfantryImage);
+
+        for (var iter in lightInfMenu.getChildren()) {
+            var unitButton = lightInfMenu.getChildren()[iter];
+            var barHeight = unitButton.height, barWidth = 30,
+                fontSize = 40,
+                attackColor = cc.color(255, 0, 0),
+                defenceColor = cc.color(49, 133, 156);
+            var unitAttackBar = new cc.DrawNode();
+            unitAttackBar.drawRect(cc.p(0, 0), cc.p(barWidth, barHeight), attackColor, 0);
+            unitAttackBar.setPosition(unitButton.x - unitButton.width / 2 - barWidth, unitButton.y - unitButton.height / 2);
+            this.addChild(unitAttackBar);
+            var unitAttackString = new cc.LabelTTF(
+                armyTemplate.troops[unitButton.getName()].attackWeapon + armyTemplate.troops[unitButton.getName()].attackFormation,
+                null , fontSize,
+                cc.TEXT_ALIGNMENT_CENTER,
+                cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+            );
+            unitAttackString.setPosition(unitAttackBar.x + barWidth / 2, unitAttackBar.y + barHeight / 2);
+            this.addChild(unitAttackString);
+
+            var unitDefenceBar = new cc.DrawNode();
+            unitDefenceBar.drawRect(cc.p(0, 0), cc.p(barWidth, barHeight), defenceColor, 0);
+            unitDefenceBar.setPosition(unitButton.x + unitButton.width / 2, unitAttackBar.y);
+            this.addChild(unitDefenceBar);
+            var unitDefenceString = new cc.LabelTTF(
+                armyTemplate.troops[unitButton.getName()].defenceWeapon + armyTemplate.troops[unitButton.getName()].defenceFormation,
+                null , fontSize,
+                cc.TEXT_ALIGNMENT_CENTER,
+                cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+            );
+            unitDefenceString.setPosition(unitDefenceBar.x + barWidth / 2, unitDefenceBar.y + barHeight / 2);
+            this.addChild(unitDefenceString);
+        }
     },
 
     addHeavyCavalvyMenu : function(size, gScale, iScale) {
         /////////////////////////////////////////
         // 以下是heavy cavalvy的菜单
-        var btnInterval = 60, btnWidth = 150, middleInterval = 200,
+        var btnInterval = 100, btnWidth = 150, middleInterval = 200,
             startX = 300 + btnWidth / 2, startY = 540 + btnWidth / 2;
         var heavyCavalvyImage = new cc.Sprite(res.SEQ_HEAVY_CAVALVY);
-        var impcthrsToggleBtn = new cc.MenuItemImage(
+        heavyCavalvyImage.setPosition(startX, startY);
+        var impactHorseButton = new cc.MenuItemImage(
             res.UNIT_impactHorse, res.UNIT_ON_impactHorse, res.UNIT_OFF_impactHorse,
             this.unitBtnCallback.bind(this, armyTemplate.units.IMPACT_HORSE, this.moduleNameList.heavyCavalvyMenu),
             this
         );
-        heavyCavalvyImage.setPosition(startX, startY);
-        impcthrsToggleBtn.setScale(iScale, iScale);
-        impcthrsToggleBtn.setName(armyTemplate.units.IMPACT_HORSE);
-        impcthrsToggleBtn.setPosition(heavyCavalvyImage.x + btnWidth + middleInterval, startY);
+        var dragonHorseButton = new cc.MenuItemImage(
+            res.UNIT_dragonHorse, res.UNIT_ON_dragonHorse, res.UNIT_OFF_dragonHorse,
+            this.unitBtnCallback.bind(this, armyTemplate.units.DRAGON_HORSE, this.moduleNameList.heavyCavalvyMenu),
+            this
+        );
+        var shootHorseButton = new cc.MenuItemImage(
+            res.UNIT_shootHorse, res.UNIT_ON_shootHorse, res.UNIT_OFF_shootHorse,
+            this.unitBtnCallback.bind(this, armyTemplate.units.SHOOT_HORSE, this.moduleNameList.heavyCavalvyMenu),
+            this
+        );
 
-        var hvyCvyMenu = new cc.Menu(impcthrsToggleBtn);
+        impactHorseButton.setScale(iScale, iScale);
+        impactHorseButton.setName(armyTemplate.units.IMPACT_HORSE);
+        dragonHorseButton.setScale(iScale, iScale);
+        dragonHorseButton.setName(armyTemplate.units.DRAGON_HORSE);
+        shootHorseButton.setScale(iScale, iScale);
+        shootHorseButton.setName(armyTemplate.units.SHOOT_HORSE);
+
+        impactHorseButton.setPosition(heavyCavalvyImage.x + btnWidth + middleInterval, startY);
+        dragonHorseButton.setPosition(impactHorseButton.x + btnWidth + btnInterval, startY);
+        shootHorseButton.setPosition(dragonHorseButton.x + btnWidth + btnInterval, startY);
+
+        var hvyCvyMenu = new cc.Menu(impactHorseButton, dragonHorseButton, shootHorseButton);
         hvyCvyMenu.x = 0;
         hvyCvyMenu.y = 0;
         hvyCvyMenu.setName(this.moduleNameList.heavyCavalvyMenu);
         this.addChild(heavyCavalvyImage);
         this.addChild(hvyCvyMenu);
+
+        for (var iter in hvyCvyMenu.getChildren()) {
+            var unitButton = hvyCvyMenu.getChildren()[iter];
+            var barHeight = unitButton.height, barWidth = 30,
+                fontSize = 40,
+                attackColor = cc.color(255, 0, 0),
+                defenceColor = cc.color(49, 133, 156);
+            var unitAttackBar = new cc.DrawNode();
+            unitAttackBar.drawRect(cc.p(0, 0), cc.p(barWidth, barHeight), attackColor, 0);
+            unitAttackBar.setPosition(unitButton.x - unitButton.width / 2 - barWidth, unitButton.y - unitButton.height / 2);
+            this.addChild(unitAttackBar);
+            var unitAttackString = new cc.LabelTTF(
+                armyTemplate.troops[unitButton.getName()].attackWeapon + armyTemplate.troops[unitButton.getName()].attackFormation,
+                null , fontSize,
+                cc.TEXT_ALIGNMENT_CENTER,
+                cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+            );
+            unitAttackString.setPosition(unitAttackBar.x + barWidth / 2, unitAttackBar.y + barHeight / 2);
+            this.addChild(unitAttackString);
+
+            var unitDefenceBar = new cc.DrawNode();
+            unitDefenceBar.drawRect(cc.p(0, 0), cc.p(barWidth, barHeight), defenceColor, 0);
+            unitDefenceBar.setPosition(unitButton.x + unitButton.width / 2, unitAttackBar.y);
+            this.addChild(unitDefenceBar);
+            var unitDefenceString = new cc.LabelTTF(
+                armyTemplate.troops[unitButton.getName()].defenceWeapon + armyTemplate.troops[unitButton.getName()].defenceFormation,
+                null , fontSize,
+                cc.TEXT_ALIGNMENT_CENTER,
+                cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+            );
+            unitDefenceString.setPosition(unitDefenceBar.x + barWidth / 2, unitDefenceBar.y + barHeight / 2);
+            this.addChild(unitDefenceString);
+        }
     },
 
     addLightCavalvyMenu : function(size, gScale, iScale) {
         //////////////////////////////////////////
         // 以下是light cavalvy的菜单
-        var btnInterval = 60, btnWidth = 150, middleInterval = 200,
+        var btnInterval = 100, btnWidth = 150, middleInterval = 200,
             startX = 300 + btnWidth / 2, startY = 360 + btnWidth / 2;
-        var hnthrsToggleBtn = new cc.MenuItemImage(
-            res.UNIT_huntHorse, res.UNIT_ON_huntHorse, res.UNIT_OFF_huntHorse,
-            this.unitBtnCallback.bind(this, armyTemplate.units.HUNT_HORSE, this.moduleNameList.lightCavalvyMenu),
-            this
-        );
         var lightCavalvyImage = new cc.Sprite(res.SEQ_LIGHT_CAVALVY);
         lightCavalvyImage.setPosition(startX, startY);
-        hnthrsToggleBtn.setScale(iScale, iScale);
-        hnthrsToggleBtn.setName(armyTemplate.units.HUNT_HORSE);
-        hnthrsToggleBtn.setPosition(lightCavalvyImage.x + btnWidth + middleInterval, startY);
 
-        var lghtCvyMenu = new cc.Menu(hnthrsToggleBtn);
+        var huntMountButton = new cc.MenuItemImage(
+            res.UNIT_huntMount, res.UNIT_ON_huntMount, res.UNIT_OFF_huntMount,
+            this.unitBtnCallback.bind(this, armyTemplate.units.HUNT_MOUNT, this.moduleNameList.lightCavalvyMenu),
+            this
+        );
+        var bowMountButton = new cc.MenuItemImage(
+            res.UNIT_bowMount, res.UNIT_ON_bowMount, res.UNIT_OFF_bowMount,
+            this.unitBtnCallback.bind(this, armyTemplate.units.BOW_MOUNT, this.moduleNameList.lightCavalvyMenu),
+            this
+        );
+        var attackMountButton = new cc.MenuItemImage(
+            res.UNIT_attackMount, res.UNIT_ON_attackMount, res.UNIT_OFF_attackMount,
+            this.unitBtnCallback.bind(this, armyTemplate.units.ATTACK_MOUNT, this.moduleNameList.lightCavalvyMenu),
+            this
+        );
+
+        huntMountButton.setScale(iScale, iScale);
+        huntMountButton.setName(armyTemplate.units.HUNT_MOUNT);
+        bowMountButton.setScale(iScale, iScale);
+        bowMountButton.setName(armyTemplate.units.BOW_MOUNT);
+        attackMountButton.setScale(iScale, iScale);
+        attackMountButton.setName(armyTemplate.units.ATTACK_MOUNT);
+
+        huntMountButton.setPosition(lightCavalvyImage.x + btnWidth + middleInterval, startY);
+        bowMountButton.setPosition(huntMountButton.x + btnWidth + btnInterval, startY);
+        attackMountButton.setPosition(bowMountButton.x + btnWidth + btnInterval, startY);
+
+        var lghtCvyMenu = new cc.Menu(huntMountButton, bowMountButton, attackMountButton);
         lghtCvyMenu.x = 0;
         lghtCvyMenu.y = 0;
         lghtCvyMenu.setName(this.moduleNameList.lightCavalvyMenu);
         this.addChild(lightCavalvyImage);
         this.addChild(lghtCvyMenu);
+
+        for (var iter in lghtCvyMenu.getChildren()) {
+            var unitButton = lghtCvyMenu.getChildren()[iter];
+            var barHeight = unitButton.height, barWidth = 30,
+                fontSize = 40,
+                attackColor = cc.color(255, 0, 0),
+                defenceColor = cc.color(49, 133, 156);
+            var unitAttackBar = new cc.DrawNode();
+            unitAttackBar.drawRect(cc.p(0, 0), cc.p(barWidth, barHeight), attackColor, 0);
+            unitAttackBar.setPosition(unitButton.x - unitButton.width / 2 - barWidth, unitButton.y - unitButton.height / 2);
+            this.addChild(unitAttackBar);
+            var unitAttackString = new cc.LabelTTF(
+                armyTemplate.troops[unitButton.getName()].attackWeapon + armyTemplate.troops[unitButton.getName()].attackFormation,
+                null , fontSize,
+                cc.TEXT_ALIGNMENT_CENTER,
+                cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+            );
+            unitAttackString.setPosition(unitAttackBar.x + barWidth / 2, unitAttackBar.y + barHeight / 2);
+            this.addChild(unitAttackString);
+
+            var unitDefenceBar = new cc.DrawNode();
+            unitDefenceBar.drawRect(cc.p(0, 0), cc.p(barWidth, barHeight), defenceColor, 0);
+            unitDefenceBar.setPosition(unitButton.x + unitButton.width / 2, unitAttackBar.y);
+            this.addChild(unitDefenceBar);
+            var unitDefenceString = new cc.LabelTTF(
+                armyTemplate.troops[unitButton.getName()].defenceWeapon + armyTemplate.troops[unitButton.getName()].defenceFormation,
+                null , fontSize,
+                cc.TEXT_ALIGNMENT_CENTER,
+                cc.VERTICAL_TEXT_ALIGNMENT_CENTER
+            );
+            unitDefenceString.setPosition(unitDefenceBar.x + barWidth / 2, unitDefenceBar.y + barHeight / 2);
+            this.addChild(unitDefenceString);
+        }
     },
 
     unitBtnCallback : function(unit, seq) {
+        // 重要函数。通过点选来对单位进行配置。
         if (this.currentUnit) {
             this.currentUnit.unit = unit;
-            this.titledUnits[this.currentUnit.unit] == null ? this.titledUnits[this.currentUnit.unit] = [] : 1;
+            this.titledUnits[this.currentUnit.unit] == null ? this.titledUnits[this.currentUnit.unit] = new Array(6) : 1;
             var titledSeq = this.titledUnits[this.currentUnit.unit];
-            this.currentUnit.title = titledSeq.length + 1;
-            titledSeq.push(this.currentUnit.title);
-            if (titledSeq.length === this.maxTitleLength) {
-                this.getChildByName(seq).getChildByName(unit).setNormalSpriteFrame(res["UNIT_OFF_" + unit]);
-                this.getChildByName(seq).getChildByName(unit).setCallback(function() {console.log("well done!")});
+            var blankTitle = this._checkBlankTitle();
+            if (blankTitle === false) {
+                throw "no blank title already!!!";
+            } else {
+                this.currentUnit.title = titledSeq[blankTitle] = blankTitle + 1;
+                if (this._checkBlankTitle() === false) {
+                    this.getChildByName(seq).getChildByName(unit).setNormalSpriteFrame(res["UNIT_OFF_" + unit]);
+                    this.getChildByName(seq).getChildByName(unit).setCallback(function() {console.log("well done!")});
+                }
             }
-
             console.log(unit + " chosen!");
             this.lfBtnCallback(0);
         } else {
@@ -178,10 +390,25 @@ var UnitConfigLayer = cc.Layer.extend({
         this._resumeDisplayLayer(this.currentUnit);
     },
 
+    _checkBlankTitle : function() {
+        var titleList = this.titledUnits[this.currentUnit.unit];
+        for (var iter = 0; iter < titleList.length; iter++) {
+            if (titleList[iter] == null)
+                return iter;
+        }
+        return false;
+    },
+
     _resumeDisplayLayer : function(unit) {
         var parentNode = this.getParent();
         var displayLayer = parentNode.getChildByName(parentNode.moduleNameList.displayLayer);
         displayLayer.resumeLayer(unit);
+    },
+
+    deleteUnitTitle : function(unit) {
+        this.titledUnits[unit.unit][unit.title - 1] = null;
+        this.getChildByName(unit.sequence).getChildByName(unit.unit).setNormalSpriteFrame(res["UNIT_" + unit.unit]);
+        this.getChildByName(unit.sequence).getChildByName(unit.unit).setCallback(this.unitBtnCallback.bind(this, unit.unit, unit.sequence));
     },
 
     motiveLayer : function(unit) {

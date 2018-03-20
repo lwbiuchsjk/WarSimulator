@@ -16,11 +16,10 @@ var OutputLayer = cc.Layer.extend({
             var normalColor = cc.color(125, 125, 125);
             var fleeColor = cc.color(255, 217, 101);
             var deathColor = cc.color(255, 0, 0);
-            if (unit.life <= 0) {
+            if (unit.life <= 0)
                 string.setColor(deathColor);
-            }
             else if (unit.life <= unit.fleeLife)
-                string.setColor(fleeColor);
+                string.setColor(deathColor);
             else
                 string.setColor(normalColor);
             string.setString(unit.life);

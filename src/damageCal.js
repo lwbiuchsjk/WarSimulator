@@ -93,7 +93,7 @@ DamageCalculator.prototype = {
         for (var i in gift) {
             // 获得当前的speciality记录。
             var record = gift[i];
-            var actionOfRecord = getAction(record, 3);      //取3的原因为，前三个分隔符包括的字段分为别status.target.movement，函数中movement由FLAG确定。
+            var actionOfRecord = getAction(record, 3);      //取3的原因为，前三个分隔符包括的字段分为别status.target.movement.，函数中movement由FLAG确定。
             var action = reloadAction(status);
             var actionInPosition = reloadAction(status + "_" + position);
             if (action === actionOfRecord || actionInPosition === actionOfRecord) {

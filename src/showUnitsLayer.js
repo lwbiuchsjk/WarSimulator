@@ -46,10 +46,7 @@ var ShowUnitsLayer = cc.Layer.extend({
     attackFaction : null,
     damageCalList : null,
     damageCalculator : null,
-    GO_CAL_FLAG : {
-        attackFaction : 0,
-        defenceFaction : 0
-    },
+    GO_CAL_FLAG : {},
 
     ctor : function(mines, enemies) {
         this._super();
@@ -394,8 +391,13 @@ var ShowUnitsLayer = cc.Layer.extend({
     goButtonCallback : function(faction) {
         console.log();
         this.GO_CAL_FLAG[faction] = 1;
-        if (this.GO_CAL_FLAG[armyTemplate.faction.attackFaction] && this.GO_CAL_FLAG[armyTemplate.faction.defenceFaction])
+        if (this.GO_CAL_FLAG[armyTemplate.faction.attackFaction] && this.GO_CAL_FLAG[armyTemplate.faction.defenceFaction]
+        && this.damageCalList[armyTemplate.status.ATTACK] != null && this.damageCalList[armyTemplate.status.DEFENCE] != null)
             this.outputCallback();
+        else if(this.GO_CAL_FLAG[armyTemplate.faction.attackFaction] && this.GO_CAL_FLAG[armyTemplate.faction.defenceFaction]) {
+            this._resetAtkElement();
+            this._resetDfcElement();
+        }
     },
 
     outputCallback : function() {
@@ -403,8 +405,8 @@ var ShowUnitsLayer = cc.Layer.extend({
          * 通过这个回调函数打开outputLayer
          * 另外，在该函数中还要讲damageCalList清空，以便从outputLayer调用本layer的onPushLayer时，可以重置界面元素。
          */
-        this.damageCalList[armyTemplate.status.DEFENCE].setEngage(this.damageCalList[armyTemplate.status.ATTACK]);
-        this.damageCalList[armyTemplate.status.ATTACK].setEngage(this.damageCalList[armyTemplate.status.DEFENCE]);
+        //this.damageCalList[armyTemplate.status.DEFENCE].setEngage(this.damageCalList[armyTemplate.status.ATTACK]);
+        //this.damageCalList[armyTemplate.status.ATTACK].setEngage(this.damageCalList[armyTemplate.status.DEFENCE]);
 
         this.damageCalculator.loadDefenceUnit(this.damageCalList[armyTemplate.status.DEFENCE]);
         this.damageCalculator.loadAttackList(this.damageCalList[armyTemplate.status.ATTACK]);
@@ -427,17 +429,6 @@ var ShowUnitsLayer = cc.Layer.extend({
                 var unit = output[iter];
                 this[unit.faction][unit.serial] = unit;
             }
-        }
-
-        /////////////////////////////////////////////////
-        // 通用，暂停非空白、并且结算后仍然存活（life > 0）的组件的监听器
-        for (var iter = 0; iter < this.defenceFaction.length; iter++) {
-            if (this.defenceFaction[iter].life <= 0)
-                cc.eventManager.pauseTarget(this.getChildByName(this.moduleNameList.defenceFaction + "." + iter), true);
-        }
-        for (var iter = 0; iter < this.attackFaction.length; iter++) {
-            if (this.attackFaction[iter].life <= 0)
-                cc.eventManager.pauseTarget(this.getChildByName(this.moduleNameList.attackFaction + "." + iter), true);
         }
 
         this.getChildByName(armyTemplate.status.ATTACK + "." + this.moduleNameList.showUnit).setVisible(true);
@@ -676,24 +667,6 @@ var ShowUnitsLayer = cc.Layer.extend({
 
     _resetDamageList : function(FLAG) {
         var layer = this;
-        function _resetAttackEle () {
-            var attackUnit = layer.damageCalList[armyTemplate.status.ATTACK];
-            if (attackUnit != null) {
-                layer._resetUnitButtonImage(attackUnit);
-                layer.damageCalList[armyTemplate.status.ATTACK] = null;
-                layer.GO_CAL_FLAG[attackUnit.faction] = 0;
-                layer.getChildByName(armyTemplate.status.ATTACK + "." + layer.moduleNameList.showBar).setVisible(false);
-            }
-        }
-        function _resetDefenceEle () {
-            var defenceUnit = layer.damageCalList[armyTemplate.status.DEFENCE];
-            if (defenceUnit != null) {
-                layer._resetUnitButtonImage(defenceUnit);
-                layer.damageCalList[armyTemplate.status.DEFENCE] = null;
-                layer.GO_CAL_FLAG[defenceUnit.faction] = 0;
-                layer.getChildByName(armyTemplate.status.DEFENCE + "." + layer.moduleNameList.showBar).setVisible(false);
-            }
-        }
         if (this.damageCalList == null) {
             // 初始化
             this.damageCalList = {};
@@ -705,20 +678,20 @@ var ShowUnitsLayer = cc.Layer.extend({
             switch (FLAG) {
                 case armyTemplate.status.ATTACK : {
                     console.log("reset attack unit...");
-                    _resetAttackEle();
+                    this._resetAtkElement();
                     break;
                 }
                 case armyTemplate.status.DEFENCE : {
                     console.log("reset defence unit...");
-                    _resetDefenceEle();
+                    this._resetDfcElement();
                     break;
                 }
                 default : {
                     console.log(FLAG);
                     if (!FLAG) {
                         console.log("reset damageCalList...");
-                        _resetAttackEle();
-                        _resetDefenceEle();
+                        this._resetAtkElement();
+                        this._resetDfcElement();
                     } else {
                         throw "WRONG reset element FLAG!"
                     }
@@ -728,8 +701,36 @@ var ShowUnitsLayer = cc.Layer.extend({
         }
     },
 
+    _resetAtkElement : function() {
+        var attackUnit = this.damageCalList[armyTemplate.status.ATTACK];
+        if (attackUnit != null) {
+            this.damageCalList[armyTemplate.status.ATTACK] = null;
+            this.GO_CAL_FLAG[attackUnit.faction] = 0;
+            this._resetUnitButtonImage(attackUnit);
+            this.getChildByName(armyTemplate.status.ATTACK + "." + this.moduleNameList.showBar).setVisible(false);
+        }
+    },
+
+    _resetDfcElement : function() {
+        var defenceUnit = this.damageCalList[armyTemplate.status.DEFENCE];
+        if (defenceUnit != null) {
+            this.damageCalList[armyTemplate.status.DEFENCE] = null;
+            this.GO_CAL_FLAG[defenceUnit.faction] = 0;
+            this._resetUnitButtonImage(defenceUnit);
+            this.getChildByName(armyTemplate.status.DEFENCE + "." + this.moduleNameList.showBar).setVisible(false);
+        }
+    },
+
     _resetUnitButtonImage : function(unit) {
-        this.getChildByName(unit.faction + "." + unit.serial).setTexture(res["UNIT_" + unit.unit]);
+        var button = this.getChildByName(unit.faction + "." + unit.serial);
+        var tmpString;
+        if (unit.life <= 0) {
+            tmpString = "UNIT_OFF_";
+            cc.eventManager.pauseTarget(button, true);
+        }
+        else
+            tmpString = "UNIT_";
+        button.setTexture(res[tmpString + unit.unit]);
     },
 
     onEnter : function() {

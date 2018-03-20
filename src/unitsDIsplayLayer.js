@@ -121,13 +121,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
     },
 
     toSetBlankUnit : function() {
-        var blankNum = null;
-        for (var iter = 0; iter < this.myTroops.length; iter++) {
-            if (this.myTroops[iter] == null) {
-                blankNum = iter;
-                break;
-            }
-        }
+        var blankNum = this._getBlankUnitIter();
         if (blankNum != null) {
             this._changeBlankUnitImage(blankNum);
             var unit = new Unit();
@@ -140,12 +134,22 @@ var UnitsDisplayLayer = cc.Layer.extend({
         }
     },
 
+    _getBlankUnitIter : function() {
+        for (var iter = 0; iter < this.myTroops.length; iter++) {
+            if (this.myTroops[iter] == null)
+                return iter;
+        }
+        return null;
+    },
+
     _changeBlankUnitImage : function(num) {
-        this.myUnitsButtons[num].setTexture(res.UNIT_ON);
-        this.getChildByName(this.moduleNameList.myTroops + "." + num + "." + this.moduleNameList.titleBar).setVisible(false);
         for (var iter in this.myUnitsButtons) {
-            if (iter != num && this.myTroops[iter] == null) {
-                this.myUnitsButtons[iter].setTexture(res.UNIT_OFF);
+            if (this.myTroops[iter] == null) {
+                this.getChildByName(this.moduleNameList.myTroops + "." + iter + "." + this.moduleNameList.titleBar).setVisible(false);
+                if (iter == num)
+                    this.myUnitsButtons[num].setTexture(res.UNIT_ON);
+                else
+                    this.myUnitsButtons[iter].setTexture(res.UNIT_OFF);
             }
         }
     },
@@ -237,12 +241,14 @@ var UnitsDisplayLayer = cc.Layer.extend({
                 var rect = cc.rect(0 ,0, size.width, size.height);
                 if (cc.rectContainsPoint(rect, pos)) {
                     var iter = getUnitIter(target.getName());
+                    var sceneNode = layer.getParent();
+                    var configLayer = sceneNode.getChildByName(sceneNode.moduleNameList.configLayer);
+                    configLayer.deleteUnitTitle(layer.myTroops[iter]);
+                    layer.myTroops[iter] = null;
                     var unit = new Unit();
                     unit.faction = this.faction;
                     unit.serial = iter;
                     layer._changeBlankUnitImage(iter);
-                    var sceneNode = layer.getParent();
-                    var configLayer = sceneNode.getChildByName(sceneNode.moduleNameList.configLayer);
                     configLayer.motiveLayer(unit);
                     return true;
                 }
