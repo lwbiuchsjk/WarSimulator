@@ -119,11 +119,5 @@ Unit.prototype = {
     }
 };
 
-function UnitLoader() {
-    cc.loader.loadJson("unit.json", function(err, data) {
-        armyTemplate.troops = data;
-        messageCode.COMMUNICATION_ADDRESS = data["server"];
-    });
-}
 
 

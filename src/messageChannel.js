@@ -6,10 +6,12 @@ var FactionTroopMessage = function() {
 
 var messageCode = {
     COMMUNICATION_ADDRESS : "ws://127.0.0.1:3000",
+    CONFIG_FILE : "config.json",
     //COMMUNICATION_ADDRESS :  "ws://45.76.68.20:3000",
     TROOP_CONFIG_READY : "runButton",
     LOAD_TROOPS : "loadTroops",
     CHECK_FACTION : "faction",
     DELETE_TROOPS : "deleteTroops",
-    WAR_BEGIN : "warBegin"
+    WAR_BEGIN : "warBegin",
+    LOAD_UNIT_TEMPLATE : "loadUnitTemplate"
 };
