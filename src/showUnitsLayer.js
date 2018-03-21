@@ -450,20 +450,22 @@ var ShowUnitsLayer = cc.Layer.extend({
             try {
                 jsonData = JSON.parse(data);
             } catch (error) {
-                console.log(error);
+                console.log(data);
+                return;
             }
             if (jsonData != null) {
-                layer.attackFaction = [];
-                for (var iter = 0; iter < jsonData[armyTemplate.faction.attackFaction].length; iter++) {
-                    layer.attackFaction.push(new Unit(jsonData[armyTemplate.faction.attackFaction][iter]))
+                console.log(jsonData);
+                layer[jsonData.faction] = [];
+                jsonData.troops.forEach(function(rawUnit) {
+                    //layer[jsonData.faction].push(new Unit(rawUnit));
+                    var unit = new Unit(rawUnit);
+                    layer[jsonData.faction].push(unit.toUnit());
+                });
+                console.log(layer[jsonData.faction]);
+                if (layer.defenceFaction != null && layer.attackFaction != null) {
+                    layer._resetDamageList();
+                    layer._loadUnitElement();
                 }
-                layer.defenceFaction = [];
-                for (var iter = 0; iter < jsonData[armyTemplate.faction.defenceFaction].length; iter++) {
-                    layer.defenceFaction.push(new Unit(jsonData[armyTemplate.faction.defenceFaction][iter]))
-                }
-                layer._resetDamageList();
-                layer._loadUnitElement();
-                socket.send(messageCode.DELETE_TROOPS);
             } else {
                 console.log("server message: " + msg.data);
             }

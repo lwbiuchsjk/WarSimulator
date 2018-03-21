@@ -98,6 +98,7 @@ Unit.prototype = {
             this.position = armyTemplate.position.FACE;
         this.sequence = squad.sequence;
         this.engage = [];
+        this.ability = [];
     },
 
     checkStatus : function() {
@@ -116,6 +117,51 @@ Unit.prototype = {
     },
     resetEngage : function() {
         this.engage = [];
+    },
+
+    toString : function() {
+        // 本方法返回的只是带有属性的类，属性的类型为number或string。类中没有方法。可以作为数据库记录的输入。
+        var tmp = {};
+        for (var iter in this) {
+            if (this[iter] instanceof Function)
+                continue;
+
+            var prop = "";
+            if (this[iter] instanceof Array) {
+                for (var num in this[iter]) {
+                    prop += this[iter][num]
+                }
+            } else {
+                prop = this[iter];
+            }
+            tmp[iter] = prop;
+        }
+        return tmp;
+    },
+    toUnit : function() {
+        // 本方法返回的是一个Unit类，将所有Array类型的属性都还原，方便读取。
+        // 判断Array类型的属性的依据为观察输入String中是否包含";"字符。
+        var tmp = {};
+        var mark = ";";
+        var string2Array = function(string, array) {
+            if (string.length != 0) {
+                var firstPart = string.slice(0, string.indexOf(mark));
+                var lastPart = string.slice(string.indexOf(mark) + 1, string.length);
+                array.push(firstPart);
+                string2Array(lastPart, array);
+            } else {
+                return array;
+            }
+        };
+        for (var iter in this) {
+            if (typeof this[iter] === "string" && this[iter].indexOf(mark) > 0) {
+                var prop = [];
+                string2Array(this[iter], prop);
+                this[iter] = prop;
+            }
+        }
+        this.resetEngage();
+        return this;
     }
 };
 

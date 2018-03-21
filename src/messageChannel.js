@@ -1,9 +1,3 @@
-
-var FactionTroopMessage = function() {
-    this.faction = null;
-    this.troops = null;
-};
-
 var messageCode = {
     COMMUNICATION_ADDRESS : "ws://127.0.0.1:3000",
     CONFIG_FILE : "config.json",

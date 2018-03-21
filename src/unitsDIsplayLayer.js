@@ -283,9 +283,13 @@ var UnitsDisplayLayer = cc.Layer.extend({
                 if (cc.rectContainsPoint(rect, pos)) {
                     console.log("click");
                     var targetName = target.getName();
-                    var troopMsg = new FactionTroopMessage();
-                    troopMsg.faction = layer.faction;
-                    troopMsg.troops = layer.myTroops;
+
+                    //将myTroops信息直接传递出去，不作包裹处理
+                    var troopMsg = [];
+                    layer.myTroops.forEach(function(unit) {
+                        troopMsg.push(unit.toString());
+                    });
+                    console.log(troopMsg);
                     layer.messageSocket.send(JSON.stringify(troopMsg));
                     var configScene = new ConfigScene();
                     configScene.setFaction(targetName);
