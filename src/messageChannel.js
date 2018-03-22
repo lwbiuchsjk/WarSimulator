@@ -1,4 +1,4 @@
-const messageCode = {
+var messageCode = {
     COMMUNICATION_ADDRESS : "ws://127.0.0.1:3000",
     CONFIG_FILE : "config.json",
     //COMMUNICATION_ADDRESS :  "ws://45.76.68.20:3000",
@@ -11,7 +11,7 @@ const messageCode = {
     CHECK_PLAYER : "checkPlayer"
 };
 
-const TYPE_CLASS = {
+var TYPE_CLASS = {
     STRING : "STRING",
     DATA_RECORD : "DATA_RECORD"
 };

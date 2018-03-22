@@ -6,9 +6,6 @@ var FactionScene = cc.Scene.extend({
         this._super();
         var factionLayer = new FactionLayer();
         factionLayer.setName(this.moduleNameList.factionLayer);
-        cc.loader.loadJson(messageCode.CONFIG_FILE, function(err, data) {
-            messageCode.COMMUNICATION_ADDRESS = data["server"];
-        });
         this.addChild(factionLayer);
     }
 });

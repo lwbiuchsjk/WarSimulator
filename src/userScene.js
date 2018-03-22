@@ -16,6 +16,7 @@ var UserScene = cc.Scene.extend({
 
     onEnter : function() {
         this._super();
+
     },
 
     onExit : function() {
@@ -32,6 +33,44 @@ var UserLayer = cc.Layer.extend({
 
     ctor : function() {
         this._super();
+
+        var layer = this;
+
+        cc.loader.loadJson(messageCode.CONFIG_FILE, function(err, data) {
+            console.log(data["server"]);
+            messageCode.COMMUNICATION_ADDRESS = data["server"];
+
+            layer.webSocket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
+            layer.webSocket.onopen = function() {
+                layer.webSocket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.STRING, messageCode.CHECK_PLAYER).toJSON());
+            };
+            layer.webSocket.onmessage = function(msg) {
+                var msgPackage;
+                try {
+                    msgPackage = new WebMsgParser(msg);
+                } catch (error) {
+                    console.log(error);
+                }
+                switch (msgPackage.type) {
+                    case WebMsgParser.TYPE_CLASS.STRING : {
+                        console.log(msgPackage.value);
+                        break;
+                    }
+                    case WebMsgParser.TYPE_CLASS.DATA_RECORD : {
+                        console.log("data record");
+                        break;
+                    }
+                }
+            };
+            layer.webSocket.onclose = function() {
+                console.log("load unit template is closed by server...")
+            };
+        });
+    },
+
+    onEnter : function() {
+        this._super();
+
 
         var globalSize = cc.director.getWinSize();
         var globalScale = globalSize.width / 1920;
@@ -73,44 +112,11 @@ var UserLayer = cc.Layer.extend({
             },
             editBoxReturn : function(editBox) {
                 console.log("editBox " + editBox.getTag() + " was returned !");
-                console.log(typeof editBox.getString());
                 layer.webSocket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.STRING, editBox.getString()).toJSON());
                 cc.director.pushScene(new FactionScene())
             }
         });
         account.setDelegate(accountCallback);
-
         this.addChild(accountCallback);
-    },
-
-    onEnter : function() {
-        this._super();
-
-        this.webSocket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
-        var socket = this.webSocket;
-        this.webSocket.onopen = function() {
-            socket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.STRING, messageCode.CHECK_PLAYER).toJSON());
-        };
-        this.webSocket.onmessage = function(msg) {
-            var msgPackage;
-            try {
-                msgPackage = new WebMsgParser(msg);
-            } catch (error) {
-                console.log(error);
-            }
-            switch (msgPackage.type) {
-                case WebMsgParser.TYPE_CLASS.STRING : {
-                    console.log(msgPackage.value);
-                    break;
-                }
-                case WebMsgParser.TYPE_CLASS.DATA_RECORD : {
-                    console.log("data record");
-                    break;
-                }
-            }
-        };
-        this.webSocket.onclose = function() {
-            console.log("load unit template is closed by server...")
-        };
     }
 });
