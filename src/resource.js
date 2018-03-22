@@ -1,4 +1,7 @@
 var res = {
+    TEXT_RECT : "res/TEXT_RECT.png",
+    SUBMIT_BUTTON : "res/SUBMIT_BUTTON.png",
+    SUBMIT_BUTTON_ON : "res/SUBMIT_BUTTON_ON.png",
     ATK_FACTION : "res/ATK_FACTION.png",
     DFC_FACTION : "res/DFC_FACTION.png",
 

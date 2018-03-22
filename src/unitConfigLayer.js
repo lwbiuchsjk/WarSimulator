@@ -96,6 +96,8 @@ var UnitConfigLayer = cc.Layer.extend({
 
         for (var iter in hvyInfMenu.getChildren()) {
             var unitButton = hvyInfMenu.getChildren()[iter];
+            console.log(unitButton.getName());
+            console.log(armyTemplate.troops);
             var barHeight = unitButton.height, barWidth = 30,
                 fontSize = 40,
                 attackColor = cc.color(255, 0, 0),

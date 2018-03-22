@@ -173,41 +173,51 @@ var UnitsDisplayLayer = cc.Layer.extend({
         this.messageSocket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
         this.messageSocket.onopen = function() {
             console.log("connect ready...");
-            layer.messageSocket.send(layer.faction);
+            layer.messageSocket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.STRING, layer.faction).toJSON());
         };
         this.messageSocket.onmessage = function(data) {
-            switch (data.data) {
-                case armyTemplate.faction.attackFaction : {
-                    if (layer.runButton.getName() !== layer.moduleNameList.runButton) {
-                        layer.runButton.setName(armyTemplate.faction.defenceFaction);
-                        layer.runButton.setScale(1, 1);
-                        layer.runButton.setTexture(res.DFC_FACTION);
+            var parseMsg = new WebMsgParser(data);
+            switch (parseMsg.type) {
+                case WebMsgParser.TYPE_CLASS.DATA_RECORD : {
+                    console.log(parseMsg.value);
+                    console.log("wrong msg...");
+                    break;
+                }
+                case WebMsgParser.TYPE_CLASS.STRING : {
+                    switch (parseMsg.value) {
+                        case armyTemplate.faction.attackFaction : {
+                            if (layer.runButton.getName() !== layer.moduleNameList.runButton) {
+                                layer.runButton.setName(armyTemplate.faction.defenceFaction);
+                                layer.runButton.setScale(1, 1);
+                                layer.runButton.setTexture(res.DFC_FACTION);
+                            }
+                            break;
+                        }
+                        case armyTemplate.faction.defenceFaction : {
+                            if (layer.runButton.getName() !== layer.moduleNameList.runButton) {
+                                layer.runButton.setName(armyTemplate.faction.attackFaction);
+                                layer.runButton.setScale(1, 1);
+                                layer.runButton.setTexture(res.ATK_FACTION);
+                            }
+                            break;
+                        }
+                        case messageCode.TROOP_CONFIG_READY : {
+                            console.log(parseMsg.value + " ready to run...");
+                            layer.runButton.setName(layer.moduleNameList.runButton);
+                            layer.runButton.setScale(2, 2);
+                            layer.runButton.setTexture(res.BUTTON_RUN);
+                            break;
+                        }
+                        case messageCode.WAR_BEGIN : {
+                            console.log("go to battle scene...");
+                            cc.director.pushScene(new BattleScene());
+                            break
+                        }
+                        default : {
+                            console.log(parseMsg.value);
+                            break;
+                        }
                     }
-                    break;
-                }
-                case armyTemplate.faction.defenceFaction : {
-                    if (layer.runButton.getName() !== layer.moduleNameList.runButton) {
-                        layer.runButton.setName(armyTemplate.faction.attackFaction);
-                        layer.runButton.setScale(1, 1);
-                        layer.runButton.setTexture(res.ATK_FACTION);
-                    }
-                    break;
-                }
-                case messageCode.TROOP_CONFIG_READY : {
-                    console.log(data.data + " ready to run...");
-                    layer.runButton.setName(layer.moduleNameList.runButton);
-                    layer.runButton.setScale(2, 2);
-                    layer.runButton.setTexture(res.BUTTON_RUN);
-                    break;
-                }
-                case messageCode.WAR_BEGIN : {
-                    console.log("go to battle scene...");
-                    cc.director.pushScene(new BattleScene());
-                    break
-                }
-                default : {
-                    console.log(data.data);
-                    break;
                 }
             }
         };
@@ -290,11 +300,10 @@ var UnitsDisplayLayer = cc.Layer.extend({
                         troopMsg.push(unit.toString());
                     });
                     console.log(troopMsg);
-                    layer.messageSocket.send(JSON.stringify(troopMsg));
+                    layer.messageSocket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.DATA_RECORD, troopMsg).toJSON());
                     var configScene = new ConfigScene();
                     configScene.setFaction(targetName);
                     if (targetName === armyTemplate.faction.attackFaction || targetName === armyTemplate.faction.defenceFaction) {
-                        layer.messageSocket.send("config " + targetName);
                         cc.director.pushScene(configScene);
                     } else if (targetName === messageCode.TROOP_CONFIG_READY) {
                         console.log("ready to war!!!");

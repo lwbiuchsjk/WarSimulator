@@ -442,32 +442,28 @@ var ShowUnitsLayer = cc.Layer.extend({
 
         socket.onopen = function() {
             console.log("load troops connection is ready...");
-            socket.send(messageCode.LOAD_TROOPS);
+            socket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.STRING, messageCode.LOAD_TROOPS).toJSON());
         };
         socket.onmessage = function(msg) {
-            var data = msg.data;
-            var jsonData;
-            try {
-                jsonData = JSON.parse(data);
-            } catch (error) {
-                console.log(data);
-                return;
-            }
-            if (jsonData != null) {
-                console.log(jsonData);
-                layer[jsonData.faction] = [];
-                jsonData.troops.forEach(function(rawUnit) {
-                    //layer[jsonData.faction].push(new Unit(rawUnit));
-                    var unit = new Unit(rawUnit);
-                    layer[jsonData.faction].push(unit.toUnit());
-                });
-                console.log(layer[jsonData.faction]);
-                if (layer.defenceFaction != null && layer.attackFaction != null) {
-                    layer._resetDamageList();
-                    layer._loadUnitElement();
+            var parseMsg = new WebMsgParser(msg);
+            switch (parseMsg.type) {
+                case WebMsgParser.TYPE_CLASS.STRING : {
+                    console.log(parseMsg.value);
+                    break;
                 }
-            } else {
-                console.log("server message: " + msg.data);
+                case WebMsgParser.TYPE_CLASS.DATA_RECORD : {
+                    layer[parseMsg.value.faction] = [];
+                    parseMsg.value.troops.forEach(function(rawUnit) {
+                        //layer[jsonData.faction].push(new Unit(rawUnit));
+                        var unit = new Unit(rawUnit);
+                        layer[parseMsg.value.faction].push(unit.toUnit());
+                    });
+                    console.log(layer[parseMsg.value.faction]);
+                    if (layer.defenceFaction != null && layer.attackFaction != null) {
+                        layer._resetDamageList();
+                        layer._loadUnitElement();
+                    }
+                }
             }
         };
         socket.onclose = function() {

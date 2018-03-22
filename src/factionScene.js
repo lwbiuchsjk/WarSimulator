@@ -65,26 +65,30 @@ var FactionLayer = cc.Layer.extend({
         this.webSocket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
         var socket = this.webSocket;
         this.webSocket.onopen = function() {
-            socket.send(messageCode.LOAD_UNIT_TEMPLATE);
+            socket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.STRING, messageCode.LOAD_UNIT_TEMPLATE).toJSON());
         };
         this.webSocket.onmessage = function(msg) {
-            var json;
-            try {
-                json = JSON.parse(msg.data);
-            } catch (error) {
-                console.log(msg.data);
-                return;
+            var paresMsg = new WebMsgParser(msg);
+            switch (paresMsg.type) {
+                case WebMsgParser.TYPE_CLASS.STRING : {
+                    console.log(paresMsg.value);
+                    break;
+                }
+                case WebMsgParser.TYPE_CLASS.DATA_RECORD : {
+                    var troops = {};
+                    for (var iter in paresMsg.value) {
+                        var unit = paresMsg.value[iter].unit;
+                        troops[unit] = paresMsg.value[iter];
+                        delete troops["createdAt"];
+                        delete troops["updatedAt"];
+                    }
+                    armyTemplate.troops = troops;
+                    console.log(armyTemplate.troops);
+                    break;
+                }
             }
-            var troops = {};
-            for (var iter in json) {
-                var unit = json[iter].unit;
-                troops[unit] = json[iter];
-                delete troops["createdAt"];
-                delete troops["updatedAt"];
-            }
-            armyTemplate.troops = troops;
         };
-        this.webSocket.onclose = function(msg) {
+        this.webSocket.onclose = function() {
             console.log("load unit template is closed by server...")
         };
     },
