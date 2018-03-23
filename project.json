@@ -13,17 +13,19 @@
 
     "jsList" : [
         "src/resource.js",
-        "src/configScene.js",
-        "src/unit.js",
-        "src/messageChannel.js",
-        "src/damageCal.js",
-        "src/unitsDisplayLayer.js",
-        "src/battleScene.js",
-        "src/unitConfigLayer.js",
-        "src/showUnitsLayer.js",
-        "src/battleLayer.js",
-        "src/outputLayer.js",
-        "src/factionScene.js",
-        "src/userScene.js"
+        "src/loadConfigScene.js",
+        "src/models/messageChannel.js",
+        "src/models/unit.js",
+        "src/battleConfig/battleConfigScene.js",
+        "src/userConfig/userScene.js",
+        "src/userConfig/factionScene.js",
+        "src/unitConfig/unitConfigScene.js",
+        "src/unitConfig/unitConfigLayer.js",
+        "src/unitConfig/unitDisplayLayer.js",
+        "src/fightScene/fightScene.js",
+        "src/fightScene/damageCal.js",
+        "src/fightScene/showUnitLayer.js",
+        "src/fightScene/fightLayer.js",
+        "src/fightScene/outputLayer.js"
     ]
 }

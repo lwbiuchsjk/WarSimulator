@@ -33,39 +33,6 @@ var UserLayer = cc.Layer.extend({
 
     ctor : function() {
         this._super();
-
-        var layer = this;
-
-        cc.loader.loadJson(messageCode.CONFIG_FILE, function(err, data) {
-            console.log(data["server"]);
-            messageCode.COMMUNICATION_ADDRESS = data["server"];
-
-            layer.webSocket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
-            layer.webSocket.onopen = function() {
-                layer.webSocket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.STRING, messageCode.CHECK_PLAYER).toJSON());
-            };
-            layer.webSocket.onmessage = function(msg) {
-                var msgPackage;
-                try {
-                    msgPackage = new WebMsgParser(msg);
-                } catch (error) {
-                    console.log(error);
-                }
-                switch (msgPackage.type) {
-                    case WebMsgParser.TYPE_CLASS.STRING : {
-                        console.log(msgPackage.value);
-                        break;
-                    }
-                    case WebMsgParser.TYPE_CLASS.DATA_RECORD : {
-                        console.log("data record");
-                        break;
-                    }
-                }
-            };
-            layer.webSocket.onclose = function() {
-                console.log("load unit template is closed by server...")
-            };
-        });
     },
 
     onEnter : function() {
@@ -83,6 +50,32 @@ var UserLayer = cc.Layer.extend({
         bg.setPosition(0, 0);
         this.addChild(bg);
         var layer = this;
+
+        this.webSocket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
+        this.webSocket.onopen = function() {
+            layer.webSocket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.STRING, messageCode.CHECK_PLAYER).toJSON());
+        };
+        this.webSocket.onmessage = function(msg) {
+            var msgPackage;
+            try {
+                msgPackage = new WebMsgParser(msg);
+            } catch (error) {
+                console.log(error);
+            }
+            switch (msgPackage.type) {
+                case WebMsgParser.TYPE_CLASS.STRING : {
+                    console.log(msgPackage.value);
+                    break;
+                }
+                case WebMsgParser.TYPE_CLASS.DATA_RECORD : {
+                    console.log("data record");
+                    break;
+                }
+            }
+        };
+        this.webSocket.onclose = function() {
+            console.log("load unit template is closed by server...")
+        };
 
         var account = new cc.EditBox(boxSize, new cc.Scale9Sprite(res.TEXT_RECT));
 
