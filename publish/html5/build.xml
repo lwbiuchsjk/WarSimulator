@@ -578,7 +578,7 @@
 
                 <file name="src/unit.js"/>
 
-                <file name="src/messageChannel.js"/>
+                <file name="src/messageModels.js"/>
 
                 <file name="src/damageCal.js"/>
 
@@ -594,7 +594,7 @@
 
                 <file name="src/outputLayer.js"/>
 
-                <file name="src/factionScene.js"/>
+                <file name="src/factionConfigLayer.js"/>
 
                 <file name="src/userScene.js"/>
 

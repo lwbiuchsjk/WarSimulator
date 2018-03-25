@@ -37,7 +37,6 @@ var UnitsDisplayLayer = cc.Layer.extend({
     },
 
     runButton : null,
-    messageSocket : null,
 
     ctor:function () {
         //////////////////////////////
@@ -154,10 +153,20 @@ var UnitsDisplayLayer = cc.Layer.extend({
         }
     },
 
-    loadFaction : function(faction) {
-        this.faction = faction;
+    loadFaction : function(button) {
+        var playerFaction = this.getParent().playerInfo.faction,
+            otherFaction = this.getParent().playerInfo.otherFaction;
         var globalSize = cc.director.getWinSize();
-        this.getChildByName(this.moduleNameList.backGround).drawRect(cc.p(0, 0), cc.p(globalSize.width, globalSize.height), this.backGroundColor[this.faction]);
+        this.getChildByName(this.moduleNameList.backGround).drawRect(cc.p(0, 0), cc.p(globalSize.width, globalSize.height), this.backGroundColor[playerFaction]);
+        if (button === playerFaction) {
+            this.runButton.setName(otherFaction);
+            this.runButton.setScale(1, 1);
+            this.runButton.setTexture(res[otherFaction]);
+        } else if (button === this.moduleNameList.runButton) {
+            this.runButton.setName(button);
+            this.runButton.setScale(2, 2);
+            this.runButton.setTexture(res.BUTTON_RUN);
+        }
 
         this.toSetBlankUnit();
     },
@@ -170,44 +179,18 @@ var UnitsDisplayLayer = cc.Layer.extend({
         this._super();
         var layer = this;
 
-        this.messageSocket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
-        this.messageSocket.onopen = function() {
-            console.log("connect ready...");
-            layer.messageSocket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.STRING, layer.faction).toJSON());
-        };
-        this.messageSocket.onmessage = function(data) {
-            var parseMsg = new WebMsgParser(data);
+        var webSocket = this.getParent().webSocket;
+
+        webSocket.onmessage = function(data) {
+            var parseMsg = new WebMsg(data);
             switch (parseMsg.type) {
-                case WebMsgParser.TYPE_CLASS.DATA_RECORD : {
+                case WebMsg.TYPE_CLASS.UNIT_DATA : {
                     console.log(parseMsg.value);
                     console.log("wrong msg...");
                     break;
                 }
-                case WebMsgParser.TYPE_CLASS.STRING : {
+                case WebMsg.TYPE_CLASS.CODE_DATA : {
                     switch (parseMsg.value) {
-                        case armyTemplate.faction.attackFaction : {
-                            if (layer.runButton.getName() !== layer.moduleNameList.runButton) {
-                                layer.runButton.setName(armyTemplate.faction.defenceFaction);
-                                layer.runButton.setScale(1, 1);
-                                layer.runButton.setTexture(res.DFC_FACTION);
-                            }
-                            break;
-                        }
-                        case armyTemplate.faction.defenceFaction : {
-                            if (layer.runButton.getName() !== layer.moduleNameList.runButton) {
-                                layer.runButton.setName(armyTemplate.faction.attackFaction);
-                                layer.runButton.setScale(1, 1);
-                                layer.runButton.setTexture(res.ATK_FACTION);
-                            }
-                            break;
-                        }
-                        case messageCode.TROOP_CONFIG_READY : {
-                            console.log(parseMsg.value + " ready to run...");
-                            layer.runButton.setName(layer.moduleNameList.runButton);
-                            layer.runButton.setScale(2, 2);
-                            layer.runButton.setTexture(res.BUTTON_RUN);
-                            break;
-                        }
                         case messageCode.WAR_BEGIN : {
                             console.log("go to battle scene...");
                             cc.director.pushScene(new BattleScene());
@@ -218,11 +201,13 @@ var UnitsDisplayLayer = cc.Layer.extend({
                             break;
                         }
                     }
+                    break;
+                }
+                case WebMsg.TYPE_CLASS.MSG : {
+                    console.log("server msg : " + parseMsg.value);
+                    break;
                 }
             }
-        };
-        this.messageSocket.onclose = function() {
-            console.log("connect cancelled!");
         };
 
         function getUnitIter(name) {
@@ -295,17 +280,18 @@ var UnitsDisplayLayer = cc.Layer.extend({
                     var targetName = target.getName();
 
                     //将myTroops信息直接传递出去，不作包裹处理
-                    var troopMsg = [];
+                    var troops = [];
                     layer.myTroops.forEach(function(unit) {
-                        troopMsg.push(unit.toString());
+                        troops.push(unit.toString());
                     });
-                    console.log(troopMsg);
-                    layer.messageSocket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.DATA_RECORD, troopMsg).toJSON());
-                    var configScene = new ConfigScene();
-                    configScene.setFaction(targetName);
+                    var playerInfo = layer.getParent().playerInfo;
+                    playerInfo.troops = troops;
+                    webSocket.send(new WebMsg(WebMsg.TYPE_CLASS.PLAYER_DATA, playerInfo.getMsg()).toJSON());
                     if (targetName === armyTemplate.faction.attackFaction || targetName === armyTemplate.faction.defenceFaction) {
-                        cc.director.pushScene(configScene);
-                    } else if (targetName === messageCode.TROOP_CONFIG_READY) {
+                        playerInfo.faction = playerInfo.otherFaction;
+                        var userConfigScene = new UserScene(webSocket, playerInfo, layer.getParent().battleProp);
+                        cc.director.pushScene(userConfigScene);
+                    } else if (targetName === messageCode.CLOSE_TO_WAR) {
                         console.log("ready to war!!!");
                     }
                     return true;

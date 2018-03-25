@@ -442,16 +442,16 @@ var ShowUnitsLayer = cc.Layer.extend({
 
         socket.onopen = function() {
             console.log("load troops connection is ready...");
-            socket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.STRING, messageCode.LOAD_TROOPS).toJSON());
+            socket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.CODE_DATA, messageCode.LOAD_TROOPS).toJSON());
         };
         socket.onmessage = function(msg) {
             var parseMsg = new WebMsgParser(msg);
             switch (parseMsg.type) {
-                case WebMsgParser.TYPE_CLASS.STRING : {
+                case WebMsgParser.TYPE_CLASS.CODE_DATA : {
                     console.log(parseMsg.value);
                     break;
                 }
-                case WebMsgParser.TYPE_CLASS.DATA_RECORD : {
+                case WebMsgParser.TYPE_CLASS.UNIT_DATA : {
                     layer[parseMsg.value.faction] = [];
                     parseMsg.value.troops.forEach(function(rawUnit) {
                         //layer[jsonData.faction].push(new Unit(rawUnit));
@@ -463,6 +463,11 @@ var ShowUnitsLayer = cc.Layer.extend({
                         layer._resetDamageList();
                         layer._loadUnitElement();
                     }
+                    break;
+                }
+                case WebMsgParser.TYPE_CLASS.MSG : {
+                    console.log("server msg : " + parseMsg.value);
+                    break;
                 }
             }
         };

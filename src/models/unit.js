@@ -65,11 +65,16 @@ function Unit(rawData) {
     this.engage = null;
     this.title = null;
     this.faction = null;
-    this.serial = null;         // 所在数组下标
+    this.serialNumber = null;         // 序列号，最后两位为数组下标
+    this._serialLength = 0;
     if (rawData) {
         for (var prop in rawData) {
-            this[prop] = rawData[prop];
+            if (prop in this) {
+                this[prop] = rawData[prop];
+            }
         }
+    } else {
+        this._serialGenerator(10);
     }
 }
 
@@ -80,6 +85,44 @@ Unit.prototype = {
                 return true;
         }
         return false;
+    },
+
+    _serialGenerator : function(serialLength) {
+        // 输入参数为初始序列号长度，而实际序列号长度为serialLength + 2。这是因为会将数组下标加在最后两位
+        var serialTmp = Math.floor(Math.random() * Math.pow(10, serialLength));
+        var serialString = String(serialTmp);
+        var serialBlank = "";
+        if (serialString.length < serialLength) {
+            for (var iter = 0; iter < serialLength - serialString.length; iter++) {
+                serialBlank += "0";
+            }
+        }
+        this.serialNumber = serialBlank + serialString;
+        this._serialLength = serialLength + 2;
+        console.log(this.serialNumber.length);
+    },
+
+    set serial(value) {
+        var bar = 2;
+        var stringValue = value < 10 ? "0" + value : value;
+        if (this.serialNumber.length === this._serialLength - bar) {
+            this.serialNumber += stringValue;
+        } else if (this.serialNumber.length === this._serialLength) {
+            this.serialNumber = this.serialNumber.slice(0, this._serialLength - 2) + stringValue;
+        } else {
+            throw new Error("serial number has wrong index message!!!")
+        }
+    },
+
+    get serial() {
+        var bar = 2;
+        if (this.serialNumber.length === this._serialLength - bar) {
+            return 0;
+        } else if (this.serialNumber.length === this._serialLength){
+            return Number(this.serialNumber.slice(this._serialLength - 2, this._serialLength));
+        } else {
+            throw new Error("Wrong timing to ger serial!!")
+        }
     },
 
     loadUnit : function() {

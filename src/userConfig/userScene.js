@@ -2,21 +2,70 @@ var UserScene = cc.Scene.extend({
 
     moduleNameList : {
         userLayer : "userLayer",
+        factionLayer : "factionLayer",
     },
 
-    ctor : function() {
+    webSocket : null,
+    playerInfo : null,
+
+    ctor : function(webSocket, playerInfo, battleProp) {
         this._super();
+
+        var layer = this;
+        this.playerInfo = playerInfo;
+        this.battleProp = battleProp;
+
+        this.webSocket = webSocket;
+        this.webSocket.onmessage = function(msg) {
+            var paresMsg;
+            try {
+                paresMsg = new WebMsg(msg.data);
+            } catch (error) {
+                console.log(error);
+                return;
+            }
+            switch (paresMsg.type) {
+                case WebMsg.TYPE_CLASS.CODE_DATA : {
+                    console.log(paresMsg.value);
+                    break;
+                }
+                case WebMsg.TYPE_CLASS.UNIT_DATA : {
+                    var troops = {};
+                    for (var iter in paresMsg.value) {
+                        var unit = paresMsg.value[iter].unit;
+                        troops[unit] = paresMsg.value[iter];
+                        delete troops["createdAt"];
+                        delete troops["updatedAt"];
+                    }
+                    armyTemplate.troops = troops;
+                    console.log(armyTemplate.troops);
+                    break;
+                }
+                default : {
+                    console.log(paresMsg.type + " type msg with: ");
+                    console.log(paresMsg.value);
+                }
+            }
+        };
+        this.webSocket.onclose = function() {
+            console.log("load unit template is closed by server...")
+        };
+
 
         var userLayer = new UserLayer();
         userLayer.setName(this.moduleNameList.userLayer);
         this.addChild(userLayer);
+
+        var factionLayer = new FactionLayer();
+        factionLayer.setName(this.moduleNameList.factionLayer);
+        this.addChild(factionLayer);
+        factionLayer.loadButtonCallback();
 
         return true;
     },
 
     onEnter : function() {
         this._super();
-
     },
 
     onExit : function() {
@@ -29,8 +78,6 @@ var UserLayer = cc.Layer.extend({
         account : "account",
     },
 
-    webSocket : null,
-
     ctor : function() {
         this._super();
     },
@@ -38,6 +85,7 @@ var UserLayer = cc.Layer.extend({
     onEnter : function() {
         this._super();
 
+        var layer = this;
 
         var globalSize = cc.director.getWinSize();
         var globalScale = globalSize.width / 1920;
@@ -49,33 +97,7 @@ var UserLayer = cc.Layer.extend({
         bg.setAnchorPoint(0.5, 0.5);
         bg.setPosition(0, 0);
         this.addChild(bg);
-        var layer = this;
 
-        this.webSocket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
-        this.webSocket.onopen = function() {
-            layer.webSocket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.STRING, messageCode.CHECK_PLAYER).toJSON());
-        };
-        this.webSocket.onmessage = function(msg) {
-            var msgPackage;
-            try {
-                msgPackage = new WebMsgParser(msg);
-            } catch (error) {
-                console.log(error);
-            }
-            switch (msgPackage.type) {
-                case WebMsgParser.TYPE_CLASS.STRING : {
-                    console.log(msgPackage.value);
-                    break;
-                }
-                case WebMsgParser.TYPE_CLASS.DATA_RECORD : {
-                    console.log("data record");
-                    break;
-                }
-            }
-        };
-        this.webSocket.onclose = function() {
-            console.log("load unit template is closed by server...")
-        };
 
         var account = new cc.EditBox(boxSize, new cc.Scale9Sprite(res.TEXT_RECT));
 
@@ -105,8 +127,14 @@ var UserLayer = cc.Layer.extend({
             },
             editBoxReturn : function(editBox) {
                 console.log("editBox " + editBox.getTag() + " was returned !");
-                layer.webSocket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.STRING, editBox.getString()).toJSON());
-                cc.director.pushScene(new FactionScene())
+                var parentNode = layer.getParent();
+                var playerID = Number(editBox.getString());
+                parentNode.playerInfo.playerID = playerID;
+                if (parentNode.playerInfo.checkConfigReady()) {
+                    console.log("send config msg");
+                    var configScene = new UnitConfigScene(parentNode.webSocket, parentNode.playerInfo, parentNode.battleProp);
+                    cc.director.pushScene(configScene);
+                }
             }
         });
         account.setDelegate(accountCallback);

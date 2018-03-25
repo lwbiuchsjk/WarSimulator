@@ -14,11 +14,11 @@
     "jsList" : [
         "src/resource.js",
         "src/loadConfigScene.js",
-        "src/models/messageChannel.js",
+        "src/models/messageModels.js",
         "src/models/unit.js",
         "src/battleConfig/battleConfigScene.js",
         "src/userConfig/userScene.js",
-        "src/userConfig/factionScene.js",
+        "src/userConfig/factionConfigLayer.js",
         "src/unitConfig/unitConfigScene.js",
         "src/unitConfig/unitConfigLayer.js",
         "src/unitConfig/unitDisplayLayer.js",

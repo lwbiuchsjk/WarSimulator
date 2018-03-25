@@ -29,7 +29,7 @@ var LoadConfigLayer = cc.Layer.extend({
         cc.loader.loadJson(messageCode.CONFIG_FILE, function(err, data) {
             console.log(data["server"]);
             messageCode.COMMUNICATION_ADDRESS = data["server"];
-            cc.director.pushScene(new UserScene());
+            cc.director.pushScene(new BattleConfigScene());
         });
     }
 });

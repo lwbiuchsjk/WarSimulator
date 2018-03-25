@@ -2,8 +2,8 @@ var res = {
     TEXT_RECT : "res/TEXT_RECT.png",
     SUBMIT_BUTTON : "res/SUBMIT_BUTTON.png",
     SUBMIT_BUTTON_ON : "res/SUBMIT_BUTTON_ON.png",
-    ATK_FACTION : "res/ATK_FACTION.png",
-    DFC_FACTION : "res/DFC_FACTION.png",
+    attackFaction : "res/ATK_FACTION.png",
+    defenceFaction : "res/DFC_FACTION.png",
 
     RETURN_BUTTON : "res/RETURN_BUTTON.png",
     RETURN_BUTTON_ON : "res/RETURN_ON_BUTTON.png",
