@@ -99,6 +99,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
         var runButton = new cc.Sprite();
         runButton.setPosition(1750, size.height / 2);
         this.runButton = runButton;
+        runButton.setVisible(false);
         this.addChild(runButton);
     },
 
@@ -167,6 +168,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
             this.runButton.setScale(2, 2);
             this.runButton.setTexture(res.BUTTON_RUN);
         }
+        this.runButton.setVisible(true);
 
         this.toSetBlankUnit();
     },
@@ -221,6 +223,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
                 return false;
             }
         });
+        console.log("troops length: " + this.myUnitsButtons.length);
         for (var iter = 0; iter < this.myUnitsButtons.length; iter++) {
             cc.eventManager.addListener(this.unitListener.clone(), this.myUnitsButtons[iter]);
         }
