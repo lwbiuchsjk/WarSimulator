@@ -16,41 +16,6 @@ var UserScene = cc.Scene.extend({
         this.battleProp = battleProp;
 
         this.webSocket = webSocket;
-        this.webSocket.onmessage = function(msg) {
-            var paresMsg;
-            try {
-                paresMsg = new WebMsg(msg.data);
-            } catch (error) {
-                console.log(error);
-                return;
-            }
-            switch (paresMsg.type) {
-                case WebMsg.TYPE_CLASS.CODE_DATA : {
-                    console.log(paresMsg.value);
-                    break;
-                }
-                case WebMsg.TYPE_CLASS.UNIT_DATA : {
-                    var troops = {};
-                    for (var iter in paresMsg.value) {
-                        var unit = paresMsg.value[iter].unit;
-                        troops[unit] = paresMsg.value[iter];
-                        delete troops["createdAt"];
-                        delete troops["updatedAt"];
-                    }
-                    armyTemplate.troops = troops;
-                    console.log(armyTemplate.troops);
-                    break;
-                }
-                default : {
-                    console.log(paresMsg.type + " type msg with: ");
-                    console.log(paresMsg.value);
-                }
-            }
-        };
-        this.webSocket.onclose = function() {
-            console.log("load unit template is closed by server...")
-        };
-
 
         var userLayer = new UserLayer();
         userLayer.setName(this.moduleNameList.userLayer);
@@ -131,7 +96,6 @@ var UserLayer = cc.Layer.extend({
                 var playerID = Number(editBox.getString());
                 parentNode.playerInfo.playerID = playerID;
                 if (parentNode.playerInfo.checkConfigReady()) {
-                    console.log("send config msg");
                     var configScene = new UnitConfigScene(parentNode.webSocket, parentNode.playerInfo, parentNode.battleProp);
                     cc.director.pushScene(configScene);
                 }

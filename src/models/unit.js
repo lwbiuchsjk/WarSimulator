@@ -67,6 +67,18 @@ function Unit(rawData) {
     this.faction = null;
     this.serialNumber = null;         // 序列号，最后两位为数组下标
     this._serialLength = 0;
+    this.attackWeapon = null;
+    this.attackFormation = null;
+    this.defenceWeapon = null;
+    this.defenceFormation = null;
+    this.fleeLife = null;
+    this.maxLife = null;
+    this.speciality = null;
+    this.position = null;
+    this.sequence = null;
+    this.engage = null;
+    this.ability = null;
+
     if (rawData) {
         for (var prop in rawData) {
             if (prop in this) {
@@ -99,7 +111,6 @@ Unit.prototype = {
         }
         this.serialNumber = serialBlank + serialString;
         this._serialLength = serialLength + 2;
-        console.log(this.serialNumber.length);
     },
 
     set serial(value) {
@@ -137,7 +148,7 @@ Unit.prototype = {
         this.fleeLife = squad.fleeLife;
         this.maxLife = squad.maxLife;
         this.speciality = squad.speciality;
-        if (this.position === undefined || !this._inArray(armyTemplate.position, this.position))
+        if (this.position == null || !this._inArray(armyTemplate.position, this.position))
             this.position = armyTemplate.position.FACE;
         this.sequence = squad.sequence;
         this.engage = [];
@@ -168,7 +179,6 @@ Unit.prototype = {
         for (var iter in this) {
             if (this[iter] instanceof Function)
                 continue;
-
             var prop = "";
             if (this[iter] instanceof Array) {
                 for (var num in this[iter]) {

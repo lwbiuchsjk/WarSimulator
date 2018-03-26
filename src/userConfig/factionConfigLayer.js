@@ -41,7 +41,6 @@ var FactionLayer = cc.Layer.extend({
         var parentNode = this.getParent();
         parentNode.playerInfo.faction = faction;
         if (parentNode.playerInfo.checkConfigReady()) {
-            console.log("send user config msg");
             var configScene = new UnitConfigScene(parentNode.webSocket, parentNode.playerInfo, parentNode.battleProp);
             cc.director.pushScene(configScene);
         }
@@ -59,8 +58,9 @@ var FactionLayer = cc.Layer.extend({
             attackButton.setCallback(this.factionCallback.bind(this, attackButton.getName()));
             defenceButton.setCallback(this.factionCallback.bind(this, defenceButton.getName()));
         } else {
-            factionMenu.getChildByName(otherFaction).setCallback(this.factionCallback.bind(this, otherFaction));
-            factionMenu.getChildByName(selectedFaction).setVisible(false);
+            factionMenu.getChildByName(selectedFaction).setCallback(this.factionCallback.bind(this, selectedFaction));
+            factionMenu.getChildByName(otherFaction).setVisible(false);
+            factionMenu.getChildByName(otherFaction).setCallback(function() {console.log("well done")});
         }
     },
 

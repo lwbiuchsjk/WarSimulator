@@ -181,35 +181,6 @@ var UnitsDisplayLayer = cc.Layer.extend({
 
         var webSocket = this.getParent().webSocket;
 
-        webSocket.onmessage = function(data) {
-            var parseMsg = new WebMsg(data);
-            switch (parseMsg.type) {
-                case WebMsg.TYPE_CLASS.UNIT_DATA : {
-                    console.log(parseMsg.value);
-                    console.log("wrong msg...");
-                    break;
-                }
-                case WebMsg.TYPE_CLASS.CODE_DATA : {
-                    switch (parseMsg.value) {
-                        case messageCode.WAR_BEGIN : {
-                            console.log("go to battle scene...");
-                            cc.director.pushScene(new BattleScene());
-                            break
-                        }
-                        default : {
-                            console.log(parseMsg.value);
-                            break;
-                        }
-                    }
-                    break;
-                }
-                case WebMsg.TYPE_CLASS.MSG : {
-                    console.log("server msg : " + parseMsg.value);
-                    break;
-                }
-            }
-        };
-
         function getUnitIter(name) {
             var dot1 = name.indexOf(".");
             var dot2 = name.indexOf(".", dot1 + 1);
@@ -277,8 +248,6 @@ var UnitsDisplayLayer = cc.Layer.extend({
                 var rect = cc.rect(0, 0, size.width, size.height);
                 if (cc.rectContainsPoint(rect, pos)) {
                     console.log("click");
-                    var targetName = target.getName();
-
                     //将myTroops信息直接传递出去，不作包裹处理
                     var troops = [];
                     layer.myTroops.forEach(function(unit) {
@@ -286,14 +255,8 @@ var UnitsDisplayLayer = cc.Layer.extend({
                     });
                     var playerInfo = layer.getParent().playerInfo;
                     playerInfo.troops = troops;
+                    console.log(playerInfo.troops2String());
                     webSocket.send(new WebMsg(WebMsg.TYPE_CLASS.PLAYER_DATA, playerInfo.getMsg()).toJSON());
-                    if (targetName === armyTemplate.faction.attackFaction || targetName === armyTemplate.faction.defenceFaction) {
-                        playerInfo.faction = playerInfo.otherFaction;
-                        var userConfigScene = new UserScene(webSocket, playerInfo, layer.getParent().battleProp);
-                        cc.director.pushScene(userConfigScene);
-                    } else if (targetName === messageCode.CLOSE_TO_WAR) {
-                        console.log("ready to war!!!");
-                    }
                     return true;
                 }
                 return false;

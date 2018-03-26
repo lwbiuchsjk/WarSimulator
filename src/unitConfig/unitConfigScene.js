@@ -30,9 +30,12 @@ var UnitConfigScene = cc.Scene.extend({
             switch(parsedMsg.type) {
                 case WebMsg.TYPE_CLASS.CODE_DATA : {
                     switch (parsedMsg.value) {
-                        case armyTemplate.faction.attackFaction || armyTemplate.faction.defenceFaction : {
+                        case armyTemplate.faction.attackFaction : ;
+                        case armyTemplate.faction.defenceFaction : ;
+                        case messageCode.CLOSE_TO_WAR : {
+                            console.log("my faction: " + self.playerInfo.faction + "; get msg: " + parsedMsg.value);
                             if (self.battleProp === messageCode.SET_SINGLE_BATTLE){
-                                if (parsedMsg.value === self.playerInfo.faction) {
+                                if (parsedMsg.value === self.playerInfo.faction || parsedMsg.value === messageCode.CLOSE_TO_WAR) {
                                     var displayLayer = new UnitsDisplayLayer();
                                     displayLayer.setName(self.moduleNameList.displayLayer);
                                     displayLayer.wipeTroops();
@@ -43,9 +46,22 @@ var UnitConfigScene = cc.Scene.extend({
                                     configLayer.wipeTitle();
                                     self.addChild(configLayer);
                                     self.getChildByName(self.moduleNameList.displayLayer).loadFaction(parsedMsg.value);
+                                } else {
+                                    console.log("...to config other player...");
+                                    var newPlayer = new PlayerMsg(self.playerInfo.battleID);
+                                    newPlayer.faction = self.playerInfo.otherFaction;
+                                    cc.director.pushScene(new UserScene(self.webSocket, newPlayer, self.battleProp));
                                 }
                             }
                             break;
+                        }
+                        case messageCode.WAR_BEGIN : {
+                            console.log("go to battle scene...");
+                            cc.director.pushScene(new BattleScene());
+                            break
+                        }
+                        default : {
+                            console.log("get code: " + parsedMsg.value);
                         }
                     }
                 }
@@ -55,7 +71,7 @@ var UnitConfigScene = cc.Scene.extend({
                     break;
                 }
                 default : {
-                    console.log("get msg type : " + parsedMsg.type + " with value : ");
+                    console.log("type : " + parsedMsg.type + " with: ");
                     console.log(parsedMsg.value);
                 }
             }
