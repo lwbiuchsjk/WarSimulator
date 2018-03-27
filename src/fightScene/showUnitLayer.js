@@ -48,11 +48,11 @@ var ShowUnitsLayer = cc.Layer.extend({
     damageCalculator : null,
     GO_CAL_FLAG : {},
 
-    ctor : function(mines, enemies) {
+    ctor : function(battleProp, myFaction, myTroops, enemyTroops) {
         this._super();
 
-        mines == null ? this.defenceFaction = mines : 1;
-        enemies == null ? this.attackFaction = enemies : 1;
+        this.defenceFaction = myFaction === armyTemplate.faction.defenceFaction ? myTroops : enemyTroops;
+        this.attackFaction = this.defenceFaction === myTroops ? enemyTroops : myTroops;
         this.damageCalculator = new DamageCalculator();
 
         var globalSize = cc.director.getWinSize();
@@ -69,6 +69,9 @@ var ShowUnitsLayer = cc.Layer.extend({
         bg_defence.setPosition(0, 0);
         this.addChild(bg_attack);
         this.addChild(bg_defence);
+
+        this._resetDamageList();
+        this._loadUnitElement();
 
         return true;
     },
@@ -436,46 +439,6 @@ var ShowUnitsLayer = cc.Layer.extend({
         this._resetDamageList();
     },
 
-    loadTroops : function() {
-        var layer = this;
-        var socket = new WebSocket(messageCode.COMMUNICATION_ADDRESS);
-
-        socket.onopen = function() {
-            console.log("load troops connection is ready...");
-            socket.send(new WebMsgMaker(WebMsgMaker.TYPE_CLASS.CODE_DATA, messageCode.LOAD_TROOPS).toJSON());
-        };
-        socket.onmessage = function(msg) {
-            var parseMsg = new WebMsgParser(msg);
-            switch (parseMsg.type) {
-                case WebMsgParser.TYPE_CLASS.CODE_DATA : {
-                    console.log(parseMsg.value);
-                    break;
-                }
-                case WebMsgParser.TYPE_CLASS.UNIT_DATA : {
-                    layer[parseMsg.value.faction] = [];
-                    parseMsg.value.troops.forEach(function(rawUnit) {
-                        //layer[jsonData.faction].push(new Unit(rawUnit));
-                        var unit = new Unit(rawUnit);
-                        layer[parseMsg.value.faction].push(unit.toUnit());
-                    });
-                    console.log(layer[parseMsg.value.faction]);
-                    if (layer.defenceFaction != null && layer.attackFaction != null) {
-                        layer._resetDamageList();
-                        layer._loadUnitElement();
-                    }
-                    break;
-                }
-                case WebMsgParser.TYPE_CLASS.MSG : {
-                    console.log("server msg : " + parseMsg.value);
-                    break;
-                }
-            }
-        };
-        socket.onclose = function() {
-            console.log("connection is cancelled by server...");
-        }
-    },
-
     _loadUnitElement : function() {
         var globalSize = cc.director.getWinSize();
         var globalScale = globalSize.width / 1920;
@@ -740,8 +703,6 @@ var ShowUnitsLayer = cc.Layer.extend({
         this._super();
         console.log("show units!");
         var layer = this;
-
-        this.loadTroops();
     },
 
     onExit : function() {

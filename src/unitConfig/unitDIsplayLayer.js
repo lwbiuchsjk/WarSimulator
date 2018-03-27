@@ -223,7 +223,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
                 return false;
             }
         });
-        console.log("troops length: " + this.myUnitsButtons.length);
+        console.log(".......troops length: " + this.myUnitsButtons.length + "............");
         for (var iter = 0; iter < this.myUnitsButtons.length; iter++) {
             cc.eventManager.addListener(this.unitListener.clone(), this.myUnitsButtons[iter]);
         }
@@ -258,7 +258,6 @@ var UnitsDisplayLayer = cc.Layer.extend({
                     });
                     var playerInfo = layer.getParent().playerInfo;
                     playerInfo.troops = troops;
-                    console.log(playerInfo.troops2String());
                     webSocket.send(new WebMsg(WebMsg.TYPE_CLASS.PLAYER_DATA, playerInfo.getMsg()).toJSON());
                     return true;
                 }

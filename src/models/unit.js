@@ -65,7 +65,7 @@ function Unit(rawData) {
     this.engage = null;
     this.title = null;
     this.faction = null;
-    this.serialNumber = null;         // 序列号，最后两位为数组下标
+    this.serialNumber = "";         // 序列号，最后两位为数组下标
     this._serialLength = 0;
     this.attackWeapon = null;
     this.attackFormation = null;
@@ -85,9 +85,8 @@ function Unit(rawData) {
                 this[prop] = rawData[prop];
             }
         }
-    } else {
-        this._serialGenerator(10);
     }
+    this._serialGenerator(10);
 }
 
 Unit.prototype = {
@@ -101,15 +100,17 @@ Unit.prototype = {
 
     _serialGenerator : function(serialLength) {
         // 输入参数为初始序列号长度，而实际序列号长度为serialLength + 2。这是因为会将数组下标加在最后两位
-        var serialTmp = Math.floor(Math.random() * Math.pow(10, serialLength));
-        var serialString = String(serialTmp);
-        var serialBlank = "";
-        if (serialString.length < serialLength) {
-            for (var iter = 0; iter < serialLength - serialString.length; iter++) {
-                serialBlank += "0";
+        if (this.serialNumber === "") {
+            var serialTmp = Math.floor(Math.random() * Math.pow(10, serialLength));
+            var serialString = String(serialTmp);
+            var serialBlank = "";
+            if (serialString.length < serialLength) {
+                for (var iter = 0; iter < serialLength - serialString.length; iter++) {
+                    serialBlank += "0";
+                }
             }
+            this.serialNumber = serialBlank + serialString;
         }
-        this.serialNumber = serialBlank + serialString;
         this._serialLength = serialLength + 2;
     },
 
@@ -127,6 +128,7 @@ Unit.prototype = {
 
     get serial() {
         var bar = 2;
+        console.log(this.serialNumber.length + " + " + this._serialLength);
         if (this.serialNumber.length === this._serialLength - bar) {
             return 0;
         } else if (this.serialNumber.length === this._serialLength){
@@ -193,28 +195,18 @@ Unit.prototype = {
     },
     toUnit : function() {
         // 本方法返回的是一个Unit类，将所有Array类型的属性都还原，方便读取。
-        // 判断Array类型的属性的依据为观察输入String中是否包含";"字符。
-        var tmp = {};
-        var mark = ";";
-        var string2Array = function(string, array) {
-            if (string.length != 0) {
-                var firstPart = string.slice(0, string.indexOf(mark));
-                var lastPart = string.slice(string.indexOf(mark) + 1, string.length);
-                array.push(firstPart);
-                string2Array(lastPart, array);
-            } else {
-                return array;
-            }
-        };
-        for (var iter in this) {
-            if (typeof this[iter] === "string" && this[iter].indexOf(mark) > 0) {
-                var prop = [];
-                string2Array(this[iter], prop);
-                this[iter] = prop;
-            }
-        }
-        this.resetEngage();
+        // 判断Array类型的属性的依据为观察输入String中是否包含";"字符.
+        if (typeof this.engage === "string")
+            this.engage = this._string2Array("engage");
+        if (typeof this.ability === "string")
+            this.ability = this._string2Array("ability");
+        if (typeof this.speciality === "string")
+            this.speciality = this._string2Array("speciality");
         return this;
+    },
+    _string2Array : function(prop) {
+        var array = this[prop].split(";");
+        return array.slice(0, array.length - 1);
     }
 };
 
