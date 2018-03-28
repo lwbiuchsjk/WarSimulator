@@ -37,17 +37,19 @@ var PlayerMsg = function() {
     this._faction = "";
     this._otherFaction = "";
     this._troops = null;
+    this._active = 0;
     this._seperateMark = ";";
     switch (arguments.length) {
         case 1 : {
             if (typeof arguments[0] === "number") {
                 this._battleID = arguments[0];
             } else if (typeof arguments[0] === "object" &&
-                "battleID" in arguments[0] && "playerID" in arguments[0] && "faction" in arguments[0] && "troops" in arguments[0]) {
+                "battleID" in arguments[0] && "playerID" in arguments[0] && "faction" in arguments[0] && "troops" in arguments[0] && "active" in arguments[0]) {
                 this._battleID = arguments[0]["battleID"];
                 this._playerID = arguments[0]["playerID"];
                 this._faction = arguments[0]["faction"];
                 this._troops = arguments[0]["troops"];
+                this._active = arguments[0].active;
                 if (this._faction != null && this._faction != "") {
                     this._getOtherFaction();
                 }
@@ -83,6 +85,14 @@ var PlayerMsg = function() {
         }
     }
 };
+PlayerMsg.STATUS = {
+    SLEEP : 0,
+    ACTIVE : 1,
+    IN_FIGHT : 2,
+    CHECK_RIGHT : "CHECK_RIGHT",
+    EXACT_CHECK_WRONG : "EXACT_CHECK_WRONG",
+    CHECK_WRONG : "CHECK_WRONG"
+};
 PlayerMsg.prototype = {
     get battleID () {
         return this._battleID;
@@ -113,13 +123,37 @@ PlayerMsg.prototype = {
         return this._otherFaction;
     },
 
+    set active (value) {
+        if (value == PlayerMsg.SLEEP || value == PlayerMsg.ACTIVE || value == PlayerMsg.IN_FIGHT) {
+            this._active = value;
+        } else {
+            throw new Error("...player status set wrong...");
+        }
+    },
+    get active () {
+        return this._active;
+    },
+
+    checkPlayerInBattle : function(playerID, faction) {
+        if (playerID == this._playerID) {
+            if (faction == this._faction) {
+                return PlayerMsg.STATUS.CHECK_RIGHT;
+            } else {
+                return PlayerMsg.STATUS.CHECK_WRONG;
+            }
+        } else {
+            return PlayerMsg.STATUS.EXACT_CHECK_WRONG;
+        }
+    },
+
     getMsg : function() {
         var wrapMsg  = this;
         return {
             battleID : wrapMsg._battleID,
             faction : wrapMsg._faction,
             playerID : wrapMsg._playerID,
-            troops : wrapMsg._troops
+            troops : wrapMsg._troops,
+            active : wrapMsg._active
         };
     },
     checkConfigReady : function() {
