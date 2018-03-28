@@ -125,7 +125,7 @@ var UnitsDisplayLayer = cc.Layer.extend({
         if (blankNum != null) {
             this._changeBlankUnitImage(blankNum);
             var unit = new Unit();
-            unit.faction = this.faction;
+            unit.faction = this.getParent().playerInfo.faction;
             unit.serial = blankNum;
             var sceneNode = this.getParent();
             var configLayer = sceneNode.getChildByName(sceneNode.moduleNameList.configLayer);
