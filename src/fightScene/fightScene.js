@@ -22,10 +22,7 @@ var FightScene = cc.Scene.extend({
         this.webSocket = webSocket;
         var myTroops = [],
             enemyTroops = [];
-        // 因为装载进入的playerInfo中已经包括了troops信息，因此此时即可load my troops;
-        this.playerInfo.troops.forEach(function(rawUnit) {
-            myTroops.push(new Unit(rawUnit).toUnit());
-        });
+
         this.webSocket.onmessage = function(msg) {
             var parsedMsg = new WebMsg(msg.data);
             switch (parsedMsg.type) {
@@ -56,13 +53,22 @@ var FightScene = cc.Scene.extend({
                 }
                 case WebMsg.TYPE_CLASS.UNIT_DATA : {
                     var unitMsg = new UnitMsg(parsedMsg.value);
+                    console.log(unitMsg);
                     if (unitMsg.playerID !== self.playerInfo.playerID) {
                         unitMsg.troops.forEach(function(rawUnit) {
-                            console.log(new Unit(rawUnit).toUnit());
                             enemyTroops.push(new Unit(rawUnit).toUnit());
                         });
                         console.log("...enemy troops loaded successfully...");
                         console.log(enemyTroops);
+                    }
+                    if (unitMsg.playerID === self.playerInfo.playerID) {
+                        unitMsg.troops.forEach(function(rawUnit) {
+                            myTroops.push(new Unit(rawUnit).toUnit());
+                        });
+                        console.log("...my troops loaded successfully...");
+                        console.log(myTroops);
+                    }
+                    if (myTroops !== [] && enemyTroops !== []) {
                         self.webSocket.send(new WebMsg(WebMsg.TYPE_CLASS.CHECK_BATTLE_PROP, new BattleMsg(self.playerInfo.battleID).getMsg()).toJSON());
                     }
                     break;
