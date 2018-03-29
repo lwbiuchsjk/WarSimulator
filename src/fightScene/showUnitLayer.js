@@ -42,18 +42,17 @@ var ShowUnitsLayer = cc.Layer.extend({
         defenceFaction : cc.color(147, 205, 221)
     },
 
-    defenceFaction : null,
-    attackFaction : null,
     damageCalList : null,
-    damageCalculator : null,
+    damageCalculator : null,    // 在计算其中装载了attackTroops与defenceTroops;
     GO_CAL_FLAG : {},
 
     ctor : function(battleProp, myFaction, myTroops, enemyTroops) {
         this._super();
 
-        this.defenceFaction = myFaction === armyTemplate.faction.defenceFaction ? myTroops : enemyTroops;
-        this.attackFaction = this.defenceFaction === myTroops ? enemyTroops : myTroops;
-        this.damageCalculator = new DamageCalculator();
+        var defenceFaction = myFaction === armyTemplate.faction.defenceFaction ? myTroops : enemyTroops;
+        var attackFaction = defenceFaction === myTroops ? enemyTroops : myTroops;
+        // 装载双方troops进入calculator;
+        this.damageCalculator = new DamageCalculator(attackFaction, defenceFaction);
 
         var globalSize = cc.director.getWinSize();
 
@@ -77,8 +76,8 @@ var ShowUnitsLayer = cc.Layer.extend({
     },
 
     addUnitsMenu : function(size, scale, imageScale) {
-        console.log(this.attackFaction);
-        console.log(this.defenceFaction);
+        console.log(this.damageCalculator.attackFaction);
+        console.log(this.damageCalculator.defenceFaction);
         var unitWidth = 150, unitHeight = 150, unitInterval = 10,
             xStart = 155, yMeStart = 90, yEnmyStart = size.height - yMeStart - unitHeight,
             attackBarHeight = 50, defenceBarHeight = 50, titleBarHeight = 50,
@@ -90,10 +89,10 @@ var ShowUnitsLayer = cc.Layer.extend({
             lifeFontSize = 100;
         var normalLifeColor = cc.color(125, 125, 125);
         var layer = this;
-        for(var iter = 0; iter < this.defenceFaction.length; iter++) {
+        for(var iter = 0; iter < this.damageCalculator.defenceFaction.length; iter++) {
             //////////////////////////////////////////////////
             // unit本体
-            var myUnit = this.defenceFaction[iter];
+            var myUnit = this.damageCalculator.defenceFaction[iter];
             var myPaleUnit = null;
             if (myUnit == null) {
                 myPaleUnit = new cc.Sprite(res.UNIT_ON);
@@ -131,7 +130,7 @@ var ShowUnitsLayer = cc.Layer.extend({
                 myTitleBar.drawRect(cc.p(0, 0), cc.p(unitWidth, attackBarHeight), cc.color(255, 255, 255), 0);
                 myTitleBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yMeStart + unitHeight);
                 layer.addChild(myTitleBar);
-                var myTitle = new cc.Sprite(res["TITLE_" + layer.defenceFaction[iter].title]);
+                var myTitle = new cc.Sprite(res["TITLE_" + layer.damageCalculator.defenceFaction[iter].title]);
                 myTitle.setAnchorPoint(0, 0);
                 myTitle.setPosition(myTitleBar.x, myTitleBar.y);
                 layer.addChild(myTitle);
@@ -143,7 +142,7 @@ var ShowUnitsLayer = cc.Layer.extend({
                 myDefenceBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yMeStart - defenceBarHeight);
                 layer.addChild(myDefenceBar);
                 var myDefenceString = new cc.LabelTTF(
-                    layer.damageCalculator.getDefenceBasis(layer.defenceFaction[iter]),
+                    layer.damageCalculator.getDefenceBasis(layer.damageCalculator.defenceFaction[iter]),
                     cc.size(myDefenceBar.width, myDefenceBar.height), fontSize,
                     cc.TEXT_ALIGNMENT_CENTER,
                     cc.VERTICAL_TEXT_ALIGNMENT_CENTER
@@ -208,8 +207,8 @@ var ShowUnitsLayer = cc.Layer.extend({
                 this.addChild(showMyDefenceString);
             }
         }
-        for(var iter = 0; iter < this.attackFaction.length; iter++) {
-            var enemyUnit = this.attackFaction[iter];
+        for(var iter = 0; iter < this.damageCalculator.attackFaction.length; iter++) {
+            var enemyUnit = this.damageCalculator.attackFaction[iter];
             var enemyPalUnit = null;
             if (enemyUnit == null) {
                 enemyPalUnit = new cc.Sprite(res.UNIT_ON);
@@ -233,7 +232,7 @@ var ShowUnitsLayer = cc.Layer.extend({
                 enemyAttackBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yEnmyStart - attackBarHeight - titleBarHeight);
                 layer.addChild(enemyAttackBar);
                 var enemyAttackString = new cc.LabelTTF(
-                    layer.damageCalculator.getAttackBasis(layer.attackFaction[iter]),
+                    layer.damageCalculator.getAttackBasis(layer.damageCalculator.attackFaction[iter]),
                     cc.size(enemyAttackBar.width, enemyAttackBar.height), fontSize,
                     cc.TEXT_ALIGNMENT_CENTER,
                     cc.VERTICAL_TEXT_ALIGNMENT_CENTER
@@ -249,7 +248,7 @@ var ShowUnitsLayer = cc.Layer.extend({
                 enemyTitleBar.drawRect(cc.p(0, 0), cc.p(unitWidth, attackBarHeight), cc.color(255, 255, 255), 0);
                 enemyTitleBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yEnmyStart - titleBarHeight);
                 layer.addChild(enemyTitleBar);
-                var enemyTitle = new cc.Sprite(res["TITLE_ON_" + layer.attackFaction[iter].title]);
+                var enemyTitle = new cc.Sprite(res["TITLE_ON_" + layer.damageCalculator.attackFaction[iter].title]);
                 enemyTitle.setAnchorPoint(0, 0);
                 enemyTitle.setPosition(enemyTitleBar.x, enemyTitleBar.y);
                 layer.addChild(enemyTitle);
@@ -261,7 +260,7 @@ var ShowUnitsLayer = cc.Layer.extend({
                 enemyDefenceBar.setPosition(xStart + (unitWidth + unitInterval) * iter, yEnmyStart + unitHeight);
                 layer.addChild(enemyDefenceBar);
                 var enemyDefenceString = new cc.LabelTTF(
-                    layer.damageCalculator.getDefenceBasis(layer.attackFaction[iter]),
+                    layer.damageCalculator.getDefenceBasis(layer.damageCalculator.attackFaction[iter]),
                     cc.size(enemyDefenceBar.width, enemyDefenceBar.height), fontSize,
                     cc.TEXT_ALIGNMENT_CENTER,
                     cc.VERTICAL_TEXT_ALIGNMENT_CENTER
@@ -408,6 +407,7 @@ var ShowUnitsLayer = cc.Layer.extend({
         /*
          * 通过这个回调函数打开outputLayer
          * 另外，在该函数中还要讲damageCalList清空，以便从outputLayer调用本layer的onPushLayer时，可以重置界面元素。
+         * 在装载attack与defence元素的时候，也要将这两个unit设定为moved。
          */
         //this.damageCalList[armyTemplate.status.DEFENCE].setEngage(this.damageCalList[armyTemplate.status.ATTACK]);
         //this.damageCalList[armyTemplate.status.ATTACK].setEngage(this.damageCalList[armyTemplate.status.DEFENCE]);
@@ -420,21 +420,14 @@ var ShowUnitsLayer = cc.Layer.extend({
         var defence = damageList[damageList.length - 1];
         var attack = damageList[0];
 
+        if (this.damageCalculator.checkTroopsMovedAll()) {
+            console.log("...troops moved ALL...!!!");
+        }
         var parentNode = this.getParent();
         parentNode.getChildByName(parentNode.moduleNameList.outputLayer).loadOutput(defence, attack);
     },
 
     reloadLayer : function(output) {
-        ////////////////////////////////////////////////
-        // 从outputLayer返回需要执行下列内容
-        // 将计算结果重载回defenceFaction和attackFaction
-        if (output instanceof Array) {
-            for (var iter = 0; iter < output.length; iter++) {
-                var unit = output[iter];
-                this[unit.faction][unit.serial] = unit;
-            }
-        }
-
         this.getChildByName(armyTemplate.status.ATTACK + "." + this.moduleNameList.showUnit).setVisible(true);
         this.getChildByName(armyTemplate.status.DEFENCE + "." + this.moduleNameList.showUnit).setVisible(true);
         this._resetDamageList();
@@ -464,7 +457,7 @@ var ShowUnitsLayer = cc.Layer.extend({
                 var pos = target.convertToNodeSpace(touch.getLocation());
                 var size = target.getContentSize();
                 var rect = cc.rect(0 ,0, size.width, size.height);
-                var _toParesFactionNumber = function(string) {
+                var _toParesSerialNumber = function(string) {
                     var point = string.indexOf(".");
                     return eval(string.slice(point + 1, string.length));
                 };
@@ -472,30 +465,31 @@ var ShowUnitsLayer = cc.Layer.extend({
                     var point = string.indexOf(".");
                     return string.slice(0, point);
                 };
+                // 以下是正式功能
                 if (cc.rectContainsPoint(rect, pos)) {
                     //////////////////////////////////////////////////////////
                     // 触碰动作开始时，会根据target来选定unit，并且为unit设置最基础的status为armyTemplate.status.ATTACK | armyTemplate.status.DEFENCE
                     // 这就保证了在之后可以通过selecetedUnit.status来选定showBar.
                     var name = target.getName();
-                    var unit = layer[_toParesFaction(name)][_toParesFactionNumber(name)];
+                    var unit = layer.damageCalculator.getUnit([_toParesFaction(name)], [_toParesSerialNumber(name)]);;
                     this.selectedUnit = unit;
                     var attackUnit = layer.damageCalList[armyTemplate.status.ATTACK],
                         defenceUnit = layer.damageCalList[armyTemplate.status.DEFENCE];
-                    if (attackUnit == null) {
-                        target.setTexture(res["UNIT_ATTACK_"  + unit.unit]);
-                        unit.status = armyTemplate.status.ATTACK;
-                        unit.position = armyTemplate.position.FACE;
-                    } else if (this.selectedUnit.faction === attackUnit.faction){
-                        layer._resetDamageList(armyTemplate.status.ATTACK);
-                        target.setTexture(res["UNIT_ATTACK_"  + unit.unit]);
-                        unit.status = armyTemplate.status.ATTACK;
-                        unit.position = armyTemplate.position.FACE;
-                    } else if (defenceUnit == null) {
-                        target.setTexture(res["UNIT_ON_"  + unit.unit]);
-                        unit.status = armyTemplate.status.DEFENCE;
-                        unit.position = armyTemplate.position.FACE;
-                    } else if (this.selectedUnit.faction === defenceUnit.faction){
-                        layer._resetDamageList(armyTemplate.status.DEFENCE);
+                    if (attackUnit == null || this.selectedUnit.faction === attackUnit.faction) {
+                        if (!layer.damageCalculator.checkUnitMoved(unit)) {
+                            // 针对attack行为作出判断。如果unit已经moved那么就不能attack。但是仍然可以defence。
+                            if (attackUnit != null)
+                                layer._resetDamageList(armyTemplate.status.ATTACK);
+                            target.setTexture(res["UNIT_ATTACK_"  + unit.unit]);
+                            unit.status = armyTemplate.status.ATTACK;
+                            unit.position = armyTemplate.position.FACE;
+                        } else {
+                            this.selectedUnit = null;
+                            return false;
+                        }
+                    } else if (defenceUnit == null || this.selectedUnit.faction === defenceUnit.faction) {
+                        if (defenceUnit != null)
+                            layer._resetDamageList(armyTemplate.status.DEFENCE);
                         target.setTexture(res["UNIT_ON_"  + unit.unit]);
                         unit.status = armyTemplate.status.DEFENCE;
                         unit.position = armyTemplate.position.FACE;
@@ -519,7 +513,6 @@ var ShowUnitsLayer = cc.Layer.extend({
                     // 向layer中对应位置装载unit，并且添加对应的showBar元素。
                     // string = armyTemplate.status.ATTACK | armyTemplate.status.DEFENCE
                     layer.damageCalList[string] = unit;
-                    unit = null;
 
                     var showBar = layer.getChildByName(string + "." + layer.moduleNameList.showBar);
                     showBar.setAnchorPoint(0.5, 0);
@@ -622,12 +615,12 @@ var ShowUnitsLayer = cc.Layer.extend({
                 return false;
             }
         });
-        for (var iter = 0; iter < this.defenceFaction.length; iter++) {
-            if (this.defenceFaction[iter] != null)
+        for (var iter = 0; iter < this.damageCalculator.defenceFaction.length; iter++) {
+            if (this.damageCalculator.defenceFaction[iter] != null)
                 cc.eventManager.addListener(unitListener.clone(), this.getChildByName(this.moduleNameList.defenceFaction + "." + iter));
         }
-        for (var iter = 0; iter < this.attackFaction.length; iter++) {
-            if (this.attackFaction[iter] != null)
+        for (var iter = 0; iter < this.damageCalculator.attackFaction.length; iter++) {
+            if (this.damageCalculator.attackFaction[iter] != null)
                 cc.eventManager.addListener(unitListener.clone(), this.getChildByName(this.moduleNameList.attackFaction + "." + iter));
         }
     },
@@ -693,8 +686,9 @@ var ShowUnitsLayer = cc.Layer.extend({
         if (unit.life <= 0) {
             tmpString = "UNIT_OFF_";
             cc.eventManager.pauseTarget(button, true);
-        }
-        else
+        } else if (this.damageCalculator.checkUnitMoved(unit)) {
+            tmpString = "UNIT_OFF_";
+        } else
             tmpString = "UNIT_";
         button.setTexture(res[tmpString + unit.unit]);
     },

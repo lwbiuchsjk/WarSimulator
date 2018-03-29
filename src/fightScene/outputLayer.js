@@ -24,13 +24,12 @@ var OutputLayer = cc.Layer.extend({
                 string.setColor(normalColor);
             string.setString(unit.life);
         }
-        paintString(defenceUnit, showLayer.getChildByName(showLayer.moduleNameList.lifeInfo + "." + defenceUnit.faction + "." + defenceUnit.serial));
-        paintString(defenceUnit, showLayer.getChildByName(showLayer.moduleNameList.showLifeInfo + "." + defenceUnit.faction + "." + defenceUnit.serial));
-        paintString(attackUnit, showLayer.getChildByName(showLayer.moduleNameList.lifeInfo + "." + attackUnit.faction + "." + attackUnit.serial));
-        paintString(attackUnit, showLayer.getChildByName(showLayer.moduleNameList.showLifeInfo + "." + attackUnit.faction + "." + attackUnit.serial));
+        //paintString(defenceUnit, showLayer.getChildByName(showLayer.moduleNameList.lifeInfo + "." + defenceUnit.faction + "." + defenceUnit.serial));
+        //paintString(defenceUnit, showLayer.getChildByName(showLayer.moduleNameList.showLifeInfo + "." + defenceUnit.faction + "." + defenceUnit.serial));
+        //paintString(attackUnit, showLayer.getChildByName(showLayer.moduleNameList.lifeInfo + "." + attackUnit.faction + "." + attackUnit.serial));
+        //paintString(attackUnit, showLayer.getChildByName(showLayer.moduleNameList.showLifeInfo + "." + attackUnit.faction + "." + attackUnit.serial));
 
-        var parentNode = this.getParent();
-        parentNode.getChildByName(parentNode.moduleNameList.showUnitsLayer).reloadLayer([defenceUnit, attackUnit]);
+        showLayer.reloadLayer([defenceUnit, attackUnit]);
     },
 
     onEnter : function() {

@@ -14,16 +14,19 @@
  * 在考虑side与back情况下
  *
  */
-function DamageCalculator(armyList) {
-    if (armyList != null) {
-        this.defenceUnit = armyList[0];
-        this.attackList = armyList.slice(1, armyList.length);
-    }
+function DamageCalculator(attackTroops, defenceTroops) {
+    this.defenceUnit = null;
+    this.attackList = null;
+    // 用于存储已经行动过的单位。从左至右为 0 - attackTroops - end - end - defenceTroops - 0;
+    this._attackFaction = attackTroops;
+    this._defenceFaction = defenceTroops;
+    this._movedTroops = new Array(attackTroops.length + defenceTroops.length);
 }
 
 DamageCalculator.prototype = {
     loadDefenceUnit : function(unit) {
         this.defenceUnit = unit;
+        this.setUnitMoved(unit);
     },
     loadAttackList : function(input) {
         if (input instanceof  Array)
@@ -31,6 +34,10 @@ DamageCalculator.prototype = {
         else {
             this.attackList = [input];
         }
+        var self = this;
+        this.attackList.forEach(function(unit) {
+            self.setUnitMoved(unit);
+        })
     },
     getAttackBasis : function(attackUnit) {
         /*
@@ -227,4 +234,99 @@ DamageCalculator.prototype = {
 
         return damageSequence;
     },
+    get movedTroops () {
+        return this._movedTroops;
+    },
+    get attackFaction () {
+        return this._attackFaction;
+    },
+    get defenceFaction() {
+        return this._defenceFaction;
+    },
+    getUnit : function(faction ,serial) {
+        return this["_" + faction][serial];
+    },
+    _getUnitMovedIter : function(faction, serial) {
+        var iter = faction === armyTemplate.faction.attackFaction ? serial :
+            (faction === armyTemplate.faction.defenceFaction ? this._movedTroops.length - serial : null);
+        if (iter === null) {
+            throw new Error("...movedTroops input out of range...");
+        } else
+            return iter;
+    },
+    setUnitMoved : function() {
+        /*
+         * checkUnitLeaveTroop与setUnitMoved一定要结合使用。
+         * 本函数只执行将unit从加入movedTroops队列中的任务。
+         * 只有先执行setUnitMoved再执行checkUnitLeaveTroop，才能真正确定unit moved.
+         */
+        // arguments : unit | faction - serial
+        var faction, serial;
+        if (arguments.length === 1 && arguments[0] instanceof Unit) {
+            faction = arguments[0].faction;
+            serial = arguments[0].serial;
+        } else if (arguments.length === 2 && typeof arguments[0] === "string" && typeof arguments[1] === "number") {
+            faction = arguments[0];
+            serial = arguments[1];
+        } else {
+            throw new Error("...wrong input with movedTroops...");
+        }
+        if (this["_" + faction][serial] !== null) {
+            console.log("...unit move...");
+            this._movedTroops[this._getUnitMovedIter(faction,serial)] = this["_" + faction][serial];
+            console.log(this._movedTroops);
+        }
+    },
+    checkUnitMoved : function() {
+        // arguments : unit | faction - serial
+        var faction, serial;
+        if (arguments.length === 1 && arguments[0] instanceof Unit) {
+            faction = arguments[0].faction;
+            serial = arguments[0].serial;
+        } else if (arguments.length === 2 && typeof arguments[0] === "string" && typeof arguments[1] === "number") {
+            faction = arguments[0];
+            serial = arguments[1];
+        } else {
+            throw new Error("...wrong input with CHECK movedTroops...");
+        }
+        return this._movedTroops[this._getUnitMovedIter(faction,serial)] != null;
+
+    },
+    checkUnitLeaveTroop : function() {
+        /*
+         * checkUnitLeaveTroop与setUnitMoved一定要结合使用。
+         * 本函数首先判断是否已经离队，如果是，则返回true。如果否，则将unit从对应faction troops中剔除，然后返回false。
+         * 只有先执行setUnitMoved再执行checkUnitLeaveTroop，才能真正确定unit moved.
+         */
+        // arguments : unit | faction - serial
+        var faction, serial;
+        if (arguments.length === 1 && arguments[0] instanceof Unit) {
+            faction = arguments[0].faction;
+            serial = arguments[0].serial;
+        } else if (arguments.length === 2 && typeof arguments[0] === "string" && typeof arguments[1] === "number") {
+            faction = arguments[0];
+            serial = arguments[1];
+        } else {
+            throw new Error("...wrong input with check unit leave troops...");
+        }
+        if (this["_" + faction][serial] === null) {
+            return true;
+        } else {
+            this["_" + faction][serial] = null;
+            return false;
+        }
+    },
+    checkTroopsMovedAll : function() {
+        this._movedTroops.forEach(function(unit){
+            if (unit == null) {
+                return false;
+            }
+        });
+        return true;
+    },
+    resetTroops : function () {
+        this._attackFaction = this._movedTroops.slice(0, this._attackFaction.length);
+        this._defenceFaction = this._movedTroops.slice(this._attackFaction.length, this._movedTroops.length);
+        this._movedTroops = new Array(this._attackFaction.length + this._defenceFaction.length);
+    }
 };
