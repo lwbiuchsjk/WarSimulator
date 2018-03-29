@@ -128,7 +128,6 @@ Unit.prototype = {
 
     get serial() {
         var bar = 2;
-        console.log(this.serialNumber.length + " + " + this._serialLength);
         if (this.serialNumber.length === this._serialLength - bar) {
             return 0;
         } else if (this.serialNumber.length === this._serialLength){

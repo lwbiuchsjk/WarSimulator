@@ -392,7 +392,8 @@ var ShowUnitsLayer = cc.Layer.extend({
     },
 
     goButtonCallback : function(faction) {
-        console.log();
+        console.log(this.GO_CAL_FLAG);
+        console.log(this.damageCalList);
         this.GO_CAL_FLAG[faction] = 1;
         if (this.GO_CAL_FLAG[armyTemplate.faction.attackFaction] && this.GO_CAL_FLAG[armyTemplate.faction.defenceFaction]
         && this.damageCalList[armyTemplate.status.ATTACK] != null && this.damageCalList[armyTemplate.status.DEFENCE] != null)
@@ -653,7 +654,6 @@ var ShowUnitsLayer = cc.Layer.extend({
                     break;
                 }
                 default : {
-                    console.log(FLAG);
                     if (!FLAG) {
                         console.log("reset damageCalList...");
                         this._resetAtkElement();
@@ -702,7 +702,6 @@ var ShowUnitsLayer = cc.Layer.extend({
     onEnter : function() {
         this._super();
         console.log("show units!");
-        var layer = this;
     },
 
     onExit : function() {

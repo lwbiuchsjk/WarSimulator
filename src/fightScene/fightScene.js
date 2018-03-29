@@ -52,25 +52,31 @@ var FightScene = cc.Scene.extend({
                     break;
                 }
                 case WebMsg.TYPE_CLASS.UNIT_DATA : {
-                    var unitMsg = new UnitMsg(parsedMsg.value);
-                    console.log(unitMsg);
-                    if (unitMsg.playerID !== self.playerInfo.playerID) {
-                        unitMsg.troops.forEach(function(rawUnit) {
-                            enemyTroops.push(new Unit(rawUnit).toUnit());
+                    // 此时传入的是一个unitMsg的array.
+                    if (parsedMsg.value instanceof Array && parsedMsg.value.length === 2) {
+                        parsedMsg.value.forEach(function(troops) {
+                            var unitMsg = new UnitMsg(troops);
+                            if (unitMsg.playerID !== self.playerInfo.playerID) {
+                                unitMsg.troops.forEach(function(rawUnit) {
+                                    enemyTroops.push(new Unit(rawUnit).toUnit());
+                                });
+                                console.log("...enemy troops loaded successfully...");
+                                console.log(enemyTroops);
+                            }
+                            if (unitMsg.playerID === self.playerInfo.playerID) {
+                                unitMsg.troops.forEach(function(rawUnit) {
+                                    myTroops.push(new Unit(rawUnit).toUnit());
+                                });
+                                console.log("...my troops loaded successfully...");
+                                console.log(myTroops);
+                            }
                         });
-                        console.log("...enemy troops loaded successfully...");
-                        console.log(enemyTroops);
-                    }
-                    if (unitMsg.playerID === self.playerInfo.playerID) {
-                        unitMsg.troops.forEach(function(rawUnit) {
-                            myTroops.push(new Unit(rawUnit).toUnit());
-                        });
-                        console.log("...my troops loaded successfully...");
-                        console.log(myTroops);
-                    }
-                    if (myTroops !== [] && enemyTroops !== []) {
+                        console.log("...go to battle...");
                         self.webSocket.send(new WebMsg(WebMsg.TYPE_CLASS.CHECK_BATTLE_PROP, new BattleMsg(self.playerInfo.battleID).getMsg()).toJSON());
+                    } else {
+                        throw new Error("...wrong troops input in battle...");
                     }
+
                     break;
                 }
                 default : {
