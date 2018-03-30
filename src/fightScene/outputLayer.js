@@ -7,7 +7,7 @@ var OutputLayer = cc.Layer.extend({
         return true;
     },
 
-    loadOutput : function(defenceUnit, attackUnit) {
+    loadOutput : function(defenceUnit, attackUnit, paintTroops) {
         console.log("show output!");
         var showLayer = this.getParent().getChildByName(this.getParent().moduleNameList.showUnitsLayer);
 
@@ -24,12 +24,21 @@ var OutputLayer = cc.Layer.extend({
                 string.setColor(normalColor);
             string.setString(unit.life);
         }
-        //paintString(defenceUnit, showLayer.getChildByName(showLayer.moduleNameList.lifeInfo + "." + defenceUnit.faction + "." + defenceUnit.serial));
-        //paintString(defenceUnit, showLayer.getChildByName(showLayer.moduleNameList.showLifeInfo + "." + defenceUnit.faction + "." + defenceUnit.serial));
-        //paintString(attackUnit, showLayer.getChildByName(showLayer.moduleNameList.lifeInfo + "." + attackUnit.faction + "." + attackUnit.serial));
-        //paintString(attackUnit, showLayer.getChildByName(showLayer.moduleNameList.showLifeInfo + "." + attackUnit.faction + "." + attackUnit.serial));
 
-        showLayer.reloadLayer([defenceUnit, attackUnit]);
+        paintTroops.forEach(function(unit) {
+            paintString(unit, showLayer.getChildByName(showLayer.moduleNameList.lifeInfo + "." + unit.faction + "." + unit.serial));
+            paintString(unit, showLayer.getChildByName(showLayer.moduleNameList.showLifeInfo + "." + unit.faction + "." + unit.serial));
+            var button = showLayer.getChildByName(unit.faction + "." + unit.serial);
+            var texture;
+            if (unit.nowLife <= 0) {
+                texture = "UNIT_OFF_";
+                cc.eventManager.pauseTarget(button, true);
+            } else
+                texture = "UNIT_";
+            button.setTexture(res[texture + unit.unit]);
+        });
+
+        showLayer.reloadLayer(attackUnit, defenceUnit);
     },
 
     onEnter : function() {

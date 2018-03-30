@@ -394,42 +394,71 @@ var ShowUnitsLayer = cc.Layer.extend({
         console.log(this.GO_CAL_FLAG);
         console.log(this.damageCalList);
         this.GO_CAL_FLAG[faction] = 1;
-        if (this.GO_CAL_FLAG[armyTemplate.faction.attackFaction] && this.GO_CAL_FLAG[armyTemplate.faction.defenceFaction]
-        && this.damageCalList[armyTemplate.status.ATTACK] != null && this.damageCalList[armyTemplate.status.DEFENCE] != null)
-            this.outputCallback();
-        else if(this.GO_CAL_FLAG[armyTemplate.faction.attackFaction] && this.GO_CAL_FLAG[armyTemplate.faction.defenceFaction]) {
-            this._resetAtkElement();
-            this._resetDfcElement();
+        if (this.GO_CAL_FLAG[armyTemplate.faction.attackFaction] && this.GO_CAL_FLAG[armyTemplate.faction.defenceFaction]) {
+            if (this.damageCalList[armyTemplate.status.ATTACK] != null && this.damageCalList[armyTemplate.status.DEFENCE] != null) {
+                this.outputCallback();
+            } else if(this.damageCalList[armyTemplate.status.ATTACK] != null && this.damageCalList[armyTemplate.status.DEFENCE] == null) {
+                this.damageCalList[armyTemplate.status.ATTACK].status = armyTemplate.status.MOVE;
+                this.outputCallback(armyTemplate.status.MOVE);
+            } else {
+                // 在其他无用的情况下自动清空attack与defence元素。
+                this._resetAtkElement();
+                this._resetDfcElement();
+            }
         }
     },
 
-    outputCallback : function() {
+    outputCallback : function(FLAG) {
         /*
-         * 通过这个回调函数打开outputLayer
+         * 通过这个回调函数打开outputLayer。
+         * 如果传入的FLAG为MOVE，那么不作任何有关damage计算的操作。
+         * 只要能进入output阶段，那么attack元素一定不为空（即要么交战、要么移动），而只有当FLAG不为MOVE（也就是交战）时，defence元素才不为空。
          * 另外，在该函数中还要讲damageCalList清空，以便从outputLayer调用本layer的onPushLayer时，可以重置界面元素。
          * 在装载attack与defence元素的时候，也要将这两个unit设定为moved。
          */
         //this.damageCalList[armyTemplate.status.DEFENCE].setEngage(this.damageCalList[armyTemplate.status.ATTACK]);
         //this.damageCalList[armyTemplate.status.ATTACK].setEngage(this.damageCalList[armyTemplate.status.DEFENCE]);
 
-        this.damageCalculator.loadDefenceUnit(this.damageCalList[armyTemplate.status.DEFENCE]);
-        this.damageCalculator.loadAttackList(this.damageCalList[armyTemplate.status.ATTACK]);
+        var defence = null, attack = null,
+            webSocket = this.getParent().webSocket,
+            fightMsg = new FightProcessMsg(this.getParent().playerInfo.battleID),
+            paintTroops = [];
+        if (FLAG !== armyTemplate.status.MOVE) {
+            this.damageCalculator.loadDefenceUnit(this.damageCalList[armyTemplate.status.DEFENCE]);
+            this.damageCalculator.loadAttackList(this.damageCalList[armyTemplate.status.ATTACK]);
 
-        var damageList = this.damageCalculator.getDamage(this.damageCalculator.attackList, this.damageCalculator.defenceUnit);
-        console.log(damageList);
-        var defence = damageList[damageList.length - 1];
-        var attack = damageList[0];
+            var damageList = this.damageCalculator.getDamage(this.damageCalculator.attackList, this.damageCalculator.defenceUnit);
+            console.log(damageList);
+            defence = damageList[damageList.length - 1];
+            attack = damageList[0];
+
+            fightMsg.sufferUnit = defence.serialNumber;
+            fightMsg.sufferLife = defence.life;
+        } else {
+            this.damageCalculator.setUnitMoved(this.damageCalList[armyTemplate.status.ATTACK]);
+            attack = this.damageCalList[armyTemplate.status.ATTACK];
+            console.log("...unit move...");
+        }
+        fightMsg.driveUnit = attack.serialNumber;
+        fightMsg.driveLife = attack.life;
+        fightMsg.status = attack.status;
+        fightMsg.round = this.damageCalculator.round;
+        webSocket.send(new WebMsg(WebMsg.TYPE_CLASS.FIGHT_PROCESS_DATA, fightMsg.getMsg()).toJSON());
 
         if (this.damageCalculator.checkTroopsMovedAll()) {
             console.log("...troops moved ALL...!!!");
+            paintTroops = this.damageCalculator.loadDamageToNow();
+            this.damageCalculator.resetTroops();
         }
         var parentNode = this.getParent();
-        parentNode.getChildByName(parentNode.moduleNameList.outputLayer).loadOutput(defence, attack);
+        parentNode.getChildByName(parentNode.moduleNameList.outputLayer).loadOutput(defence, attack, paintTroops);
     },
 
-    reloadLayer : function(output) {
+    reloadLayer : function(attackUnit, defenceUnit) {
         this.getChildByName(armyTemplate.status.ATTACK + "." + this.moduleNameList.showUnit).setVisible(true);
-        this.getChildByName(armyTemplate.status.DEFENCE + "." + this.moduleNameList.showUnit).setVisible(true);
+        if (defenceUnit != null) {
+            this.getChildByName(armyTemplate.status.DEFENCE + "." + this.moduleNameList.showUnit).setVisible(true);
+        }
         this._resetDamageList();
     },
 
@@ -469,9 +498,10 @@ var ShowUnitsLayer = cc.Layer.extend({
                 if (cc.rectContainsPoint(rect, pos)) {
                     //////////////////////////////////////////////////////////
                     // 触碰动作开始时，会根据target来选定unit，并且为unit设置最基础的status为armyTemplate.status.ATTACK | armyTemplate.status.DEFENCE
-                    // 这就保证了在之后可以通过selecetedUnit.status来选定showBar.
+                    // 这就保证了在之后可以通过selectedUnit.status来选定showBar.
                     var name = target.getName();
-                    var unit = layer.damageCalculator.getUnit([_toParesFaction(name)], [_toParesSerialNumber(name)]);;
+                    var unit = layer.damageCalculator.getUnit([_toParesFaction(name)], [_toParesSerialNumber(name)]);
+                    console.log("...click " + unit.unit + "...");
                     this.selectedUnit = unit;
                     var attackUnit = layer.damageCalList[armyTemplate.status.ATTACK],
                         defenceUnit = layer.damageCalList[armyTemplate.status.DEFENCE];
@@ -626,6 +656,7 @@ var ShowUnitsLayer = cc.Layer.extend({
     },
 
     _resetDamageList : function(FLAG) {
+        // 用作通用函数，也用作reset button的回调函数。
         var layer = this;
         if (this.damageCalList == null) {
             // 初始化
@@ -681,12 +712,10 @@ var ShowUnitsLayer = cc.Layer.extend({
     },
 
     _resetUnitButtonImage : function(unit) {
+        // 本函数只解决单一unit的重绘制问题。
         var button = this.getChildByName(unit.faction + "." + unit.serial);
         var tmpString;
-        if (unit.life <= 0) {
-            tmpString = "UNIT_OFF_";
-            cc.eventManager.pauseTarget(button, true);
-        } else if (this.damageCalculator.checkUnitMoved(unit)) {
+        if (unit.nowLife <= 0 || this.damageCalculator.checkUnitMoved(unit)) {
             tmpString = "UNIT_OFF_";
         } else
             tmpString = "UNIT_";

@@ -14,13 +14,14 @@
  * 在考虑side与back情况下
  *
  */
-function DamageCalculator(attackTroops, defenceTroops) {
+function DamageCalculator(attackTroops, defenceTroops, round) {
     this.defenceUnit = null;
     this.attackList = null;
     // 用于存储已经行动过的单位。从左至右为 0 - attackTroops - end - end - defenceTroops - 0;
     this._attackFaction = attackTroops;
     this._defenceFaction = defenceTroops;
     this._movedTroops = new Array(attackTroops.length + defenceTroops.length);
+    this._round = round != null ? round : 0;
 }
 
 DamageCalculator.prototype = {
@@ -243,12 +244,15 @@ DamageCalculator.prototype = {
     get defenceFaction() {
         return this._defenceFaction;
     },
+    get round() {
+        return this._round;
+    },
     getUnit : function(faction ,serial) {
         return this["_" + faction][serial];
     },
     _getUnitMovedIter : function(faction, serial) {
         var iter = faction === armyTemplate.faction.attackFaction ? serial :
-            (faction === armyTemplate.faction.defenceFaction ? this._movedTroops.length - serial : null);
+            (faction === armyTemplate.faction.defenceFaction ? this._movedTroops.length - serial - 1 : null);
         if (iter === null) {
             throw new Error("...movedTroops input out of range...");
         } else
@@ -317,16 +321,43 @@ DamageCalculator.prototype = {
         }
     },
     checkTroopsMovedAll : function() {
-        this._movedTroops.forEach(function(unit){
-            if (unit == null) {
+        for (var iter = 0; iter < this._movedTroops.length; iter++) {
+            if (this.movedTroops[iter] == null) {
                 return false;
             }
-        });
+        }
         return true;
     },
     resetTroops : function () {
-        this._attackFaction = this._movedTroops.slice(0, this._attackFaction.length);
-        this._defenceFaction = this._movedTroops.slice(this._attackFaction.length, this._movedTroops.length);
         this._movedTroops = new Array(this._attackFaction.length + this._defenceFaction.length);
+        var deadTroops = [],
+            self = this;
+        this._attackFaction.forEach(function(unit) {
+            if (unit.nowLife <= 0) {
+                deadTroops.push(unit);
+            }
+        });
+        this._defenceFaction.forEach(function(unit) {
+            if (unit.nowLife <= 0) {
+                deadTroops.push(unit);
+            }
+        });
+        deadTroops.forEach(function(unit) {
+            self.setUnitMoved(unit);
+        });
+        this._round++;
+    },
+    loadDamageToNow : function() {
+        // 在本函数中处理所有需要结算伤害的单位，然后将unit array返回，用于之后的行为。
+        var array = [];
+        this._attackFaction.forEach(function(unit) {
+            unit.nowLife = unit.life;
+            array.push(unit);
+        });
+        this._defenceFaction.forEach(function(unit) {
+            unit.nowLife = unit.life;
+            array.push(unit);
+        });
+        return array;
     }
 };

@@ -23,7 +23,8 @@ var armyTemplate = {
         ATTACK_CHARGE_ADVANTAGE : "attackCharge_advantage",  //近距离进攻_冲锋_优势位置姿态
         ATTACK_ENGAGE : "attackEngage",                      //进攻_目标正在交火状态
         ATTACK_REMOTE : "attackRemote",                      //远程攻击姿态
-        DEFENCE_REMOTE: "defenceRemote"                      //远程防御姿态
+        DEFENCE_REMOTE: "defenceRemote",                     //远程防御姿态
+        MOVE : "move"                                        // 移动
     },
     position : {
         FACE : "face",
@@ -65,7 +66,7 @@ function Unit(rawData) {
     this.engage = null;
     this.title = null;
     this.faction = null;
-    this.serialNumber = "";         // 序列号，最后两位为数组下标
+    this._serialNumber = "";         // 序列号，最后两位为数组下标
     this._serialLength = 0;
     this.attackWeapon = null;
     this.attackFormation = null;
@@ -84,6 +85,9 @@ function Unit(rawData) {
             if (prop in this) {
                 this[prop] = rawData[prop];
             }
+            if (prop == "serialNumber") {
+                this._serialNumber = rawData[prop];
+            }
         }
     }
     this._serialGenerator(10);
@@ -100,7 +104,7 @@ Unit.prototype = {
 
     _serialGenerator : function(serialLength) {
         // 输入参数为初始序列号长度，而实际序列号长度为serialLength + 2。这是因为会将数组下标加在最后两位
-        if (this.serialNumber === "") {
+        if (this._serialNumber === "") {
             var serialTmp = Math.floor(Math.random() * Math.pow(10, serialLength));
             var serialString = String(serialTmp);
             var serialBlank = "";
@@ -109,7 +113,7 @@ Unit.prototype = {
                     serialBlank += "0";
                 }
             }
-            this.serialNumber = serialBlank + serialString;
+            this._serialNumber = serialBlank + serialString;
         }
         this._serialLength = serialLength + 2;
     },
@@ -117,10 +121,10 @@ Unit.prototype = {
     set serial(value) {
         var bar = 2;
         var stringValue = value < 10 ? "0" + value : value;
-        if (this.serialNumber.length === this._serialLength - bar) {
-            this.serialNumber += stringValue;
-        } else if (this.serialNumber.length === this._serialLength) {
-            this.serialNumber = this.serialNumber.slice(0, this._serialLength - 2) + stringValue;
+        if (this._serialNumber.length === this._serialLength - bar) {
+            this._serialNumber += stringValue;
+        } else if (this._serialNumber.length === this._serialLength) {
+            this._serialNumber = this._serialNumber.slice(0, this._serialLength - 2) + stringValue;
         } else {
             throw new Error("serial number has wrong index message!!!")
         }
@@ -128,13 +132,17 @@ Unit.prototype = {
 
     get serial() {
         var bar = 2;
-        if (this.serialNumber.length === this._serialLength - bar) {
+        if (this._serialNumber.length === this._serialLength - bar) {
             return 0;
-        } else if (this.serialNumber.length === this._serialLength){
-            return Number(this.serialNumber.slice(this._serialLength - 2, this._serialLength));
+        } else if (this._serialNumber.length === this._serialLength){
+            return Number(this._serialNumber.slice(this._serialLength - 2, this._serialLength));
         } else {
             throw new Error("Wrong timing to ger serial!!")
         }
+    },
+
+    get serialNumber() {
+        return this._serialNumber;
     },
 
     loadUnit : function() {
@@ -154,6 +162,8 @@ Unit.prototype = {
         this.sequence = squad.sequence;
         this.engage = [];
         this.ability = [];
+        // 装载nowLife记录。该记录用于战斗中存储实际生命值。而life则用于暂存计算所得生命值。
+        this._nowLife = this.maxLife;
     },
 
     checkStatus : function() {
@@ -206,6 +216,13 @@ Unit.prototype = {
     _string2Array : function(prop) {
         var array = this[prop].split(";");
         return array.slice(0, array.length - 1);
+    },
+
+    set nowLife (value) {
+        this._nowLife = value;
+    },
+    get nowLife () {
+        return this._nowLife;
     }
 };
 
