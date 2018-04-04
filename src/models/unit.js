@@ -91,6 +91,7 @@ function Unit(rawData) {
         }
     }
     this._serialGenerator(10);
+    this._nowLife = this.maxLife;
 }
 
 Unit.prototype = {
@@ -104,6 +105,7 @@ Unit.prototype = {
 
     _serialGenerator : function(serialLength) {
         // 输入参数为初始序列号长度，而实际序列号长度为serialLength + 2。这是因为会将数组下标加在最后两位
+        // 只有在serialNumber为空的时候才创造。
         if (this._serialNumber === "") {
             var serialTmp = Math.floor(Math.random() * Math.pow(10, serialLength));
             var serialString = String(serialTmp);
@@ -163,7 +165,6 @@ Unit.prototype = {
         this.engage = [];
         this.ability = [];
         // 装载nowLife记录。该记录用于战斗中存储实际生命值。而life则用于暂存计算所得生命值。
-        this._nowLife = this.maxLife;
     },
 
     checkStatus : function() {

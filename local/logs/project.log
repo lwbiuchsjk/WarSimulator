@@ -1,0 +1,54 @@
+2018-04-04T02:59:30.248Z - normal: Load ~/.CocosCreator/settings.json
+2018-04-04T02:59:30.257Z - normal: checking language setting...
+2018-04-04T02:59:30.258Z - normal: Language: zh
+2018-04-04T02:59:33.387Z - success: protocol editor-framework registered
+2018-04-04T02:59:33.387Z - success: protocol app registered
+2018-04-04T02:59:33.387Z - success: protocol theme registered
+2018-04-04T02:59:33.388Z - success: protocol packages registered
+2018-04-04T02:59:33.388Z - success: protocol unpack registerred
+2018-04-04T02:59:33.388Z - success: protocol disable-commonjs registerred
+2018-04-04T02:59:33.520Z - normal: connected!
+2018-04-04T02:59:33.524Z - normal: Check project E:\project\JS\WarSimulator
+2018-04-04T02:59:33.531Z - normal: Initializing Cocos2d
+2018-04-04T02:59:33.987Z - normal: Initializing Asset Database
+2018-04-04T02:59:34.054Z - success: protocol uuid registerred
+2018-04-04T02:59:34.055Z - success: protocol db registerred
+2018-04-04T02:59:34.055Z - success: protocol thumbnail registerred
+2018-04-04T02:59:34.055Z - normal: Loading editor/builtin packages
+2018-04-04T02:59:34.092Z - success: anysdk loaded
+2018-04-04T02:59:34.325Z - success: assets loaded
+2018-04-04T02:59:34.329Z - success: builder loaded
+2018-04-04T02:59:34.334Z - success: cocos-analytics loaded
+2018-04-04T02:59:34.339Z - success: console loaded
+2018-04-04T02:59:34.345Z - success: hierarchy loaded
+2018-04-04T02:59:34.351Z - success: inspector loaded
+2018-04-04T02:59:34.369Z - success: keystore loaded
+2018-04-04T02:59:34.375Z - success: node-library loaded
+2018-04-04T02:59:34.378Z - success: package-asset loaded
+2018-04-04T02:59:34.382Z - success: preferences loaded
+2018-04-04T02:59:34.385Z - success: project-exporter loaded
+2018-04-04T02:59:34.418Z - success: project-importer loaded
+2018-04-04T02:59:34.424Z - success: project-settings loaded
+2018-04-04T02:59:34.428Z - success: ui-kit loaded
+2018-04-04T02:59:34.432Z - success: ui-grid loaded
+2018-04-04T02:59:34.439Z - success: scene loaded
+2018-04-04T02:59:34.441Z - success: sprite-editor loaded
+2018-04-04T02:59:34.446Z - success: store loaded
+2018-04-04T02:59:34.456Z - success: timeline loaded
+2018-04-04T02:59:34.456Z - normal: Loading builtin packages
+2018-04-04T02:59:34.460Z - success: asset-db-debugger loaded
+2018-04-04T02:59:34.463Z - success: code-editor loaded
+2018-04-04T02:59:34.465Z - success: color-picker loaded
+2018-04-04T02:59:34.470Z - success: package-manager loaded
+2018-04-04T02:59:34.477Z - success: sdkbox loaded
+2018-04-04T02:59:34.483Z - success: tester loaded
+2018-04-04T02:59:34.488Z - success: ui-kit-preview-extra loaded
+2018-04-04T02:59:34.490Z - success: ui-kit-preview loaded
+2018-04-04T02:59:34.493Z - success: ui-tree loaded
+2018-04-04T02:59:37.026Z - normal: Initializing project E:\project\JS\WarSimulator
+2018-04-04T02:59:37.036Z - normal: Loading packages
+2018-04-04T02:59:37.047Z - normal: Watching packages
+2018-04-04T02:59:37.069Z - normal: Run Application
+2018-04-04T02:59:39.732Z - success: preview server running at http://localhost:7456
+2018-04-04T02:59:48.330Z - normal: 1.8.1
+2018-04-04T03:01:37.410Z - info: shutdown preview server

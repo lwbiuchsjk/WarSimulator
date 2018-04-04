@@ -46,13 +46,17 @@ var ShowUnitsLayer = cc.Layer.extend({
     damageCalculator : null,    // 在计算其中装载了attackTroops与defenceTroops;
     GO_CAL_FLAG : {},
 
-    ctor : function(battleProp, myFaction, myTroops, enemyTroops) {
+    ctor : function(battleProp, myFaction, myTroops, enemyTroops, movedTroops) {
         this._super();
 
         var defenceFaction = myFaction === armyTemplate.faction.defenceFaction ? myTroops : enemyTroops;
         var attackFaction = defenceFaction === myTroops ? enemyTroops : myTroops;
         // 装载双方troops进入calculator;
         this.damageCalculator = new DamageCalculator(attackFaction, defenceFaction);
+        var layer = this;
+        movedTroops.forEach(function(unit) {
+            layer.damageCalculator.setUnitMoved(unit);
+        });
 
         var globalSize = cc.director.getWinSize();
 
@@ -69,7 +73,6 @@ var ShowUnitsLayer = cc.Layer.extend({
         this.addChild(bg_attack);
         this.addChild(bg_defence);
 
-        this._resetDamageList();
         this._loadUnitElement();
 
         return true;
@@ -415,6 +418,7 @@ var ShowUnitsLayer = cc.Layer.extend({
          * 只要能进入output阶段，那么attack元素一定不为空（即要么交战、要么移动），而只有当FLAG不为MOVE（也就是交战）时，defence元素才不为空。
          * 另外，在该函数中还要讲damageCalList清空，以便从outputLayer调用本layer的onPushLayer时，可以重置界面元素。
          * 在装载attack与defence元素的时候，也要将这两个unit设定为moved。
+         * 在本函数中对movedTroops的reset来操作。
          */
         //this.damageCalList[armyTemplate.status.DEFENCE].setEngage(this.damageCalList[armyTemplate.status.ATTACK]);
         //this.damageCalList[armyTemplate.status.ATTACK].setEngage(this.damageCalList[armyTemplate.status.DEFENCE]);
@@ -441,7 +445,7 @@ var ShowUnitsLayer = cc.Layer.extend({
         }
         fightMsg.driveUnit = attack.serialNumber;
         fightMsg.driveLife = attack.life;
-        fightMsg.status = attack.status;
+        fightMsg.status = attack.status + "_" + attack.position;        // 在这里到入status_position结构，更说明问题。
         fightMsg.round = this.damageCalculator.round;
         webSocket.send(new WebMsg(WebMsg.TYPE_CLASS.FIGHT_PROCESS_DATA, fightMsg.getMsg()).toJSON());
 
@@ -455,7 +459,9 @@ var ShowUnitsLayer = cc.Layer.extend({
     },
 
     reloadLayer : function(attackUnit, defenceUnit) {
-        this.getChildByName(armyTemplate.status.ATTACK + "." + this.moduleNameList.showUnit).setVisible(true);
+        if (attackUnit != null) {
+            this.getChildByName(armyTemplate.status.ATTACK + "." + this.moduleNameList.showUnit).setVisible(true);
+        }
         if (defenceUnit != null) {
             this.getChildByName(armyTemplate.status.DEFENCE + "." + this.moduleNameList.showUnit).setVisible(true);
         }
@@ -725,6 +731,7 @@ var ShowUnitsLayer = cc.Layer.extend({
     onEnter : function() {
         this._super();
         console.log("show units!");
+        // 进入的时候主动调用loadOutput来重写一些有结果的unit。
     },
 
     onExit : function() {

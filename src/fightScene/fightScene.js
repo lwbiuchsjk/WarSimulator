@@ -21,7 +21,8 @@ var FightScene = cc.Scene.extend({
         var self = this;
         this.webSocket = webSocket;
         var myTroops = [],
-            enemyTroops = [];
+            enemyTroops = [],
+            movedTroops = [];
 
         this.webSocket.onmessage = function(msg) {
             var parsedMsg = new WebMsg(msg.data);
@@ -36,7 +37,7 @@ var FightScene = cc.Scene.extend({
                 }
                 case WebMsg.TYPE_CLASS.CHECK_BATTLE_PROP : {
                     var battleMsg = new BattleMsg(parsedMsg.value);
-                    var showUnitsLayer = new ShowUnitsLayer(battleMsg.battleProp, self.playerInfo.faction, myTroops, enemyTroops);
+                    var showUnitsLayer = new ShowUnitsLayer(battleMsg.battleProp, self.playerInfo.faction, myTroops, enemyTroops, movedTroops);
                     showUnitsLayer.setName(self.moduleNameList.showUnitsLayer);
                     self.addChild(showUnitsLayer);
 
@@ -49,6 +50,9 @@ var FightScene = cc.Scene.extend({
                     outputLayer.setName(self.moduleNameList.outputLayer);
                     outputLayer.setVisible(false);
                     self.addChild(outputLayer);
+
+                    outputLayer.loadOutput(null, null, showUnitsLayer.damageCalculator.attackFaction.concat(showUnitsLayer.damageCalculator.defenceFaction));
+
                     break;
                 }
                 case WebMsg.TYPE_CLASS.UNIT_DATA : {
@@ -62,8 +66,7 @@ var FightScene = cc.Scene.extend({
                                 });
                                 console.log("...enemy troops loaded successfully...");
                                 console.log(enemyTroops);
-                            }
-                            if (unitMsg.playerID === self.playerInfo.playerID) {
+                            } else if (unitMsg.playerID === self.playerInfo.playerID) {
                                 unitMsg.troops.forEach(function(rawUnit) {
                                     myTroops.push(new Unit(rawUnit).toUnit());
                                 });
